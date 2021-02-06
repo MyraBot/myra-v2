@@ -2,7 +2,6 @@ package com.myra.dev.marian.management;
 
 import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.commands.administrator.notifications.NotificationsList;
-import com.myra.dev.marian.commands.economy.blackjack.BlackJack;
 import com.myra.dev.marian.commands.general.Reminder;
 import com.myra.dev.marian.commands.general.information.InformationServer;
 import com.myra.dev.marian.commands.help.InviteThanks;
@@ -65,6 +64,9 @@ public class Listeners extends ListenerAdapter {
     private final NotificationsList notificationsList = new NotificationsList();
     private final ReactionRoles reactionRoles = new ReactionRoles();
     private final InformationServer informationServer = new InformationServer();
+
+    private final LevelingListener levelingListener = new LevelingListener();
+    private final Someone someone = new Someone();
     private final EasterEggs easterEggs = new EasterEggs();
     //Guild Member Events
     private final WelcomeListener welcomeListener = new WelcomeListener();
@@ -181,9 +183,9 @@ public class Listeners extends ListenerAdapter {
             if (msg.isWebhookMessage()) return; // Message is a WebHook
             if (event.getAuthor().isBot()) return; // Message is from another bot
 
-            new GlobalChat().onMessage(event);
-            new LevelingListener().onMessage(event);
-            new Someone().onMessage(event);
+            globalChat.onMessage(event);
+            levelingListener.onMessage(event);
+            someone.onMessage(event);
             easterEggs.onMessage(event);
         } catch (Exception exception) {
             new ErrorCatch().catchError(exception, event);
