@@ -10,10 +10,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Random;
-public class LevelingListener   {
+
+public class LevelingListener {
     private final Leveling LEVELING = new Leveling();
 
     public void onMessage(MessageReceivedEvent event) throws Exception {
+        if (!event.isFromGuild()) return; // Ignore direct messages
+
         final Member member = event.getMember();
         final Guild guild = event.getGuild();
         final GetMember db = new Database(guild).getMembers().getMember(member); // Get member from database
