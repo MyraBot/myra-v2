@@ -13,6 +13,7 @@ import com.myra.dev.marian.commands.music.MusicController;
 import com.myra.dev.marian.commands.music.MusicPlay;
 import com.myra.dev.marian.commands.music.MusicVoteListener;
 import com.myra.dev.marian.database.MongoDbUpdate;
+import com.myra.dev.marian.listeners.EasterEggs;
 import com.myra.dev.marian.listeners.GlobalChat;
 import com.myra.dev.marian.listeners.ReactionRoles;
 import com.myra.dev.marian.listeners.Someone;
@@ -59,12 +60,12 @@ public class Listeners extends ListenerAdapter {
     public static boolean ready = false;
     private final static Logger LOGGER = LoggerFactory.getLogger(Listeners.class);
     private final static String onlineInfo = "Bot online!";
-    //Message Events
-    //Guild (TextChannel) Message Events
+    //Combined Message Events (Combines Guild and Private message into 1 event)
     private final GlobalChat globalChat = new GlobalChat();
     private final NotificationsList notificationsList = new NotificationsList();
     private final ReactionRoles reactionRoles = new ReactionRoles();
     private final InformationServer informationServer = new InformationServer();
+    private final EasterEggs easterEggs = new EasterEggs();
     //Guild Member Events
     private final WelcomeListener welcomeListener = new WelcomeListener();
     private final AutoroleAssign autoroleAssign = new AutoroleAssign();
@@ -183,6 +184,7 @@ public class Listeners extends ListenerAdapter {
             new GlobalChat().onMessage(event);
             new LevelingListener().onMessage(event);
             new Someone().onMessage(event);
+            easterEggs.onMessage(event);
         } catch (Exception exception) {
             new ErrorCatch().catchError(exception, event);
         }
