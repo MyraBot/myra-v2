@@ -12,28 +12,19 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class Graphic {
-    // Create Instance
-    private final static Graphic GRAPHIC = new Graphic();
+    private static final Graphic GRAPHIC = new Graphic();
 
-    // Return Instance
     public static Graphic getInstance() {
         return GRAPHIC;
     }
 
-    /**
-     * The enum for the X and Y axis
-     */
-    public static enum axis {
-        X,
-        Y
-    }
 
     /**
      * Enable anti aliasing.
      *
      * @param g The Graphics Object.
      */
-    public void enableAntiAliasing(Graphics g) {
+    public static void enableAntiAliasing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(
                 RenderingHints.KEY_ANTIALIASING,
@@ -54,7 +45,7 @@ public class Graphic {
      * @return Returns the avatar as a BufferedImage.
      * @throws IOException
      */
-    public BufferedImage getAvatar(String avatarUrl) throws IOException {
+    public static BufferedImage getAvatar(String avatarUrl) throws IOException {
         // Read image from URL
         BufferedImage avatar = ImageIO.read(new URL(avatarUrl));
 
@@ -62,14 +53,14 @@ public class Graphic {
         BufferedImage mask = new BufferedImage(avatar.getWidth(), avatar.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g2d = mask.createGraphics();
-        Graphic.getInstance().applyQualityRenderingHints(g2d);
+        applyQualityRenderingHints(g2d);
         g2d.fillOval(0, 0, diameter - 1, diameter - 1);
         g2d.dispose();
 
         BufferedImage result;
         result = new BufferedImage(diameter, diameter, BufferedImage.TYPE_INT_ARGB);
         g2d = result.createGraphics();
-        Graphic.getInstance().applyQualityRenderingHints(g2d);
+        applyQualityRenderingHints(g2d);
         int x = (diameter - avatar.getWidth()) / 2;
         int y = (diameter - avatar.getHeight()) / 2;
         g2d.drawImage(avatar, x, y, null);
@@ -89,18 +80,18 @@ public class Graphic {
      * @param background background you want to draw the image on.
      * @return Returns the coordinates of the middle of the axis you chose.
      */
-    public int textCenter(axis axis, String text, Font font, BufferedImage background) {
+    public static int textCenter(char axis, String text, Font font, BufferedImage background) {
         FontRenderContext fontRenderContext = new FontRenderContext(new AffineTransform(), true, true);
 
         int center = 0;
         // X axis
-        if (axis.equals(Graphic.axis.X)) {
+        if (axis == 'X') {
             int xCenterText = (int) Math.round(font.getStringBounds(text, fontRenderContext).getWidth() / 2);
             int xCenterBackground = background.getWidth() / 2;
             center = xCenterBackground - xCenterText;
         }
         // Y axis
-        else if (axis.equals(Graphic.axis.Y)) {
+        else if (axis == 'Y') {
             int yCenterText = (int) Math.round(font.getStringBounds(text, fontRenderContext).getHeight() / 2);
             int yCenterBackground = background.getHeight() / 2;
             center = yCenterBackground - yCenterText;
@@ -116,16 +107,16 @@ public class Graphic {
      * @param background The background you want to draw the image on.
      * @return Returns the coordinates of the middle of the axis you chose.
      */
-    public int imageCenter(axis axis, BufferedImage image, BufferedImage background) {
+    public static int imageCenter(char axis, BufferedImage image, BufferedImage background) {
         int center = 0;
         //x
-        if (axis.equals(Graphic.axis.X)) {
+        if (axis == 'X') {
             int xCenterText = Math.round(image.getWidth() / 2);
             int xCenterBackground = background.getWidth() / 2;
             center = xCenterBackground - xCenterText;
         }
         //y
-        else if (axis.equals(Graphic.axis.Y)) {
+        else if (axis == 'Y') {
             int yCenterText = Math.round(image.getHeight() / 2);
             int yCenterBackground = background.getHeight() / 2;
             center = yCenterBackground - yCenterText;
@@ -140,7 +131,7 @@ public class Graphic {
      * @param amount How much the image should be scaled.
      * @return Returns a resized BufferedImage.
      */
-    public BufferedImage resizeSquaredImage(BufferedImage image, float amount) {
+    public static BufferedImage resizeSquaredImage(BufferedImage image, float amount) {
         int endSize = Math.round(image.getWidth() * amount);
 
         Image temp = image.getScaledInstance(endSize, endSize, Image.SCALE_SMOOTH);
@@ -161,7 +152,7 @@ public class Graphic {
      * @param y     New height.
      * @return Returns a resized image as a BufferedImage Object.
      */
-    public BufferedImage resizeImage(BufferedImage image, Integer x, Integer y) {
+    public static BufferedImage resizeImage(BufferedImage image, Integer x, Integer y) {
         Image temp = image.getScaledInstance(x, y, Image.SCALE_SMOOTH);
         BufferedImage resizedImage = new BufferedImage(x, y, BufferedImage.TYPE_INT_ARGB);
 
@@ -177,7 +168,7 @@ public class Graphic {
      *
      * @param g2d Graphic2D Object.
      */
-    public void applyQualityRenderingHints(Graphics2D g2d) {
+    public static void applyQualityRenderingHints(Graphics2D g2d) {
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
@@ -194,7 +185,7 @@ public class Graphic {
      * @param img The Image you want to convert.
      * @return Returns a BufferedImage.
      */
-    public BufferedImage toBufferedImage(Image img) {
+    public static BufferedImage toBufferedImage(Image img) {
         if (img instanceof BufferedImage) {
             return (BufferedImage) img;
         }
@@ -211,7 +202,7 @@ public class Graphic {
         return bimage;
     }
 
-    public InputStream toInputStream(BufferedImage image) throws IOException {
+    public static InputStream toInputStream(BufferedImage image) throws IOException {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         outStream.flush();
         outStream.close();

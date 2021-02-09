@@ -106,8 +106,8 @@ public class Rank implements Command {
         //draw avatar
         graphics2D.drawImage(
                 avatar,
-                graphic.imageCenter(Graphic.axis.X, avatar, background) - 125,
-                graphic.imageCenter(Graphic.axis.Y, avatar, background),
+                graphic.imageCenter('X', avatar, background) - 125,
+                graphic.imageCenter('Y', avatar, background),
                 null);
         //draw circle around avatar
         graphics2D.setColor(Color.white);
@@ -117,8 +117,8 @@ public class Rank implements Command {
                 BasicStroke.JOIN_ROUND
         ));
         graphics2D.drawOval(
-                graphic.imageCenter(Graphic.axis.X, avatar, background) - 125,
-                graphic.imageCenter(Graphic.axis.Y, avatar, background),
+                graphic.imageCenter('X', avatar, background) - 125,
+                graphic.imageCenter('Y', avatar, background),
                 avatar.getWidth(), avatar.getHeight()
         );
 // Level
@@ -127,16 +127,16 @@ public class Rank implements Command {
         graphics.setFont(font);
         //draw 'level'
         graphics.drawString("level:",
-                graphic.textCenter(Graphic.axis.X, level, font, background) - 50,
-                graphic.textCenter(Graphic.axis.Y, level, font, background) - 15
+                graphic.textCenter('X', level, font, background) - 50,
+                graphic.textCenter('Y', level, font, background) - 15
         );
         //adjust font size
         font = font.deriveFont(50f);
         graphics.setFont(font);
         //draw level
         graphics.drawString(level,
-                graphic.textCenter(Graphic.axis.X, level, font, background) - 40,
-                graphic.textCenter(Graphic.axis.Y, level, font, background) + 50
+                graphic.textCenter('X', level, font, background) - 40,
+                graphic.textCenter('Y', level, font, background) + 50
         );
 // Xp
         //adjust font size
@@ -144,13 +144,13 @@ public class Rank implements Command {
         graphics.setFont(font);
         //draw 'xp'
         graphics.drawString("xp:",
-                graphic.textCenter(Graphic.axis.X, "xp:", font, background) + 30,
-                graphic.textCenter(Graphic.axis.Y, "xp:", font, background)
+                graphic.textCenter('X', "xp:", font, background) + 30,
+                graphic.textCenter('Y', "xp:", font, background)
         );
         //draw xp
         graphics.drawString(xp + " / " + requiredXpForNextLevel,
-                graphic.textCenter(Graphic.axis.X, "xp:", font, background) + 75,
-                graphic.textCenter(Graphic.axis.Y, "xp:", font, background)
+                graphic.textCenter('X', "xp:", font, background) + 75,
+                graphic.textCenter('Y', "xp:", font, background)
         );
 // Rank
         //adjust font size
@@ -158,13 +158,13 @@ public class Rank implements Command {
         graphics.setFont(font);
         //draw 'rank'
         graphics.drawString("rank:",
-                graphic.textCenter(Graphic.axis.X, "rank:", font, background) + 35,
-                graphic.textCenter(Graphic.axis.Y, "rank:", font, background) + 25
+                graphic.textCenter('X', "rank:", font, background) + 35,
+                graphic.textCenter('Y', "rank:", font, background) + 25
         );
         //draw rank
         graphics.drawString("#" + rank,
-                graphic.textCenter(Graphic.axis.X, "rank:", font, background) + 85,
-                graphic.textCenter(Graphic.axis.Y, "rank:", font, background) + 25
+                graphic.textCenter('X', "rank:", font, background) + 85,
+                graphic.textCenter('Y', "rank:", font, background) + 25
         );
         return background;
     }
