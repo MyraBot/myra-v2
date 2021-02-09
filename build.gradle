@@ -17,7 +17,7 @@ repositories {
 dependencies {
     compile group: 'net.dv8tion', name: 'JDA', version: '4.2.0_228' // JDA
     compile group: 'com.jagrosh', name: 'jda-utilities', version: '3.0.5' // JDA Utilities
-    compile group: 'com.github.M5rian', name: 'JdaCommandHandler', version: '2e911ac016' // JDA Command handler
+    compile group: 'com.github.M5rian', name: 'JdaCommandHandler', version: 'ca15c3be60' // JDA Command handler
     compile group: 'com.sedmelluq', name: 'lavaplayer', version: '1.3.64' // Lava player
     compile group: 'org.mongodb', name: 'mongo-java-driver', version: '3.12.7' // MongoDB Java Driver uber-artifact, legacy driver, mongodb-driver, mongodb-driver-core abd bson  https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3' // Logback classic

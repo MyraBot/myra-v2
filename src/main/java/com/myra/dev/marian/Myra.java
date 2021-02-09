@@ -1,7 +1,7 @@
 package com.myra.dev.marian;
 
-import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.jdaCommandHandler.CommandService;
+import com.github.m5rian.jdaCommandHandler.CommandListener;
+import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandServiceBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.management.Listeners;
@@ -33,17 +33,19 @@ public class Myra {
     private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
 
     public static final EventWaiter WAITER = new EventWaiter();
-    public static final CommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
+    public static final DefaultCommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
             .setDefaultPrefix(Config.prefix)
             .setVariablePrefix(new Prefix())
-            .registerRoles(
-                    new Marian(),
-                    new Administrator(),
-                    new Moderator()
-            )
+            .allowMention()
             .build();
 
     private Myra() throws LoginException, RateLimitedException {
+        COMMAND_SERVICE.registerRoles(
+                new Marian(),
+                new Administrator(),
+                new Moderator()
+        );
+
         DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.createDefault(TOKEN)
                 // Disable unnecessary intents
                 .disableIntents(
@@ -81,7 +83,7 @@ public class Myra {
                 .addEventListeners(
                         WAITER,
                         new Listeners(),
-                        new CommandHandler(COMMAND_SERVICE)
+                        new CommandListener(COMMAND_SERVICE)
                 );
 
         shardManager = jda.build(); // Build JDA
