@@ -15,7 +15,7 @@ public class WelcomeEmbedRender {
         Database db = new Database(guild); // Get database
         // Get variables
         String welcomeColour = db.getNested("welcome").getString("welcomeColour"); // Get colour
-        String welcome = db.getNested("welcome").getString("welcome"); // Get message
+        String welcome = db.getNested("welcome").getString("welcomeEmbedMessage"); // Get message
         // Return message embed
         return new EmbedBuilder()
                 .setAuthor("welcome", null, guild.getIconUrl())
