@@ -57,6 +57,9 @@ public class VoiceCall {
 
         final Integer xp = dbMember.getInteger("xp"); // Get current xp
         dbMember.setInteger("xp", xp + getXp(timeSpoken)); // Update xp
+
+        new Leveling().levelUp(member, null, dbMember, xp); // Check for new level
+
         activeCalls.get(member.getGuild().getId()).remove(member.getId()); // Remove user from active calls
     }
 

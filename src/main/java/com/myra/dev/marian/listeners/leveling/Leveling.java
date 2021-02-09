@@ -5,8 +5,10 @@ import com.myra.dev.marian.database.allMethods.GetMember;
 import com.myra.dev.marian.database.documents.LevelingRolesDocument;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Graphic;
-import com.myra.dev.marian.utilities.Utilities;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
 import org.bson.Document;
 
 import javax.imageio.ImageIO;
@@ -23,42 +25,46 @@ import java.util.List;
 
 public class Leveling {
 
-    public void levelUp(Member member, MessageChannel channel, GetMember db, int xp) throws Exception {
-        int newLevel = level(db.getInteger("xp") + xp); // Get new level
-        if (db.getInteger("level") == newLevel) return; // Current level is equal to new one
+    public void levelUp(Member member, MessageChannel channel, GetMember db, int xp) {
+        try {
+            int newLevel = level(db.getInteger("xp") + xp); // Get new level
+            if (db.getInteger("level") == newLevel) return; // Current level is equal to new one
 
-        // Level up
-        db.setInteger("level", newLevel); // Update level in database
-        final Guild guild = member.getGuild(); // Get guild
-        final Graphic graphic = Graphic.getInstance(); // Get graphics
-        // Level up message
-        final String levelingChannel = new Database(guild).getNested("leveling").getString("channel"); // Get leveling channel
+            // Level up
+            db.setInteger("level", newLevel); // Update level in database
+            final Guild guild = member.getGuild(); // Get guild
+            final Graphic graphic = Graphic.getInstance(); // Get graphics
+            // Level up message
+            final String levelingChannel = new Database(guild).getNested("leveling").getString("channel"); // Get leveling channel
 
-        if (!levelingChannel.equals("not set")) { // Custom level up channel
-            final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
+            if (!levelingChannel.equals("not set")) { // Custom level up channel
+                final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
 
-            if (guild.getTextChannelById(levelingChannel) == null) { // Channel is invalid
-                if (channel != null) {
-                    new Error(null)
-                            .setCommand("rank up")
-                            .setEmoji("\uD83C\uDF96")
-                            .setAvatar(guild.getIconUrl())
-                            .setMessage("The leveling channel is invalid")
-                            .send();
+                if (guild.getTextChannelById(levelingChannel) == null) { // Channel is invalid
+                    if (channel != null) {
+                        new Error(null)
+                                .setCommand("rank up")
+                                .setEmoji("\uD83C\uDF96")
+                                .setAvatar(guild.getIconUrl())
+                                .setMessage("The leveling channel is invalid")
+                                .send();
+                    }
                 }
+                guild.getTextChannelById(levelingChannel).sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
+                        .addFile(graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
+                        .queue();
+            } else if (channel != null) {
+                final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
+                channel
+                        .sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
+                        .addFile(graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
+                        .queue();
             }
-            guild.getTextChannelById(levelingChannel).sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
-                    .addFile(graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
-                    .queue();
-        } else if (channel != null) {
-            final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
-            channel
-                    .sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
-                    .addFile(graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
-                    .queue();
+            // Leveling role
+            levelingRoles(guild, member, db); // Check for leveling roles
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
         }
-        // Leveling role
-        levelingRoles(guild, member, db); // Check for leveling roles
     }
 
     private BufferedImage getLevelUpImage(Member member, int level) throws IOException, FontFormatException {
