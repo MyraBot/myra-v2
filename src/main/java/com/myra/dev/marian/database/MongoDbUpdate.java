@@ -24,9 +24,6 @@ public class MongoDbUpdate {
     private void updateGuilds() {
         // Guild update
         for (Document doc : mongoDb.getCollection("guilds").find()) {
-            // Make backup
-            mongoDb.getCollection("backup").insertOne(doc);
-
             // Get variables
             final Document economyRaw = (Document) doc.get("economy");
             final Document levelingRaw = (Document) doc.get("leveling");
@@ -40,6 +37,7 @@ public class MongoDbUpdate {
                     .append("shop", economyRaw.get("shop", Document.class));
             Document leveling = new Document()
                     .append("boost", levelingRaw.getInteger("boost"))
+                    .append("uniqueRoles", levelingRaw.getBoolean("uniqueRoles"))
                     .append("roles", levelingRaw.get("roles", Document.class))
                     .append("channel", levelingRaw.getString("channel"));
             Document notifications = new Document()

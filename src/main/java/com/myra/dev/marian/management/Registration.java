@@ -31,10 +31,7 @@ import com.myra.dev.marian.commands.leveling.Time;
 import com.myra.dev.marian.commands.leveling.administrator.LevelingChannel;
 import com.myra.dev.marian.commands.leveling.administrator.LevelingHelp;
 import com.myra.dev.marian.commands.leveling.administrator.LevelingSet;
-import com.myra.dev.marian.commands.leveling.administrator.levelingRoles.LevelingRolesAdd;
-import com.myra.dev.marian.commands.leveling.administrator.levelingRoles.LevelingRolesHelp;
-import com.myra.dev.marian.commands.leveling.administrator.levelingRoles.LevelingRolesList;
-import com.myra.dev.marian.commands.leveling.administrator.levelingRoles.LevelingRolesRemove;
+import com.myra.dev.marian.commands.leveling.administrator.levelingRoles.*;
 import com.myra.dev.marian.commands.moderation.Clear;
 import com.myra.dev.marian.commands.moderation.Kick;
 import com.myra.dev.marian.commands.moderation.ModerationHelp;
@@ -119,6 +116,7 @@ public class Registration {
                 new LevelingRolesList(),
                 new LevelingRolesAdd(),
                 new LevelingRolesRemove(),
+                new LevelingRolesUnique(),
 
                 new Rank(),
                 new Background(),

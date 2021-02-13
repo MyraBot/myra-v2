@@ -3,7 +3,6 @@ package com.myra.dev.marian.database.allMethods;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.documents.LevelingRolesDocument;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class GetLeveling {
     }
 
     // Get leveling role
-    public Document getLevelingRoles(String role) {
+    public Document getLevelingRole(String role) {
         // Get guild document
         Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
         // Get leveling document
@@ -55,7 +54,7 @@ public class GetLeveling {
     }
 
     // Add leveling role
-    public void addLevelingRole(int level, String roleToAdd, String roleToRemove) {
+    public void addLevelingRole(int level, String roleToAdd) {
         // Get guild document
         Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
         // Get leveling document
@@ -65,8 +64,7 @@ public class GetLeveling {
         // Create new document
         Document role = new Document()
                 .append("level", level)
-                .append("role", roleToAdd)
-                .append("remove", roleToRemove);
+                .append("role", roleToAdd);
         // Add role to leveling roles document
         levelingRoles.append(roleToAdd, role);
         // Update database
@@ -85,20 +83,5 @@ public class GetLeveling {
         levelingRoles.remove(role);
         // Update database
         mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), guildDocument);
-    }
-
-    public void checkForNewOnesOwO(int level, Member member, Guild guild) {
-        List<LevelingRolesDocument> roles = getLevelingRoles();
-        // check for every role
-        for (LevelingRolesDocument role : roles) {
-            // If ur mini poopie level is to small :c
-            if (level < role.getLevel()) continue;
-            // Add role :3
-            guild.addRoleToMember(member, guild.getRoleById(role.getRole()));
-            // Check for role to remove
-            if (role.getRemove().equals("not set")) continue;
-            // Remove role ._.
-            guild.removeRoleFromMember(member, guild.getRoleById(role.getRole()));
-        }
     }
 }

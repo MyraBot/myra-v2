@@ -56,7 +56,7 @@ public class LevelingSet implements Command {
                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                 .setMessage(member.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`")
                 .send();
-        // CHeck for leveling roles
-        leveling.levelingRoles(ctx.getGuild(), member, new Database(ctx.getGuild()).getMembers().getMember(member));
+        // Check for leveling roles
+        leveling.updateLevelingRoles(ctx.getGuild(), member, new Database(ctx.getGuild()).getMembers().getMember(member));
     }
 }

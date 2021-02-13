@@ -26,6 +26,7 @@ public class MongoDbDocuments {
         // Leveling
         Document levelingDocument = new Document()
                 .append("boost", 1)
+                .append("uniqueRoles", false)
                 .append("roles", new Document())
                 .append("channel", "not set");
         // Notification

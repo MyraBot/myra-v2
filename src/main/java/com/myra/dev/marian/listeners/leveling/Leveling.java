@@ -61,7 +61,7 @@ public class Leveling {
                         .queue();
             }
             // Leveling role
-            levelingRoles(guild, member, db); // Check for leveling roles
+            updateLevelingRoles(guild, member, db); // Check for leveling roles
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
         }
@@ -113,41 +113,39 @@ public class Leveling {
         return background;
     }
 
-    public void levelingRoles(Guild guild, Member member, GetMember dbMember) {
+    public void updateLevelingRoles(Guild guild, Member member, GetMember dbMember) {
         final Document levelingRolesDocument = new Database(guild).getNested("leveling").get("roles", Document.class); // Get leveling roles
 
-
+        // Create list of leveling roles documents
         List<LevelingRolesDocument> levelingRoles = new ArrayList<>();
-
         levelingRolesDocument.keySet().forEach(key -> {
-            Document levelingRole = levelingRolesDocument.get(key, Document.class);
-
-            LevelingRolesDocument rolesDocument = new LevelingRolesDocument(levelingRole);
-            levelingRoles.add(rolesDocument);
+            Document levelingRole = levelingRolesDocument.get(key, Document.class); // Get current value as document
+            LevelingRolesDocument rolesDocument = new LevelingRolesDocument(levelingRole); // Create new leveling roles document
+            levelingRoles.add(rolesDocument); // Add document
         });
-
         Collections.sort(levelingRoles, Comparator.comparing(LevelingRolesDocument::getLevel)); // Sort list by level
 
-
+        final Boolean unique = new Database(guild).getNested("leveling").getBoolean("uniqueRoles");
+        final int level = dbMember.getInteger("level");
         // For each role
-        levelingRoles.forEach(levelingRole -> {
+        for (int i = levelingRoles.size() - 1; i > 0; i--) {
+            final LevelingRolesDocument levelingRole = levelingRoles.get(i); // Get current leveling role
+            if (level >= levelingRole.getLevel()) {
+                final Role role = guild.getRoleById(levelingRole.getRole()); // Get leveling role to add
+                guild.addRoleToMember(member, role).queue(); // Add role to member
 
-            final Role role = guild.getRoleById(levelingRole.getRole()); // Get leveling role to add
-            final String removeRaw = levelingRole.getRemove(); // Get role to remove
-
-            // Member can get the role
-            if (dbMember.getInteger("level") >= levelingRole.getLevel()) {
-                guild.addRoleToMember(member, role).queue();  // Add role
-
-                // Remove role
-                if (!removeRaw.equals("not set")) {
-                    final Role remove = guild.getRoleById(removeRaw); // Get role
-                    guild.removeRoleFromMember(member, remove).queue(); // Remove role
+                // Member is only allowed to have one role at the same time
+                if (unique) {
+                    // Remove all other roles
+                    for (int rest = i; rest > 0; rest--) {
+                        final Role removeRole = guild.getRoleById(levelingRoles.get(rest).getRole()); // Get leveling role to remove
+                        guild.removeRoleFromMember(member, removeRole).queue(); // Remove role form member
+                    }
                 }
+
+                break;
             }
-            // Member can't get the role
-            else guild.removeRoleFromMember(member, role).queue(); // Remove role
-        });
+        }
     }
 
     //return level

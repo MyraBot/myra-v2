@@ -20,35 +20,23 @@ import java.util.List;
 public class LevelingRolesList implements Command {
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Get leveling roles
-        List<LevelingRolesDocument> rolesList = new Database(ctx.getGuild()).getLeveling().getLevelingRoles();
-        // Sort roles
-        Collections.sort(rolesList, Comparator.comparing(LevelingRolesDocument::getLevel).reversed());
-        // Add all roles to String
-        StringBuilder roles = new StringBuilder();
+        List<LevelingRolesDocument> rolesList = new Database(ctx.getGuild()).getLeveling().getLevelingRoles(); // Get leveling roles
+        rolesList.sort(Comparator.comparing(LevelingRolesDocument::getLevel).reversed()); // Sort roles
+        StringBuilder roles = new StringBuilder(); // Add all roles to String
 
         // If list is empty
-        if (rolesList.isEmpty()) {
-            roles = new StringBuilder("none");
-        }
+        if (rolesList.isEmpty()) roles = new StringBuilder("none");
         // Else add all leveling roles to the String
         else {
             for (LevelingRolesDocument role : rolesList) {
-                // When there is a role to remove
-                if (!role.getRemove().equals("not set")) {
-                    roles.append("• level: `").append(role.getLevel()).append("` add: ").append(ctx.getGuild().getRoleById(role.getRole()).getAsMention()).append(" remove:").append(ctx.getGuild().getRoleById(role.getRemove()).getAsMention() + "\n");
-                    continue;
-                }
-                // When there is only a role to add
                 roles.append("• level: `").append(role.getLevel()).append("` add: ").append(ctx.getGuild().getRoleById(role.getRole()).getAsMention() + "\n");
             }
         }
+
         // Create embed
         EmbedBuilder levelingRoles = new EmbedBuilder()
                 .setAuthor("leveling roles list", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(utilities.blue)
+                .setColor(Utilities.getUtils().blue)
                 .setDescription(roles.toString());
         ctx.getChannel().sendMessage(levelingRoles.build()).queue();
     }
