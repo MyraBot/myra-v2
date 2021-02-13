@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import org.json.JSONObject;
 
@@ -340,20 +339,15 @@ public class Utilities {
      * @return Returns a role as a Role Object.
      */
     public Role getRole(MessageReceivedEvent event, String providedRole, String command, String commandEmoji) {
-        Role role;
+        Role role = null;
 
         // Role given by id or mention
         if (providedRole.startsWith("<@&") || providedRole.matches("\\d+")) {
             role = event.getGuild().getRoleById(providedRole.replaceAll("[<@&>]", ""));
         }
         // Role given by name
-        else if (!event.getGuild().getRolesByName(providedRole, true).isEmpty()) {
+        if (!event.getGuild().getRolesByName(providedRole, true).isEmpty()) {
             role = event.getGuild().getRolesByName(providedRole, true).get(0);
-        }
-        // No role given
-        else {
-            error(event.getTextChannel(), command, commandEmoji, "No role given", "Please enter a id or mention a role", event.getAuthor().getEffectiveAvatarUrl());
-            return null;
         }
 
         // No role found
