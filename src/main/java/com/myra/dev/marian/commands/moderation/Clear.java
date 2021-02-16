@@ -9,6 +9,7 @@ import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 
 @CommandSubscribe(
         name = "clear",
@@ -36,17 +37,22 @@ public class Clear implements Command {
         // Delete messages
         try {
             // Retrieve messages
-            ctx.getChannel().getHistory().retrievePast(Integer.parseInt(ctx.getArguments()[0]) + 1).queue(messages -> {
-                messages.forEach(message -> ctx.getChannel().deleteMessageById(message.getIdLong()).queue()); // Delete messages
+            final int amount = Integer.parseInt(ctx.getArguments()[0]); // Get amount of messages to delete
+            ctx.getChannel().getHistory().retrievePast(amount).queue(messages -> {
+                // Delete message
+                for (Message message : messages) {
+                    ctx.getChannel().deleteMessageById(message.getIdLong()).queue(); // Delete message
+                }
+
+                // Success information
+                Success success = new Success(ctx.getEvent())
+                        .setCommand("clear")
+                        .setEmoji("\uD83D\uDDD1")
+                        .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                        .setMessage("`" + ctx.getArguments()[0] + "` messages have been deleted")
+                        .delete();
+                success.send();
             });
-            // Success information
-            Success success = new Success(ctx.getEvent())
-                    .setCommand("clear")
-                    .setEmoji("\uD83D\uDDD1")
-                    .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setMessage("`" + ctx.getArguments()[0] + "` messages have been deleted")
-                    .delete();
-            success.send();
         }
         // Errors
         catch (Exception exception) {
