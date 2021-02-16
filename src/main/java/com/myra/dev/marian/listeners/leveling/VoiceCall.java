@@ -55,10 +55,11 @@ public class VoiceCall {
         final Long timeSpoken = System.currentTimeMillis() - activeCalls.get(member.getGuild().getId()).get(member.getId()); // Get voice call time from the active voice call
         dbMember.setLong("voiceCallTime", currentSpokenTime + timeSpoken); // Update voice call time
 
-        final Integer xp = dbMember.getInteger("xp"); // Get current xp
-        dbMember.setInteger("xp", xp + getXp(timeSpoken)); // Update xp
+        final int xp = dbMember.getInteger("xp"); // Get current xp
+        final int newXp = getXp(timeSpoken); // Get gathered xp
+        dbMember.setInteger("xp", xp + newXp); // Update xp
 
-        new Leveling().levelUp(member, null, dbMember, xp); // Check for new level
+        new Leveling().levelUp(member, null, dbMember, newXp); // Check for new level
 
         activeCalls.get(member.getGuild().getId()).remove(member.getId()); // Remove user from active calls
     }
