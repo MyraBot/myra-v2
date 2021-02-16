@@ -50,7 +50,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -77,27 +79,34 @@ public class Listeners extends ListenerAdapter {
 
     private void online() {
         final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picture
-        // Set her status to online
-        Myra.shardManager.getShards().forEach(bot -> {
-            bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
-        });
-        // Get a random one
-        Utilities.TIMER.scheduleAtFixedRate(() -> {
-            InputStream profilePicture = null; // Create variable for new profile picture
-            while (profilePicture == null) { // If profile picture is still null
-                profilePicture = this.getClass().getClassLoader().getResourceAsStream("profilePicture" + new Random().nextInt(9) + ".png");
-            }
-            // Change profile
-            InputStream finalProfilePicture = profilePicture;
-            Myra.shardManager.getShards().forEach(bot -> {
+
+        // Update status
+        final int guilds = Myra.shardManager.getGuilds().size(); // Get amount of guilds
+        Myra.shardManager.setActivity(Activity.listening(String.format("~help │  %s servers", guilds))); // Update server count
+
+        // Loop
+        Utilities.TIMER.scheduleAtFixedRate(this::updateBot, start, 60, TimeUnit.MINUTES);
+    }
+
+    private void updateBot() {
+        try {
+            final int guilds = Myra.shardManager.getGuilds().size(); // Get amount of guilds
+
+            final int random = new Random().nextInt(37 - 1) + 1; // Get random number [min number = 0; max number = 37]
+            final String baseUrl = "https://raw.githubusercontent.com/MyraBot/resources/main/profile/"; // Get base url
+            final InputStream inputStream = new URL(baseUrl + random + ".png").openStream(); // Get url as input stream
+
+            Myra.shardManager.getShards().forEach(shard -> {
                 try {
-                    bot.getPresence().setActivity(Activity.listening("~help │ " + bot.getGuilds().size() + " servers")); // Change status
-                    bot.getSelfUser().getManager().setAvatar(Icon.from(finalProfilePicture)).queue(); // Change profile picture
-                } catch (Exception e) {
+                    shard.getPresence().setActivity(Activity.listening(String.format("~help │  %s servers", guilds))); // Change status|
+                    shard.getSelfUser().getManager().setAvatar(Icon.from(inputStream)).queue(); // Change profile picture
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
-        }, start, 60, TimeUnit.MINUTES);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //JDA Events
