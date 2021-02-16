@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import java.util.Collections;
+
 import static com.mongodb.client.model.Filters.eq;
 
 public class MongoDbUpdate {
@@ -106,9 +108,10 @@ public class MongoDbUpdate {
 
                     .append("logChannel", doc.getString("logChannel"))
                     .append("globalChat", doc.get("globalChat"))
-                    .append("autoRole", doc.getString("autoRole"))
+                    .append("autoRole", doc.getList("autoRole", String.class))
                     .append("muteRole", doc.getString("muteRole"))
                     .append("musicVoting", doc.getBoolean("musicVoting"))
+
                     .append("welcome", welcome)
                     .append("commands", commands)
                     .append("listeners", listeners);

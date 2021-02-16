@@ -44,7 +44,6 @@ import com.myra.dev.marian.commands.moderation.mute.MuteRole;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.moderation.mute.Unmute;
 import com.myra.dev.marian.commands.music.*;
-import com.myra.dev.marian.listeners.autorole.AutoRoleSet;
 import com.myra.dev.marian.listeners.suggestions.SubmitSuggestion;
 import com.myra.dev.marian.listeners.suggestions.SuggestionsChannel;
 import com.myra.dev.marian.listeners.suggestions.SuggestionsHelp;
@@ -178,7 +177,7 @@ public class Registration {
                 new MusicClearQueue(),
                 new MusicController(),
                 // Autorole
-                new AutoRoleSet(),
+                new AutoRole(),
                 // Notification
                 new NotificationsHelp(),
                 new NotificationsChannel(),

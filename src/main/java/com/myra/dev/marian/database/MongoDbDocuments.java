@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -97,7 +98,7 @@ public class MongoDbDocuments {
                 .append("logChannel", "not set")
                 .append("globalChat", null)
                 .append("reactionRoles", new ArrayList<>())
-                .append("autoRole", "not set")
+                .append("autoRole", new ArrayList<>())
                 .append("muteRole", "not set")
                 .append("welcome", welcome)
                 .append("commands", commands)

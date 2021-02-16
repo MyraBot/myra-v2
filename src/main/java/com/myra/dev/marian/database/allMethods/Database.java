@@ -56,6 +56,14 @@ public class Database {
         return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getList(key, clazz);
     }
 
+    public <T> void setList(String key, List<T> value) {
+        // Replace value
+        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.replace(key, value);
+        // Update database
+        mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument);
+    }
+
     //replace String
     public void setString(String key, String value) {
         // Replace value
