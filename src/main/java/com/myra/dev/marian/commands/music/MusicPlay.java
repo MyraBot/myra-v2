@@ -29,8 +29,6 @@ public class MusicPlay implements Command {
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
         //command usage
         if (ctx.getArguments().length == 0) {
             EmbedBuilder usage = new EmbedBuilder()
@@ -42,16 +40,7 @@ public class MusicPlay implements Command {
             return;
         }
 // Add a audio track to the queue
-        // If bot isn't in a voice channel
-        if (!ctx.getGuild().getSelfMember().getVoiceState().inVoiceChannel()) {
-            new Error(ctx.getEvent())
-                    .setCommand("play")
-                    .setEmoji("\uD83D\uDCBF")
-                    .setMessage("I need to be in a voice channel")
-                    .send();
-            return;
-        }
-        // If author isn't in a voice channel yet
+        // Member isn't in a voice call
         if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
             new Error(ctx.getEvent())
                     .setCommand("play")
@@ -60,8 +49,8 @@ public class MusicPlay implements Command {
                     .send();
             return;
         }
-        // If author isn't in the same voice channel as bot
-        if (!ctx.getEvent().getMember().getVoiceState().getChannel().equals(ctx.getGuild().getSelfMember().getVoiceState().getChannel())) {
+        // Member isn't in the same voice call as bot
+        if (ctx.getGuild().getAudioManager().isConnected() && !ctx.getEvent().getMember().getVoiceState().getChannel().equals(ctx.getGuild().getAudioManager().getConnectedChannel())) {
             new Error(ctx.getEvent())
                     .setCommand("play")
                     .setEmoji("\uD83D\uDCBF")
@@ -69,15 +58,16 @@ public class MusicPlay implements Command {
                     .send();
             return;
         }
+
+        if (!ctx.getGuild().getAudioManager().isConnected())
+            ctx.getGuild().getAudioManager().openAudioConnection(ctx.getMember().getVoiceState().getChannel());
         // Get song
-        String song = utilities.getString(ctx.getArguments());
+        String song = ctx.getArgumentsRaw();
         // If song is url
         try {
             new URL(song).toURI();
-            // Delete message
-            ctx.getEvent().getMessage().delete().queue();
-            // Play song
-            PlayerManager.getInstance().loadAndPlay(ctx.getGuild(),ctx.getChannel(), song, ctx.getAuthor().getEffectiveAvatarUrl(), null);
+            ctx.getEvent().getMessage().delete().queue(); // Delete message
+            PlayerManager.getInstance().loadAndPlay(ctx.getGuild(), ctx.getChannel(), song, ctx.getAuthor().getEffectiveAvatarUrl(), null); // Play song
         }
         // If song is given by name
         catch (Exception e) {
@@ -95,7 +85,7 @@ public class MusicPlay implements Command {
             // Song menu
             EmbedBuilder songs = new EmbedBuilder()
                     .setAuthor("choose a song", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.blue)
+                    .setColor(Utilities.getUtils().blue)
                     .addField("\uD83D\uDD0D │ track 1\uFE0F\u20E3", videos.get(0).getJSONObject("snippet").getString("title"), false)
                     .addField("\uD83D\uDD0D │ track 2\uFE0F\u20E3", videos.get(1).getJSONObject("snippet").getString("title"), false)
                     .addField("\uD83D\uDD0D │ track 3\uFE0F\u20E3", videos.get(2).getJSONObject("snippet").getString("title"), false)
@@ -132,7 +122,7 @@ public class MusicPlay implements Command {
             //get video url
             String videoUrl = "https://www.youtube.com/watch?v=" + song.getJSONObject("id").getString("videoId");
             //play song
-            PlayerManager.getInstance().loadAndPlay(event.getGuild() ,event.getChannel(), videoUrl, event.getUser().getEffectiveAvatarUrl(), "https://img.youtube.com/vi/" + song.getJSONObject("id").getString("videoId") + "/maxresdefault.jpg");
+            PlayerManager.getInstance().loadAndPlay(event.getGuild(), event.getChannel(), videoUrl, event.getUser().getEffectiveAvatarUrl(), "https://img.youtube.com/vi/" + song.getJSONObject("id").getString("videoId") + "/maxresdefault.jpg");
             //delete track selector
             event.getChannel().deleteMessageById(event.getMessageId()).queue();
         }
