@@ -2,13 +2,15 @@ package com.myra.dev.marian.commands.general.information;
 
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -16,90 +18,41 @@ import java.util.List;
 
 @CommandSubscribe(
         name = "information user",
-        aliases = {"info user", "information member", "info member"}
+        aliases = {"info user"}
 )
 public class InformationUser implements Command {
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        //get utilities
-        Utilities utilities = Utilities.getUtils();
-        Member user;
-        String roleNames = "*this user has no roles*";
-// Get user
-        //yourself information
-        if (ctx.getArguments().length == 0) {
-            user = ctx.getEvent().getMember();
-        }
-        //get given member
-        else {
-            //if user isn't in the guild
-            if (utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64") == null) {
-                new Error(ctx.getEvent())
-                        .setCommand("information user")
-                        .setEmoji("\uD83D\uDC64")
-                        .setMessage("No user found")
-                        .send();
-                return;
-            }
-            user = utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "information user", "\uD83D\uDC64");
+        final Utilities utilities = Utilities.getUtils(); // Get utilities
+        User user = ctx.getAuthor(); // Get author as member
+
+        // Another member is given
+        if (ctx.getArguments().length > 0) {
+            final User providedUser = Utilities.getUtils().getUser(ctx.getEvent(), ctx.getArgumentsRaw(), "information member", "\uD83D\uDC6A");
+            if (providedUser == null) return;
+            user = providedUser;
         }
 
-        List<Role> roles = user.getRoles();
-        if (!roles.isEmpty()) {
-            roleNames = "";
-            //role names
-            for (Role role : roles) {
-                roleNames += role.getAsMention() + " ";
-            }
-        }
-        //users status
-        OnlineStatus status = user.getOnlineStatus();
-        String StringStatus = status.toString()
-                .replace("OFFLINE", utilities.getEmote("offline").getAsMention() + " │ offline")
-                .replace("IDLE", utilities.getEmote("idle").getAsMention() + " │ idle")
-                .replace("DO_NOT_DISTURB", utilities.getEmote("doNotDisturb").getAsMention() + " │ do not distrub")
-                .replace("ONLINE", utilities.getEmote("online").getAsMention() + " │ online");
-        //badges
-        String badges = getBadges(user, utilities);
-        /**
-         * build embed
-         */
-        EmbedBuilder userInformation = new EmbedBuilder()
-                .setAuthor(" │ " + user.getUser().getAsTag(), user.getUser().getEffectiveAvatarUrl(), user.getUser().getEffectiveAvatarUrl())
-                .setThumbnail(user.getUser().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().getMemberRoleColour(user))
-                .addField("\uD83C\uDF9F │ user id", user.getId(), true);
-        //nickname
-        if (user.getNickname() != null)
-            userInformation.addField("\uD83D\uDD75 │ nickname", "\uD83C\uDFF7 │ " + user.getNickname(), true);
-        //status
-        userInformation.addField("\uD83D\uDCE1 │ status", StringStatus, false);
-        //activity
-        if (!user.getActivities().isEmpty())
-            userInformation.addField("\uD83C\uDFB2 │ activity", user.getActivities().get(0).getName(), true);
-        //badges
-        if (!badges.equals("")) userInformation.addField("\uD83C\uDFC5 │ badges", badges, false);
-        //join time
-        userInformation.addField("\uD83D\uDCC5 │ joined server", user.getTimeJoined().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy , hh:mm")), true);
-        //booster
-        if (ctx.getGuild().getBoosters().contains(user))
-            userInformation.addField(utilities.getEmote("nitroBoost") + " │ is boosting", "since: " + user.getTimeBoosted().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy , hh:mm")), true);
-        //permissions
-        if (user.hasPermission(Permission.ADMINISTRATOR)) {
-            userInformation.addField("\uD83D\uDD11 │ Permissions", "Administrator", false);
-        } else if (user.hasPermission(Permission.VIEW_AUDIT_LOGS)) {
-            userInformation.addField("\uD83D\uDD11 │ Permissions", "Moderator", false);
-        }
-        userInformation.addField("\uD83D\uDCC3 │ roles", roleNames, false);
 
-        ctx.getChannel().sendMessage(userInformation.build()).queue();
+        final String baseUrl = "https://discord.com/users/"; // Get base url for user
+        EmbedBuilder userInfo = new EmbedBuilder()
+                .setAuthor(user.getAsTag(), baseUrl + user.getId(), user.getEffectiveAvatarUrl())
+                .setColor(Utilities.getUtils().blue)
+                .setThumbnail(user.getEffectiveAvatarUrl())
+                .addField("\uD83C\uDF9F │ User id", user.getId(), true);
+
+        // Badges
+        final String badges = getBadges(user, utilities); // Get badges
+        if (!badges.equals("")) userInfo.addField("\uD83C\uDFC5 │ badges", badges, false);
+
+        ctx.getChannel().sendMessage(userInfo.build()).queue();
     }
 
-    //return badges
-    private String getBadges(Member user, Utilities utilities) {
+
+    private String getBadges(User user, Utilities utilities) {
         final Utilities utils = Utilities.getUtils();
-        final String flags = user.getUser().getFlags().toString();
+        final String flags = user.getFlags().toString();
 
         String badges = "";
         //bug hunter
