@@ -27,7 +27,7 @@ public class Leveling {
 
     public void levelUp(Member member, MessageChannel channel, GetMember db, int xp) {
         try {
-            int newLevel = level(db.getInteger("xp") + xp); // Get new level
+            final int newLevel = level(db.getInteger("xp") + xp); // Get new level
             if (db.getInteger("level") == newLevel) return; // Current level is equal to new one
 
             // Level up
@@ -130,6 +130,7 @@ public class Leveling {
         // For each role
         for (int i = levelingRoles.size() - 1; i > 0; i--) {
             final LevelingRolesDocument levelingRole = levelingRoles.get(i); // Get current leveling role
+            // Member's level is higher or equal to required one
             if (level >= levelingRole.getLevel()) {
                 final Role role = guild.getRoleById(levelingRole.getRole()); // Get leveling role to add
                 guild.addRoleToMember(member, role).queue(); // Add role to member
@@ -137,13 +138,13 @@ public class Leveling {
                 // Member is only allowed to have one role at the same time
                 if (unique) {
                     // Remove all other roles
-                    for (int rest = i; rest > 0; rest--) {
+                    for (int rest = i - 1; rest > 0; rest--) {
                         final Role removeRole = guild.getRoleById(levelingRoles.get(rest).getRole()); // Get leveling role to remove
                         guild.removeRoleFromMember(member, removeRole).queue(); // Remove role form member
                     }
+                    break; // Stop loop
                 }
 
-                break;
             }
         }
     }
