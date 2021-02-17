@@ -200,18 +200,21 @@ public class Utilities {
      * Get member from message.
      *
      * @param event        The GuildMessageReceivedEvent
-     * @param providedUser The String the user should be in
+     * @param providedMember The String the user should be in
      * @param command      The command name
      * @param commandEmoji The emoji of the command
      * @return
      */
-    public Member getMember(MessageReceivedEvent event, String providedUser, String command, String commandEmoji) {
+    public Member getMember(MessageReceivedEvent event, String providedMember, String command, String commandEmoji) {
         Member member = null;
 
         // Member given by id or mention
-        if (providedUser.startsWith("<@") || providedUser.matches("\\d+")) {
-            member = event.getGuild().retrieveMemberById(providedUser.replaceAll("[<@!>]", "")).complete();
+        if (providedMember.startsWith("<@") || providedMember.matches("\\d+")) {
+            member = event.getGuild().retrieveMemberById(providedMember.replaceAll("[<@!>]", "")).complete();
+        } else if (!event.getGuild().getMembersByEffectiveName(providedMember, true).isEmpty()) {
+            member = event.getGuild().getMembersByEffectiveName(providedMember, true).get(0);
         }
+
         // No role given
         if (member == null) {
             error(event.getTextChannel(), command, commandEmoji, "No user given", "Please enter the id or mention the user", event.getAuthor().getEffectiveAvatarUrl());
@@ -237,11 +240,11 @@ public class Utilities {
         if (providedUser.startsWith("<@") || providedUser.matches("\\d+")) {
             user = jda.retrieveUserById(providedUser.replaceAll("[<@!>]", "")).complete();
         }
-        // Role given by name
+        // User given by name
         else if (!jda.getUsersByName(providedUser, true).isEmpty()) {
             user = jda.getUsersByName(providedUser, true).get(0);
         }
-        // No role given
+        // No User given
         else {
             error(event.getChannel(), command, commandEmoji, "No user given", "Please enter the id or mention the user", event.getAuthor().getEffectiveAvatarUrl());
             return null;
