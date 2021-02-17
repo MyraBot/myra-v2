@@ -16,7 +16,7 @@ import com.myra.dev.marian.listeners.EasterEggs;
 import com.myra.dev.marian.listeners.GlobalChat;
 import com.myra.dev.marian.listeners.ReactionRoles;
 import com.myra.dev.marian.listeners.Someone;
-import com.myra.dev.marian.listeners.autorole.AutoroleAssign;
+import com.myra.dev.marian.listeners.AutoroleAssign;
 import com.myra.dev.marian.listeners.leveling.LevelingListener;
 import com.myra.dev.marian.listeners.leveling.VoiceCall;
 import com.myra.dev.marian.listeners.notifications.TwitchNotification;
