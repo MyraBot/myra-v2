@@ -20,10 +20,7 @@ import com.myra.dev.marian.commands.fun.WouldYouRather;
 import com.myra.dev.marian.commands.general.Avatar;
 import com.myra.dev.marian.commands.general.Calculate;
 import com.myra.dev.marian.commands.general.Reminder;
-import com.myra.dev.marian.commands.general.information.InformationBot;
-import com.myra.dev.marian.commands.general.information.InformationHelp;
-import com.myra.dev.marian.commands.general.information.InformationServer;
-import com.myra.dev.marian.commands.general.information.InformationUser;
+import com.myra.dev.marian.commands.general.information.*;
 import com.myra.dev.marian.commands.help.*;
 import com.myra.dev.marian.commands.leveling.Background;
 import com.myra.dev.marian.commands.leveling.Rank;
@@ -100,6 +97,7 @@ public class Registration {
                 new InformationHelp(),
                 new InformationServer(),
                 new InformationUser(),
+                new InformationMember(),
                 new InformationBot(),
 
                 new Avatar(),
