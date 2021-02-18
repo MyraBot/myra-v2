@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @CommandSubscribe(
         name = "blackjack",
@@ -45,21 +46,36 @@ public class BlackJack implements Command {
 
         // Search user in games
         if (games.containsKey(ctx.getGuild().getId())) { // Only check for user if guild is already in the hashmap
-            for (String message : games.get(ctx.getGuild().getId()).keySet()) {
-                final boolean isPlaying = games.get(ctx.getGuild()).get(message).getPlayers().stream().anyMatch(player -> player.getPlayer() == ctx.getMember());
-                if (isPlaying) {
-                    ctx.getChannel().retrieveMessageById(message).queue(msg -> {
-                        // If user has already started a game
-                        new Error(ctx.getEvent())
-                                .setCommand("blackjack")
-                                .setEmoji("\uD83C\uDCCF")
-                                .setLink(msg.getJumpUrl())
-                                .setMessage(String.format("Finish the %s you started first", Utilities.getUtils().hyperlink("game", msg.getJumpUrl())))
-                                .send();
+            AtomicBoolean isPlaying = new AtomicBoolean(false);
+            games.get(ctx.getGuild().getId()).values().forEach(game -> {
+                if (game.getPlayers().stream().anyMatch(player -> player.getPlayer().getIdLong() == ctx.getMember().getIdLong())) {
+                    games.get(ctx.getGuild().getId()).forEach((key, value) -> {
+                        if (value == game) {
+                            isPlaying.set(true);
+                            ctx.getChannel().retrieveMessageById(key).queue(
+                                    success -> {
+                                        new Error(ctx.getEvent())
+                                                .setCommand("blackjack")
+                                                .setEmoji("\uD83C\uDCCF")
+                                                .setLink(success.getJumpUrl())
+                                                .setMessage(String.format("Finish the %s you started first", Utilities.getUtils().hyperlink("game", success.getJumpUrl())))
+                                                .send();
+                                    },
+                                    error -> {
+                                        games.get(ctx.getGuild().getId()).remove(key);
+                                        new Error(ctx.getEvent())
+                                                .setCommand("blackjack")
+                                                .setEmoji("\uD83C\uDCCF")
+                                                .setMessage("Ur cheaty... You kinda hacked the system, but all fine. I'll cancel your current running game")
+                                                .send();
+                                    }
+                            );
+
+                        }
                     });
-                    return;
                 }
-            }
+            });
+            if (isPlaying.get()) return;
         }
         // Invalid amount of money
         if (!ctx.getArguments()[0].matches("\\d+")) {
