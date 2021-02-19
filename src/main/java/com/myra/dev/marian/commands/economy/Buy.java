@@ -117,7 +117,7 @@ public class Buy implements Command {
                                             .send();
                                     ctx.getGuild().removeRoleFromMember(ctx.getMember(), role).queue(); // Remove role
 
-                                    db.getMembers().getMember(ctx.getMember()).setBalance(balance - sellPrice);
+                                    db.getMembers().getMember(ctx.getMember()).setBalance(balance + sellPrice);
                                 }
                                 // Cancel selling role
                                 else if (response.equalsIgnoreCase("no") || response.equalsIgnoreCase("nope")) {
