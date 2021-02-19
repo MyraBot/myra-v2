@@ -57,7 +57,9 @@ public class Roles {
 
         List<User> guildOwners = new ArrayList<>();
         for (Guild guild : event.getJDA().getGuilds()) {
-            guildOwners.add(guild.getOwner().getUser());
+            guild.retrieveOwner().queue(owner -> {
+                guildOwners.add(owner.getUser());
+            });
         }
         Iterator<Member> iterator = event.getGuild().getMembers().iterator();
         while (iterator.hasNext()) {
