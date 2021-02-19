@@ -2,6 +2,7 @@ package com.myra.dev.marian.utilities;
 
 public class Config {
     public final static String prefix = "~";
+    public final static String PREMIUM = "⋆";
     public final static String marian = "639544573114187797";
     public final static String myra = "718444709445632122";
     public final static String marianServer = "642809436515074053";
