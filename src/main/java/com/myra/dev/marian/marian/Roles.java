@@ -16,35 +16,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Roles {
-
-    public void jdaReady(ReadyEvent event) {
-        // Get my server
-        final Guild guild = event.getJDA().getGuildById(Config.marianServer);
-
-        unicorn(guild);
-        //categories(guild);
-    }
-
-    /**
-     * Change every 15 minutes the colour of the unicorn role.
-     *
-     * @param marianServer My discord server.
-     */
-    private void unicorn(Guild marianServer) {
-        // Get role role
-        final Role role = marianServer.getRoleById("774210055259947008");
-        Utilities.TIMER.scheduleAtFixedRate(() -> {
-            // Get high saturated colour
-            Random random = new Random();
-            final float hue = random.nextFloat();
-            final float saturation = 0.5f; //1.0 for brilliant, 0.0 for dull
-            final float brightness = 1.0f; //1.0 for brighter, 0.0 for black
-            Color colour = Color.getHSBColor(hue, saturation, brightness);
-            // Update colour
-            role.getManager().setColor(colour).queue();
-        }, 60, 60, TimeUnit.MINUTES);
-    }
-
     /**
      * Give all members, who use Myra in their server the 'exclusive' role on my discord server.
      *

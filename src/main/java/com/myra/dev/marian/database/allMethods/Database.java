@@ -23,12 +23,34 @@ public class Database {
     /**
      * methods
      */
-    //get String
+
+    // Get String
     public String getString(String key) {
         return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getString(key);
     }
 
-    //get boolean
+    //replace String
+    public void setString(String key, String value) {
+        // Replace value
+        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.replace(key, value);
+        // Update database
+        mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument);
+    }
+
+    public Long getLong(String key) {
+        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getLong(key);
+    }
+
+    public void setLong(String key, Long value) {
+        // Replace value
+        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.replace(key, value);
+        // Update database
+        mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument);
+    }
+
+    // Get boolean
     public boolean getBoolean(String key) {
         return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getBoolean(key);
     }
@@ -65,15 +87,6 @@ public class Database {
     }
 
     //replace String
-    public void setString(String key, String value) {
-        // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
-        updatedDocument.replace(key, value);
-        // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument);
-    }
-
-    //replace String
     public void set(String key, Object value) {
         // Replace value
         Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
@@ -81,6 +94,7 @@ public class Database {
         // Update database
         mongoDb.getCollection("guilds").findOneAndReplace(mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(), updatedDocument);
     }
+
 
     //get nested object
     public Nested getNested(String nested) {

@@ -11,6 +11,7 @@ import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.music.MusicController;
 import com.myra.dev.marian.commands.music.MusicPlay;
 import com.myra.dev.marian.commands.music.MusicVoteListener;
+import com.myra.dev.marian.commands.premium.Unicorn;
 import com.myra.dev.marian.database.MongoDbUpdate;
 import com.myra.dev.marian.listeners.EasterEggs;
 import com.myra.dev.marian.listeners.GlobalChat;
@@ -21,6 +22,7 @@ import com.myra.dev.marian.listeners.leveling.LevelingListener;
 import com.myra.dev.marian.listeners.leveling.VoiceCall;
 import com.myra.dev.marian.listeners.notifications.TwitchNotification;
 import com.myra.dev.marian.listeners.notifications.YouTubeNotification;
+import com.myra.dev.marian.listeners.premium.UnicornChange;
 import com.myra.dev.marian.listeners.welcome.WelcomeListener;
 import com.myra.dev.marian.marian.Roles;
 import com.myra.dev.marian.marian.ServerTracking;
@@ -131,10 +133,8 @@ public class Listeners extends ListenerAdapter {
             new YouTubeNotification().start(event);// Start twitch notifications
             new TwitchNotification().jdaReady(event); // Start youtube notifications
 
-            // Marian's Discord role
-            new Roles().jdaReady(event);
-
             online(); // Change profile picture and activity
+            new UnicornChange().change();
             LOGGER.info(onlineInfo);
             Config.startUp = System.currentTimeMillis();
         } catch (Exception e) {

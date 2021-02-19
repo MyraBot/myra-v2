@@ -41,6 +41,7 @@ import com.myra.dev.marian.commands.moderation.mute.MuteRole;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.moderation.mute.Unmute;
 import com.myra.dev.marian.commands.music.*;
+import com.myra.dev.marian.commands.premium.Unicorn;
 import com.myra.dev.marian.listeners.suggestions.SubmitSuggestion;
 import com.myra.dev.marian.listeners.suggestions.SuggestionsChannel;
 import com.myra.dev.marian.listeners.suggestions.SuggestionsHelp;
@@ -72,6 +73,8 @@ public class Registration {
                 new GetInvite(),
                 new Dashboard(),
                 new Shutdown(),
+                // Premium
+                new Unicorn(),
                 // Administrator
                 new Prefix(),
                 new Say(),

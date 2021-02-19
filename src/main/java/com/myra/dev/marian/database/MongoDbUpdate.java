@@ -9,8 +9,6 @@ import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.Collections;
-
 import static com.mongodb.client.model.Filters.eq;
 
 public class MongoDbUpdate {
@@ -19,7 +17,7 @@ public class MongoDbUpdate {
 
     //update Database
     public void update(ReadyEvent event) throws Exception {
-        //updateGuilds();
+        updateGuilds();
         //updateUsers();
     }
 
@@ -99,6 +97,7 @@ public class MongoDbUpdate {
                     .append("guildName", doc.getString("guildName"))
                     .append("prefix", doc.getString("prefix"))
                     .append("premium", doc.getBoolean("premium"))
+                    .append("unicorn", doc.getLong("unicorn"))
 
                     .append("economy", economy)
                     .append("leveling", leveling)

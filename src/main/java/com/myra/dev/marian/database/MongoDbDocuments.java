@@ -91,15 +91,19 @@ public class MongoDbDocuments {
                 .append("guildName", guild.getName())
                 .append("prefix", Config.prefix)
                 .append("premium", false)
+                .append("unicorn", null)
+
                 .append("economy", economy)
                 .append("leveling", levelingDocument)
                 .append("notifications", notificationsDocument)
+
                 .append("suggestionsChannel", "not set")
                 .append("logChannel", "not set")
                 .append("globalChat", null)
                 .append("reactionRoles", new ArrayList<>())
                 .append("autoRole", new ArrayList<>())
                 .append("muteRole", "not set")
+
                 .append("welcome", welcome)
                 .append("commands", commands)
                 .append("listeners", listeners);
