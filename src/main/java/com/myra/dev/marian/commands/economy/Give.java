@@ -49,7 +49,7 @@ public class Give implements Command {
         // Don't have enough money
         if (dbAuthor.getInteger("balance") < amount) {
             new Error(ctx.getEvent())
-                    .setMessage("give")
+                    .setCommand("give")
                     .setEmoji("\uD83D\uDCB8")
                     .setMessage("You don't have enough money")
                     .send();
