@@ -1,9 +1,9 @@
 package com.myra.dev.marian.utilities.EmbedMessage;
 
+import com.myra.dev.marian.utilities.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,10 +60,20 @@ public class CommandUsage {
                 .setFooter(this.information);
         // Add all commands usages
         usages.forEach(usage -> {
-            embed.addField(
-                    String.format("`%s`", usage.getUsage()),
-                    String.format("%s │ %s", usage.getEmoji(), usage.getDescription()),
-                    false);
+            // Command is premium command
+            if (usage.getPremiumStatus()) {
+                embed.addField(
+                        String.format("`%s`  %s", usage.getUsage(), Config.PREMIUM),
+                        String.format("%s │ %s", usage.getEmoji(), usage.getDescription()),
+                        false);
+            }
+            // Command is normal command
+            else {
+                embed.addField(
+                        String.format("`%s`", usage.getUsage()),
+                        String.format("%s │ %s", usage.getEmoji(), usage.getDescription()),
+                        false);
+            }
         });
 
         // Send command usage

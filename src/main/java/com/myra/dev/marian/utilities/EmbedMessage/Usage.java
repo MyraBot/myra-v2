@@ -4,6 +4,7 @@ public class Usage {
     private String usage;
     private String description;
     private String emoji;
+    private boolean isPremium = false;
 
     public Usage setUsage(String usage) {
         this.usage = usage;
@@ -20,6 +21,11 @@ public class Usage {
         return this;
     }
 
+    public Usage isPremium() {
+        this.isPremium = true;
+        return this;
+    }
+
     public String getUsage() {
         return this.usage;
     }
@@ -30,5 +36,9 @@ public class Usage {
 
     public String getEmoji() {
         return this.emoji;
+    }
+
+    public boolean getPremiumStatus() {
+        return this.isPremium;
     }
 }
