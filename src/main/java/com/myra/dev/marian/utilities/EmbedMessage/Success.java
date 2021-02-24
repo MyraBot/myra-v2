@@ -2,11 +2,8 @@ package com.myra.dev.marian.utilities.EmbedMessage;
 
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +18,7 @@ public class Success {
     private String command;
     private String emoji;
     private String avatar;
+    private String hyperLink = null;
     private int colour;
     private String message;
     private String image;
@@ -41,6 +39,11 @@ public class Success {
 
     public Success setAvatar(String avatar) {
         this.avatar = avatar;
+        return this;
+    }
+
+    public Success setHyperLink(String hyperLink) {
+        this.hyperLink = hyperLink;
         return this;
     }
 
@@ -98,7 +101,7 @@ public class Success {
         else avatar = this.avatar;
 
         EmbedBuilder embed = new EmbedBuilder()
-                .setAuthor(command, null, avatar)
+                .setAuthor(command, this.hyperLink, avatar)
                 .setColor(colour)
                 .setDescription(message);
 
