@@ -2,6 +2,7 @@ package com.myra.dev.marian.utilities.EmbedMessage;
 
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -23,7 +24,7 @@ public class Error {
     private String message;
     private String footer;
     private boolean timestamp;
-    private TextChannel channel;
+    private MessageChannel channel;
 
     public Error setCommand(String command) {
         this.command = command;
@@ -70,7 +71,7 @@ public class Error {
         return this;
     }
 
-    public Error setChannel(TextChannel channel) {
+    public Error setChannel(MessageChannel channel) {
         this.channel = channel;
         return this;
     }
