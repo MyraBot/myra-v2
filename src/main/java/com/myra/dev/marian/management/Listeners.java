@@ -166,7 +166,6 @@ public class Listeners extends ListenerAdapter {
             informationServer.guildMessageReactionAddEvent(event);
             // Music
             new MusicVoteListener().onVoteAdd(event);
-            new MusicPlay().guildMessageReactionAddEvent(event);
             new MusicController().guildMessageReactionAddEvent(event);
         } catch (Exception e) {
             e.printStackTrace();
