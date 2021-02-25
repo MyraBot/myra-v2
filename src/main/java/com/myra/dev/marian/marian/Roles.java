@@ -1,19 +1,14 @@
 package com.myra.dev.marian.marian;
 
 import com.myra.dev.marian.utilities.Config;
-import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class Roles {
     /**
@@ -22,9 +17,9 @@ public class Roles {
      * @param event The GuildMemberJoinEvent event.
      */
     public void exclusive(GuildMemberJoinEvent event) {
-        if (!event.getGuild().getId().equals(Config.marianServer)) return; // Only run in my server
+        final Guild server = event.getJDA().getGuildById(Config.marianServer);
         // Get exclusive role
-        final Role exclusiveRole = event.getJDA().getGuildById(Config.marianServer).getRoleById("775646920646983690");
+        final Role exclusiveRole = server.getRoleById("775646920646983690");
 
         List<User> guildOwners = new ArrayList<>();
         for (Guild guild : event.getJDA().getGuilds()) {
@@ -32,22 +27,22 @@ public class Roles {
                 guildOwners.add(owner.getUser());
             });
         }
-        Iterator<Member> iterator = event.getGuild().getMembers().iterator();
-        while (iterator.hasNext()) {
-            final Member member = iterator.next();
-            // Member is owner of a server
-            if (guildOwners.contains(member.getUser())) {
-                if (member.getRoles().contains(exclusiveRole)) continue; // Member already owns the exclusive role
-                event.getGuild().addRoleToMember(member, exclusiveRole).queue(); // Add exclusive role to member
-            }
-            // Member isn't owner of a server
-            else {
-                // Member has the exclusive role
-                if (member.getRoles().contains(exclusiveRole)) {
-                    event.getGuild().removeRoleFromMember(member, exclusiveRole).queue(); // Remove exclusive role from member
+
+        server.loadMembers().onSuccess(members -> {
+            for (Member member : members) {
+                // Member is owner of a server
+                if (guildOwners.contains(member.getUser())) {
+                    server.addRoleToMember(member, exclusiveRole).queue(); // Add exclusive role to member
+                }
+                // Member isn't owner of a server
+                else {
+                    // Member has the exclusive role
+                    if (member.getRoles().contains(exclusiveRole)) {
+                        server.removeRoleFromMember(member, exclusiveRole).queue(); // Remove exclusive role from member
+                    }
                 }
             }
-        }
+        }); // Load members
     }
 
 /*    private final List<String> special = Arrays.asList(
