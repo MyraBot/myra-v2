@@ -6,11 +6,15 @@ import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.myra.dev.marian.utilities.APIs.spotify.Playlist;
+import com.myra.dev.marian.utilities.APIs.spotify.Spotify;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -59,15 +63,35 @@ public class MusicPlay implements Command {
             ctx.getGuild().getAudioManager().openAudioConnection(ctx.getMember().getVoiceState().getChannel());
         // Get song
         String song = ctx.getArgumentsRaw();
+
         // If song is url
-        try {
-            new URL(song).toURI();
-            ctx.getEvent().getMessage().delete().queue(); // Delete message
-            PlayerManager.getInstance().loadAndPlay(ctx.getEvent().getMessage(), song, true); // Play song
+        if (isValidURL(song)) {
+            // Link is spotify playlist
+            if (song.startsWith("https://open.spotify.com/playlist/")) {
+                final String playlistId = song.split("/")[4].split("\\?")[0]; // Get playlist id
+                final Playlist playlist = Spotify.getApi().getPlaylist(playlistId); // Get playlist
+                PlayerManager.getInstance().loadAndPlay(ctx.getEvent().getMessage(), null, true, playlist); // Add playlist to queue
+            }
+            // Link is from other audio source
+            else {
+                PlayerManager.getInstance().loadAndPlay(ctx.getEvent().getMessage(), song, true, null); // Play song
+            }
         }
         // If song is given by name
-        catch (Exception e) {
-            PlayerManager.getInstance().loadAndPlay(ctx.getEvent().getMessage(), String.format("ytsearch:%s", song), false); // Play song
+        else {
+            PlayerManager.getInstance().loadAndPlay(ctx.getEvent().getMessage(), String.format("ytsearch:%s", song), false, null); // Play song}
+        }
+
+        ctx.getEvent().getMessage().delete().queue(); // Delete message
+    }
+
+    private boolean isValidURL(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }
