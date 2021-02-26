@@ -36,13 +36,10 @@ public class Roles {
                 }
                 // Member isn't owner of a server
                 else {
-                    // Member has the exclusive role
-                    if (member.getRoles().contains(exclusiveRole)) {
-                        server.removeRoleFromMember(member, exclusiveRole).queue(); // Remove exclusive role from member
-                    }
+                    server.removeRoleFromMember(member, exclusiveRole).queue(); // Remove exclusive role from member
                 }
             }
-        }); // Load members
+        });
     }
 
 /*    private final List<String> special = Arrays.asList(
