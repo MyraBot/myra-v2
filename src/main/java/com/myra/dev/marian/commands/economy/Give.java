@@ -35,7 +35,7 @@ public class Give implements Command {
         // Amount of money aren't digits
         if (!ctx.getArguments()[1].matches("\\d+")) {
             new Error(ctx.getEvent())
-                    .setMessage("give")
+                    .setCommand("give")
                     .setEmoji("\uD83D\uDCB8")
                     .setMessage("Invalid number")
                     .send();
