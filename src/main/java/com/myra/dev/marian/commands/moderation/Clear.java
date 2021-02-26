@@ -9,7 +9,6 @@ import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 
 @CommandSubscribe(
         name = "clear",
@@ -29,30 +28,36 @@ public class Clear implements Command {
             ctx.getChannel().sendMessage(embed.build()).queue();
             return;
         }
-// Clear messages
+
+        // Clear queue command is meant
+        if (ctx.getArgumentsRaw().equalsIgnoreCase("queue")) return;
+
         // If amount isn't a number
         if (!ctx.getArguments()[0].matches("\\d+")) {
-            //TODO ERROR
+            new Error(ctx.getEvent())
+                    .setCommand("clear")
+                    .setEmoji("\uD83D\uDDD1")
+                    .setMessage("Dude, this isn't a number")
+                    .send();
         }
         // Delete messages
         try {
             // Retrieve messages
             final int amount = Integer.parseInt(ctx.getArguments()[0]); // Get amount of messages to delete
-            ctx.getChannel().getHistory().retrievePast(amount).queue(messages -> {
-                // Delete message
-                for (Message message : messages) {
-                    ctx.getChannel().deleteMessageById(message.getIdLong()).queue(); // Delete message
-                }
 
-                // Success information
-                Success success = new Success(ctx.getEvent())
-                        .setCommand("clear")
-                        .setEmoji("\uD83D\uDDD1")
-                        .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                        .setMessage("`" + ctx.getArguments()[0] + "` messages have been deleted")
-                        .delete();
-                success.send();
-            });
+            // Delete messages
+            ctx.getChannel().getIterableHistory()
+                    .takeAsync(amount)
+                    .thenAccept(messages -> ctx.getChannel().purgeMessages(messages));
+
+            // Success information
+            new Success(ctx.getEvent())
+                    .setCommand("clear")
+                    .setEmoji("\uD83D\uDDD1")
+                    .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setMessage("`" + ctx.getArguments()[0] + "` messages have been deleted")
+                    .delete()
+                    .send();
         }
         // Errors
         catch (Exception exception) {
