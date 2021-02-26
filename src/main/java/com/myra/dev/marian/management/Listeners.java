@@ -9,15 +9,9 @@ import com.myra.dev.marian.commands.moderation.ban.Tempban;
 import com.myra.dev.marian.commands.moderation.mute.MutePermissions;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.music.MusicController;
-import com.myra.dev.marian.commands.music.MusicPlay;
 import com.myra.dev.marian.commands.music.MusicVoteListener;
-import com.myra.dev.marian.commands.premium.Unicorn;
 import com.myra.dev.marian.database.MongoDbUpdate;
-import com.myra.dev.marian.listeners.EasterEggs;
-import com.myra.dev.marian.listeners.GlobalChat;
-import com.myra.dev.marian.listeners.ReactionRoles;
-import com.myra.dev.marian.listeners.Someone;
-import com.myra.dev.marian.listeners.AutoroleAssign;
+import com.myra.dev.marian.listeners.*;
 import com.myra.dev.marian.listeners.leveling.LevelingListener;
 import com.myra.dev.marian.listeners.leveling.VoiceCall;
 import com.myra.dev.marian.listeners.notifications.TwitchNotification;
@@ -26,6 +20,7 @@ import com.myra.dev.marian.listeners.premium.UnicornChange;
 import com.myra.dev.marian.listeners.welcome.WelcomeListener;
 import com.myra.dev.marian.marian.Roles;
 import com.myra.dev.marian.marian.ServerTracking;
+import com.myra.dev.marian.utilities.APIs.spotify.Spotify;
 import com.myra.dev.marian.utilities.APIs.Twitch;
 import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.Utilities;
@@ -129,6 +124,7 @@ public class Listeners extends ListenerAdapter {
             new Tempmute().onReady(event); // Load mutes
 
             new Twitch().jdaReady(event); // Get access token for twitch
+            Spotify.getApi().generateAuthToken();
             // Start notifications
             new YouTubeNotification().start(event);// Start twitch notifications
             new TwitchNotification().jdaReady(event); // Start youtube notifications
