@@ -1,4 +1,4 @@
-package com.myra.dev.marian.commands.leveling.administrator.levelingRoles;
+package com.myra.dev.marian.commands.administrator.leveling.levelingRoles;
 
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.database.documents.LevelingRolesDocument;
@@ -8,7 +8,6 @@ import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 

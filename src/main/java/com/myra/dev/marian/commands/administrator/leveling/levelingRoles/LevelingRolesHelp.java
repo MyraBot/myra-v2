@@ -1,4 +1,4 @@
-package com.myra.dev.marian.commands.leveling.administrator.levelingRoles;
+package com.myra.dev.marian.commands.administrator.leveling.levelingRoles;
 
 
 import com.github.m5rian.jdaCommandHandler.Command;

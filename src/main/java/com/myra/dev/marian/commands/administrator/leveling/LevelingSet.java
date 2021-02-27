@@ -1,4 +1,4 @@
-package com.myra.dev.marian.commands.leveling.administrator;
+package com.myra.dev.marian.commands.administrator.leveling;
 
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.listeners.leveling.Leveling;
