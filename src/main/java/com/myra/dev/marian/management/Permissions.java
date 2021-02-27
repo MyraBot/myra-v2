@@ -1,4 +1,4 @@
-package com.myra.dev.marian.utilities;
+package com.myra.dev.marian.management;
 
 public enum Permissions {
     MARIAN,

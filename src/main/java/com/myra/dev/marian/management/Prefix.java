@@ -1,4 +1,4 @@
-package com.myra.dev.marian.utilities;
+package com.myra.dev.marian.management;
 
 import com.github.m5rian.jdaCommandHandler.VariablePrefix;
 import com.myra.dev.marian.database.allMethods.Database;
