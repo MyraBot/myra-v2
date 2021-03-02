@@ -43,10 +43,6 @@ public class LoadingBar {
             final float section = this.barLength / this.maxValue; // Split in parts
             final float atSection = currentValue * section; // Get part
 
-            System.out.println(section);
-            System.out.println("at section: " + atSection);
-            System.out.println("current value: " + currentValue);
-
             // Generate empty loading bar
             StringBuilder emptyBar = new StringBuilder();
             for (int i = 0; i < this.barLength; i++) {
