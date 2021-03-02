@@ -1,11 +1,11 @@
 package com.myra.dev.marian.commands.help;
 
-import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.CommandEmbeds;
-import com.myra.dev.marian.utilities.Config;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.utilities.CommandEmbeds;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -25,17 +25,22 @@ public class Help implements Command {
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        //check for no arguments
+        // Check for no arguments
         if (ctx.getArguments().length != 0) return;
-        Utilities utilities = Utilities.getUtils();
+
+        final Utilities utilities = Utilities.getUtils();
+        final String name = ctx.getEvent().getJDA().getSelfUser().getName(); // Get name of bot
         //embed
         EmbedBuilder help = new EmbedBuilder()
                 .setAuthor("help", null, ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue)
                 .setThumbnail(ctx.getEvent().getJDA().getSelfUser().getEffectiveAvatarUrl())
-                .setDescription(ctx.getEvent().getJDA().getSelfUser().getName() + " is a multi-purpose bot featuring moderation, music, welcoming and much more!\n" +
-                        "If you found a bug please report it in " + utilities.hyperlink("my Discord server", "https://discord.gg/nG4uKuB") + " or write me (" + ctx.getEvent().getJDA().getUserById(Config.marian).getAsTag() + ") a direct message. For suggestions join the server as well!\n" +
-                        "A moderator role must have `View Audit Log` permission to use the moderation commands. To see all available commands type in `" + ctx.getPrefix() + "commands`")
+                .setDescription("Hey there!" +
+                        "\nI'm a multi-purpose bot featuring a lot of customizable commands!" +
+                        "\nIf you found a bug, make sure to report it using the `" + ctx.getPrefix() + "report` command. You have a cool idea? Great! We're open to suggestions, suggest it using the command `" + ctx.getPrefix() + "feature`" +
+                        "\n" +
+                        "\nIn order to use the administrator commands, you need `Administrator` permissions. A moderator needs `View Audit logs` permissions." +
+                        "\nTo see all availible commands, type in `" + ctx.getPrefix() + "commands`")
                 .addField("**\u2709\uFE0F │ invite**", utilities.hyperlink("Invite ", "https://discord.gg/nG4uKuB") + ctx.getEvent().getJDA().getSelfUser().getName() + " to your server", true)
                 .addField("**\u26A0\uFE0F │ support**", utilities.hyperlink("Report ", "https://discord.gg/nG4uKuB") + " bugs and get " + utilities.hyperlink("help ", "https://discord.gg/nG4uKuB"), true);
         ctx.getChannel().sendMessage(help.build()).queue(message -> {
