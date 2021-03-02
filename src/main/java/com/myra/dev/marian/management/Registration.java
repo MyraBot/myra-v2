@@ -4,6 +4,7 @@ import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.commands.Leaderboard;
 import com.myra.dev.marian.commands.administrator.*;
 import com.myra.dev.marian.commands.administrator.Prefix;
+import com.myra.dev.marian.commands.administrator.leveling.LevelingToggle;
 import com.myra.dev.marian.commands.administrator.notifications.*;
 import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesAdd;
 import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesHelp;
@@ -109,8 +110,8 @@ public class Registration {
                 new Reminder(),
                 // Leveling
                 new LevelingHelp(),
+                new LevelingToggle(),
                 new LevelingSet(),
-
                 new LevelingChannel(),
 
                 new LevelingRolesHelp(),

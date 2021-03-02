@@ -89,7 +89,8 @@ public class MongoDbUpdate {
                     .append("welcomeEmbed", listenersRaw.getBoolean("welcomeEmbed"))
                     .append("welcomeDirectMessage", listenersRaw.getBoolean("welcomeDirectMessage"))
 
-                    .append("suggestions", listenersRaw.getBoolean("suggestions"));
+                    .append("suggestions", listenersRaw.getBoolean("suggestions"))
+                    .append("leveling", listenersRaw.getBoolean("leveling"));
 
             //create Document
             Document updatedDocument = new Document()

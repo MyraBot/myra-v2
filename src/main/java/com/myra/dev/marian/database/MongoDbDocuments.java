@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -76,7 +75,9 @@ public class MongoDbDocuments {
                 .append("welcomeEmbed", false)
                 .append("welcomeDirectMessage", false)
                 // Suggestions
-                .append("suggestions", false);
+                .append("suggestions", false)
+                // Leveling
+                .append("leveling", true);
         //welcome
         Document welcome = new Document()
                 .append("welcomeChannel", "not set")

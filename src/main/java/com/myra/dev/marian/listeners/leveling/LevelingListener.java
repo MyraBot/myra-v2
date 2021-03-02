@@ -16,6 +16,7 @@ public class LevelingListener {
 
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.isFromGuild()) return; // Ignore direct messages
+        if (!new Database(event.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
 
         final Member member = event.getMember();
         final Guild guild = event.getGuild();
