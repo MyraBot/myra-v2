@@ -17,7 +17,7 @@ public class Twitch {
     public static String accessToken;
 
     // Get access token
-    public void jdaReady(ReadyEvent event) throws IOException {
+    public void jdaReady() throws IOException {
         //form parameters
         RequestBody body = new FormBody.Builder()
                 .add("scope", "channel_read")
@@ -73,6 +73,13 @@ public class Twitch {
         }
 
         JSONObject jsonChannel = new JSONObject(channelOutput); // Create Json object
+
+        // Error
+        if (jsonChannel.has("errors") || !jsonChannel.has("data")) {
+            System.out.println("Error accrued!!!");
+            System.out.println(jsonChannel);
+            return null;
+        }
 
         // If no channel found
         if (jsonChannel.getJSONArray("data").length() == 0) return null;
