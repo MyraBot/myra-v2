@@ -222,12 +222,12 @@ public class PlayerManager {
                     }
                 }
 
-                System.out.println("I'm here, I'm there");
                 // Success message
                 Success success = new Success(null)
                         .setCommand("play")
                         .setAvatar(message.getAuthor().getEffectiveAvatarUrl())
                         .setHyperLink(playlist.getUrl())
+                        .setThumbnail(playlist.getThumbnail())
                         .setMessage(String.format("Added **%s** songs to the queue from the playlist %s", loaded.get(), Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", playlist.getUrl())))
                         .setFooter("by " + playlist.getOwner().getName());
                 if (failed.get() > 0)
