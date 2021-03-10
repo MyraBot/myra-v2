@@ -5,7 +5,8 @@ import com.myra.dev.marian.database.managers.NotificationsTwitchManager;
 import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.GoogleYouTube;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.utilities.APIs.youTube.YouTube;
 import com.myra.dev.marian.utilities.MessageReaction;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
@@ -94,7 +95,7 @@ public class NotificationsList implements Command {
             else {
                 String youtubers = "";
                 for (String youtuberId : NotificationsYoutubeManager.getInstance().getYoutubers(event.getGuild())) {
-                    final String channelName = GoogleYouTube.getInstance().getChannelById(youtuberId).getString("title"); // Get youtube channel name
+                    final String channelName = YouTube.getApi().getChannel(youtuberId).getChannelName(); // Get youtube channel name
                     youtubers += "• " + channelName + "\n";
                 }
                 list.addField("\\\uD83D\uDCFA │ YouTubers:", youtubers, false);

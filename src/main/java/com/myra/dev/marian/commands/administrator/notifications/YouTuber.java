@@ -1,14 +1,14 @@
 package com.myra.dev.marian.commands.administrator.notifications;
 
-import com.github.m5rian.jdaCommandHandler.Channel;
-import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.GoogleYouTube;
-import com.myra.dev.marian.utilities.permissions.Administrator;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
+import com.myra.dev.marian.utilities.APIs.youTube.Channel;
+import com.myra.dev.marian.utilities.APIs.youTube.YouTube;
 import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.json.JSONObject;
 
 import java.net.URL;
 
@@ -16,7 +16,7 @@ import java.net.URL;
         name = "notification youtube",
         aliases = {"notifications youtube", "notification youtuber", "notifications youtuber"},
         requires = Administrator.class,
-        channel = Channel.GUILD
+        channel = com.github.m5rian.jdaCommandHandler.Channel.GUILD
 )
 public class YouTuber implements Command {
     @Override
@@ -33,39 +33,35 @@ public class YouTuber implements Command {
 
         final String channel = Utilities.getUtils().getString(ctx.getArguments()); // Get the arguments as one string
 
-        JSONObject channelInformation;
+        Channel c;
         // Get channel by url
         try {
             new URL(channel); // Try making a url out of it
-            channelInformation = GoogleYouTube.getInstance().getChannelByUrl(channel); // Get channel information
+            c = YouTube.getApi().getChannel(channel.split("/")[4]); // Get channel information
         }
         // Get channel by name
         catch (Exception e) {
-            channelInformation = GoogleYouTube.getInstance().getChannelByName(channel); // Get channel information
+            c = YouTube.getApi().searchChannelByName(channel).get(0); // Get channel information
         }
 
-        final String channelId = channelInformation.getString("channelId"); // get channel id
-        final String channelName = channelInformation.getString("title"); // Get youtube channel name
-        final String profilePicture = channelInformation.getJSONObject("thumbnails").getJSONObject("medium").getString("url"); // Get profile picture
-
         // Remove youtuber
-        if (NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()).contains(channelId)) {
-            NotificationsYoutubeManager.getInstance().removeYoutuber(channelId, ctx.getGuild()); // Remove youtuber from notifications list
+        if (NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()).contains(c.getId())) {
+            NotificationsYoutubeManager.getInstance().removeYoutuber(c.getId(), ctx.getGuild()); // Remove youtuber from notifications list
 
             EmbedBuilder success = new EmbedBuilder()
-                    .setAuthor("notification youtube", "https://www.youtube.com/channel/" + channelId, ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setAuthor("notification youtube", "https://www.youtube.com/channel/" + c.getId(), ctx.getAuthor().getEffectiveAvatarUrl())
                     .setColor(Utilities.getUtils().blue)
-                    .setThumbnail(profilePicture)
-                    .setDescription("Removed **" + channelName + "** from the notifications");
+                    .setThumbnail(c.getAvatar())
+                    .setDescription("Removed **" + c.getChannelName() + "** from the notifications");
             ctx.getChannel().sendMessage(success.build()).queue(); // Send success message
         } else {
-            NotificationsYoutubeManager.getInstance().addYoutuber(channelId, ctx.getGuild()); // Add youtuber to notifications list
+            NotificationsYoutubeManager.getInstance().addYoutuber(c.getId(), ctx.getGuild()); // Add youtuber to notifications list
 
             EmbedBuilder success = new EmbedBuilder()
-                    .setAuthor("notification youtube", "https://www.youtube.com/channel/" + channelId, ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setAuthor("notification youtube", "https://www.youtube.com/channel/" + c.getId(), ctx.getAuthor().getEffectiveAvatarUrl())
                     .setColor(Utilities.getUtils().blue)
-                    .setThumbnail(profilePicture)
-                    .setDescription("Added **" + channelName + "** to the notifications");
+                    .setThumbnail(c.getAvatar())
+                    .setDescription("Added **" + c.getChannelName() + "** to the notifications");
             ctx.getChannel().sendMessage(success.build()).queue(); // Send success message
         }
     }
