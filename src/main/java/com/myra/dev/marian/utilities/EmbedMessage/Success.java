@@ -21,6 +21,7 @@ public class Success {
     private String hyperLink = null;
     private int colour;
     private String message;
+    private String thumbnail;
     private String image;
     private String footer;
     private boolean timestamp;
@@ -59,6 +60,11 @@ public class Success {
 
     public Success appendMessage(String message) {
         this.message += message;
+        return this;
+    }
+
+    public Success setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
         return this;
     }
 
@@ -105,6 +111,7 @@ public class Success {
                 .setColor(colour)
                 .setDescription(message);
 
+        if (this.thumbnail != null) embed.setThumbnail(this.thumbnail);
         if (this.image != null) embed.setImage(this.image);
         if (this.footer != null) embed.setFooter(this.footer);
         if (this.timestamp) embed.setTimestamp(Instant.now());
@@ -130,6 +137,7 @@ public class Success {
                 .setColor(colour)
                 .setDescription(message);
 
+        if (this.thumbnail != null) embed.setThumbnail(this.thumbnail);
         if (this.image != null) embed.setImage(this.image);
         if (this.footer != null) embed.setFooter(this.footer);
         if (this.timestamp) embed.setTimestamp(Instant.now());
