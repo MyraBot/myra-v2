@@ -11,7 +11,7 @@ public class ServerTracking {
         EmbedBuilder server = new EmbedBuilder()
                 .setTitle("I joined " + event.getGuild().getName())
                 .setThumbnail(event.getGuild().getIconUrl())
-                .addField("\uD83D\uDC51 │ owner ", event.getGuild().getOwner().getUser().getName(), true)
+                .addField("\uD83D\uDC51 │ owner ", event.getGuild().getOwner().getUser().getAsTag(), true)
                 .addField("\uD83C\uDF9F │ guild id ", event.getGuild().getId(), true)
                 .addField("\uD83E\uDDEE │ member count", Integer.toString(event.getGuild().getMemberCount()), true)
                 .setTimestamp(event.getGuild().getMember(event.getJDA().getSelfUser()).getTimeJoined().toInstant());
