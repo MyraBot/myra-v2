@@ -1,11 +1,10 @@
 package com.myra.dev.marian.utilities.EmbedMessage;
 
+import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 import java.time.Instant;
 
@@ -86,8 +85,11 @@ public class Error {
         else colour = this.colour;
 
         String avatar;
-        if (this.avatar == null) avatar = e.getAuthor().getEffectiveAvatarUrl();
-        else avatar = this.avatar;
+        if (this.avatar == null) {
+            // Runs if no event is set and the icon url is a default one
+            if (this.e == null) avatar = Config.DEFAULT_AVATAR;
+            else avatar = e.getAuthor().getEffectiveAvatarUrl();
+        } else avatar = this.avatar;
 
         EmbedBuilder embed = new EmbedBuilder()
                 .setAuthor(this.command, this.link, avatar)
