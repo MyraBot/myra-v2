@@ -45,29 +45,42 @@ public class Spotify {
     }
 
     public Playlist getPlaylist(String playlistId) {
-        Request request = new Request.Builder()
+        Request playlistRequest = new Request.Builder()
                 .addHeader("Authorization", "Bearer " + this.accessToken)
                 .url("https://api.spotify.com/v1/playlists/" + playlistId)
                 .build();
-
         // Execute call
-        JSONObject json = null;
-        try (Response response = Utilities.HTTP_CLIENT.newCall(request).execute()) {
+        JSONObject jsonPlaylist = null;
+        try (Response response = Utilities.HTTP_CLIENT.newCall(playlistRequest).execute()) {
             final String output = response.body().string(); // Fetch response
-            json = new JSONObject(output); // Parse to JSONObject
+            jsonPlaylist = new JSONObject(output); // Parse to JSONObject
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        final String playlistName = json.getString("name"); // Get playlist name
-        final String playlistUrl = json.getJSONObject("external_urls").getString("spotify"); // Get playlist url
+        Request playlistThumbnailRequest = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + this.accessToken)
+                .url("https://api.spotify.com/v1/playlists/" + playlistId + "/images")
+                .build();
+        // Execute call
+        JSONArray jsonPlaylistThumbnail = null;
+        try (Response response = Utilities.HTTP_CLIENT.newCall(playlistThumbnailRequest).execute()) {
+            final String output = response.body().string(); // Fetch response
+            jsonPlaylistThumbnail = new JSONArray(output); // Parse to JSONObject
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        final String ownerName = json.getJSONObject("owner").getString("display_name"); // Get author name
-        final String ownerId = json.getJSONObject("owner").getString("id"); // Get author id
-        final String ownerUrl = json.getJSONObject("owner").getJSONObject("external_urls").getString("spotify"); // Get author url
+        final String playlistName = jsonPlaylist.getString("name"); // Get playlist name
+        final String playlistUrl = jsonPlaylist.getJSONObject("external_urls").getString("spotify"); // Get playlist url
+        final String playlistThumbnail = jsonPlaylistThumbnail.getJSONObject(0).getString("url"); // Get playlist thumbnail url
+
+        final String ownerName = jsonPlaylist.getJSONObject("owner").getString("display_name"); // Get author name
+        final String ownerId = jsonPlaylist.getJSONObject("owner").getString("id"); // Get author id
+        final String ownerUrl = jsonPlaylist.getJSONObject("owner").getJSONObject("external_urls").getString("spotify"); // Get author url
         final User owner = new User(ownerName, ownerUrl, ownerId); // Create owner object
 
-        final JSONArray tracksJson = json.getJSONObject("tracks").getJSONArray("items"); // Get tracks
+        final JSONArray tracksJson = jsonPlaylist.getJSONObject("tracks").getJSONArray("items"); // Get tracks
         final List<Song> songs = new ArrayList<>(); // Create list for all songs
         for (int i0 = 0; i0 < tracksJson.length(); i0++) {
             final JSONObject track = tracksJson.getJSONObject(i0).getJSONObject("track"); // Get current track
@@ -98,6 +111,6 @@ public class Spotify {
             songs.add(song); // Add song to list
         }
 
-        return new Playlist(playlistName, playlistId, playlistUrl, owner, songs); // Return playlist
+        return new Playlist(playlistName, playlistId, playlistUrl, playlistThumbnail, owner, songs); // Return playlist
     }
 }
