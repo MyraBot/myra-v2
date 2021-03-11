@@ -50,5 +50,6 @@ public class MusicStop implements Command {
         final GuildMusicManager player = PlayerManager.getInstance().getMusicManager(ctx.getGuild()); // Get player manager
         player.scheduler.getQueue().clear(); // Clear queue
         player.audioPlayer.stopTrack(); // Stop track
+        player.audioPlayer.destroy(); // Destroy audio player
     }
 }
