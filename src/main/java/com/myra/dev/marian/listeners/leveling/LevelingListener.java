@@ -2,6 +2,7 @@ package com.myra.dev.marian.listeners.leveling;
 
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.database.allMethods.GetMember;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -62,8 +63,6 @@ public class LevelingListener {
 
     //return xp
     public int getXpFromMessage(Message rawMessage) {
-        //return 0 if the author is a bot
-        if (rawMessage.getAuthor().isBot()) return 0;
         //define variable
         String stringMessage = rawMessage.getContentDisplay();
         //return '1' or '2' random
