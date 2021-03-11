@@ -25,7 +25,6 @@ import java.util.List;
         channel = Channel.GUILD
 )
 public class MusicPlay implements Command {
-    private static HashMap<String, List<JSONObject>> results = new HashMap<>();
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
@@ -90,7 +89,6 @@ public class MusicPlay implements Command {
             new URL(url);
             return true;
         } catch (MalformedURLException e) {
-            e.printStackTrace();
             return false;
         }
     }
