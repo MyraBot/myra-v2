@@ -28,6 +28,7 @@ public class GetMember {
 
     //constructor
     public GetMember(MongoDb mongoDb, Guild guild, Member member) {
+        if (member.getUser().isBot()) return;
         this.mongoDb = mongoDb;
         this.guild = guild;
         this.member = member;
