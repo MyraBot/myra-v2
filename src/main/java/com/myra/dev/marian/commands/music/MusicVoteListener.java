@@ -30,7 +30,6 @@ public class MusicVoteListener {
 
         event.retrieveMessage().queue(
                 message -> { // Retrieve message
-                    System.out.println("retrieved message");
                     event.retrieveMember().queue(member -> {
                         if (member.getVoiceState() == null) return; // Message author isn't in a vc anymore
                         if (!member.getVoiceState().inVoiceChannel()) return; // Reaction author isn't in a vc
