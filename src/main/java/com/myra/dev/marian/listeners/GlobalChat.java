@@ -33,6 +33,11 @@ public class GlobalChat {
         if (guildWebhookUrl == null) return;
 
         final WebhookInformation guildWebhookInformation = new WebhookInformation(guildWebhookUrl); // Get webhook information
+        // Invalid webhook
+        if (!guildWebhookInformation.isValid) {
+            new Database(event.getGuild()).setString("globalChat", null); // Remove global chat
+            return;
+        }
         if (!guildWebhookInformation.getChannelId().equals(event.getChannel().getId())) return; // Wrong channel
 
         if (messages.size() >= 15) messages.remove(0); // Remove first stored message
@@ -106,6 +111,7 @@ public class GlobalChat {
     private static class WebhookInformation {
         private final String url;
         private final JSONObject response;
+        private boolean isValid = true;
 
         private WebhookInformation(String url) throws IOException {
             this.url = url;
@@ -114,8 +120,19 @@ public class GlobalChat {
                     .url(url) // Get information about the webhook
                     .build();
             try (Response response = Utilities.HTTP_CLIENT.newCall(webhookRequest).execute()) {
-                this.response = new JSONObject(response.body().string()); // Get information as a json object
+                final JSONObject json = new JSONObject(response.body().string()); // Create json object
+
+                // Webhook isn't valid
+                System.out.println(json.toString());
+                if (json.has("message")) {
+                    if (json.getString("message").equals("Unknown Webhook")) this.isValid = false;
+                }
+                this.response = json; // Get information as a json object
             }
+        }
+
+        private boolean isValid() {
+            return this.isValid;
         }
 
         private String getUrl() {
