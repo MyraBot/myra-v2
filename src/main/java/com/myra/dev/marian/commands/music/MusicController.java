@@ -3,7 +3,8 @@ package com.myra.dev.marian.commands.music;
 import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.MessageReaction;
@@ -77,7 +78,7 @@ public class MusicController implements Command {
         message.addReaction("\u23ED\uFE0F").queue();
         message.addReaction("\u23F9\uFE0F").queue();
         //add message id to HashMap
-        MessageReaction.add(ctx.getGuild(), "musicController", message, ctx.getAuthor(),false, "\u23EF\uFE0F", "\u23ED\uFE0F", "\u23F9\uFE0F");
+        MessageReaction.add(ctx.getGuild(), "musicController", message, ctx.getAuthor(), false, "\u23EF\uFE0F", "\u23ED\uFE0F", "\u23F9\uFE0F");
 
         //cancel timer
         cancel.scheduleAtFixedRate(new TimerTask() {
@@ -139,9 +140,9 @@ public class MusicController implements Command {
 
     private String displayPosition(AudioPlayer player) {
         //split song duration in 15 parts
-        Long sections = player.getPlayingTrack().getDuration() / 15;
+        final long sections = player.getPlayingTrack().getDuration() / 15;
         //get the part the song is in
-        Long atSection = player.getPlayingTrack().getPosition() / sections;
+        final long atSection = player.getPlayingTrack().getPosition() / sections;
 
         StringBuilder positionRaw = new StringBuilder("000000000000000")
                 .insert(Math.toIntExact(atSection), '1');
