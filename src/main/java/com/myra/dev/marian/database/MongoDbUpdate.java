@@ -75,7 +75,6 @@ public class MongoDbUpdate {
                     .append("shuffle", commandsRaw.getBoolean("shuffle"))
                     .append("musicInformation", commandsRaw.getBoolean("musicInformation"))
                     .append("queue", commandsRaw.getBoolean("queue"))
-                    .append("musicController", commandsRaw.getBoolean("musicController"))
 
                     .append("moderation", commandsRaw.getBoolean("moderation"))
                     .append("clear", commandsRaw.getBoolean("clear"))

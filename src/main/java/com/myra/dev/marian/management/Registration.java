@@ -178,7 +178,6 @@ public class Registration {
                 new MusicQueue(),
                 new MusicSkip(),
                 new MusicClearQueue(),
-                new MusicController(),
                 // Autorole
                 new AutoRole(),
                 // Notification

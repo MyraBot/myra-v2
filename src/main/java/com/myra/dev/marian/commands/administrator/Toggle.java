@@ -192,7 +192,6 @@ public class Toggle implements Command {
                 commands.getBoolean("shuffle"),
                 commands.getBoolean("musicInformation"),
                 commands.getBoolean("queue"),
-                commands.getBoolean("musicController")
         };
 
         int trueCount = 0;
@@ -211,7 +210,6 @@ public class Toggle implements Command {
         commands.setBoolean("shuffle", newValue);
         commands.setBoolean("musicInformation", newValue);
         commands.setBoolean("queue", newValue);
-        commands.setBoolean("musicController", newValue);
 
         return newValue;
     }

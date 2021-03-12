@@ -8,7 +8,6 @@ import com.myra.dev.marian.commands.help.InviteThanks;
 import com.myra.dev.marian.commands.moderation.ban.Tempban;
 import com.myra.dev.marian.commands.moderation.mute.MutePermissions;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
-import com.myra.dev.marian.commands.music.MusicController;
 import com.myra.dev.marian.commands.music.MusicVoteListener;
 import com.myra.dev.marian.database.MongoDbUpdate;
 import com.myra.dev.marian.listeners.*;
@@ -162,7 +161,6 @@ public class Listeners extends ListenerAdapter {
             informationServer.guildMessageReactionAddEvent(event);
             // Music
             new MusicVoteListener().onVoteAdd(event);
-            new MusicController().guildMessageReactionAddEvent(event);
         } catch (Exception e) {
             e.printStackTrace();
         }

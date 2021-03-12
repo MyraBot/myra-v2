@@ -115,7 +115,6 @@ public class CommandEmbeds {
                 .addField("`" + prefix + "shuffle`", "\uD83C\uDFB2 │ Jumble the current queue", false)
                 .addField("`" + prefix + "track information`", "\uD83D\uDDD2 │ Get information about the current song", false)
                 .addField("`" + prefix + "queue`", "\uD83D\uDCC3 │ Shows the queue", false)
-                .addField("`" + prefix + "music controller`", "\uD83C\uDF9A️ │ opens the music reactions controller", false)
                 .setFooter("supported platforms: YoutTube, SoundCloud, Bandcamp, Vimeo, Twitch streams");
     }
 

@@ -59,7 +59,6 @@ public class MongoDbDocuments {
                 .append("shuffle", true)
                 .append("musicInformation", true)
                 .append("queue", true)
-                .append("musicController", true)
 
                 .append("moderation", true)
                 .append("clear", true)
