@@ -26,8 +26,8 @@ public class Utilities {
     }
 
     //colours
-    public final int red = 0xFF0055;
-    public final int blue = 0xccd9f0;
+    public final int red = 0xC16B65;
+    public final int blue = 0x7AC8F2;
     public final int green = 0xffcc;
     public final int gray = 0x282c34;
     //keys
