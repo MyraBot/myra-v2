@@ -5,10 +5,10 @@ import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandServiceBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.management.Listeners;
+import com.myra.dev.marian.management.Prefix;
 import com.myra.dev.marian.management.Registration;
 import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.ConsoleColours;
-import com.myra.dev.marian.utilities.Prefix;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.permissions.Marian;
 import com.myra.dev.marian.utilities.permissions.Moderator;
