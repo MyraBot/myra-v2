@@ -18,6 +18,7 @@ public class Roles {
      */
     public void exclusive(GuildMemberJoinEvent event) {
         final Guild server = event.getJDA().getGuildById(Config.marianServer);
+        if (event.getGuild() != server) return;
         // Get exclusive role
         final Role exclusiveRole = server.getRoleById("775646920646983690");
 
