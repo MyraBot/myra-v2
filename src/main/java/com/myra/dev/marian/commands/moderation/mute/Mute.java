@@ -1,6 +1,7 @@
 package com.myra.dev.marian.commands.moderation.mute;
 
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
@@ -16,16 +17,15 @@ import java.time.Instant;
 
 @CommandSubscribe(
         name = "mute",
-        requires = Moderator.class
+        requires = Moderator.class,
+        channel = Channel.GUILD
 )
 public class Mute implements Command {
 
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        if (ctx.getArguments()[0].equalsIgnoreCase("role")) return; // Mute role command was used
-
         // Command usage
-        if (ctx.getArguments().length < 1) {
+        if (ctx.getArguments().length == 0) {
             EmbedBuilder usage = new EmbedBuilder()
                     .setAuthor("mute", null, ctx.getAuthor().getEffectiveAvatarUrl())
                     .setColor(Utilities.getUtils().gray)
@@ -34,7 +34,9 @@ public class Mute implements Command {
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
-// Mute
+
+        if (ctx.getArguments()[0].equalsIgnoreCase("role")) return; // Mute role command was used
+
         final Member member = Utilities.getUtils().getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "mute", "\uD83D\uDD07"); // Get member
         if (member == null) return;
 
