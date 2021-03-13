@@ -123,7 +123,6 @@ public class GlobalChat {
                 final JSONObject json = new JSONObject(response.body().string()); // Create json object
 
                 // Webhook isn't valid
-                System.out.println(json.toString());
                 if (json.has("message")) {
                     if (json.getString("message").equals("Unknown Webhook")) this.isValid = false;
                 }
