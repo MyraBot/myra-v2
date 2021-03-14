@@ -57,7 +57,7 @@ public class Leaderboard implements Command {
         waiter.waitForEvent(
                 GuildMessageReactionAddEvent.class,
                 e -> !e.getUser().isBot()
-                        && e.getMember() == member
+                        && e.getUserIdLong() == member.getIdLong()
                         && e.getMessageIdLong() == message.getIdLong()
                         && Arrays.stream(emojis).anyMatch(e.getReactionEmote().toString()::equals),
                 e -> { // Code on event
