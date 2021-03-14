@@ -50,7 +50,6 @@ public class GetListenerManager {
                 .setCommand(listener)
                 .setEmoji(listenerEmoji)
                 .setAvatar(event.getAuthor().getEffectiveAvatarUrl());
-        if (newValue) success.setMessage("`" + listener + "` got toggled on").send();
-        else success.setMessage("`" + listener + "` got toggled off").send();
+        success.setMessage("the condition is " + (newValue ? "true" : "false")).send();
     }
 }
