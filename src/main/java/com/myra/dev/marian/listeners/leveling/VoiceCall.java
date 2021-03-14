@@ -17,8 +17,7 @@ public class VoiceCall {
 
     public void startXpGain(Member member) {
         try {
-            if (!new Database(member.getGuild()).getListenerManager().check("leveling"))
-                return; // Check if leveling is enabled
+            if (!new Database(member.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
             final Guild guild = member.getGuild(); // Get guild
             final GuildVoiceState voiceState = member.getVoiceState(); // Get members voice state
             if (voiceState.isMuted()) return; // Member is muted
@@ -41,8 +40,7 @@ public class VoiceCall {
     }
 
     public void updateXpGain(GuildVoiceMuteEvent event) throws Exception {
-        if (!new Database(event.getGuild()).getListenerManager().check("leveling"))
-            return; // Check if leveling is enabled
+        if (!new Database(event.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
         final GuildVoiceState state = event.getMember().getVoiceState(); // Members voice sate
 
         // Member was muted
@@ -55,8 +53,7 @@ public class VoiceCall {
 
     public void stopXpGain(Member member) {
         try {
-            if (!new Database(member.getGuild()).getListenerManager().check("leveling"))
-                return; // Check if leveling is enabled
+            if (!new Database(member.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
             if (!activeCalls.containsKey(member.getGuild().getId())) return;
             if (!activeCalls.get(member.getGuild().getId()).containsKey(member.getId())) return;
 
