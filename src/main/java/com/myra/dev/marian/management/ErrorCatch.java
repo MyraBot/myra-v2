@@ -2,36 +2,22 @@ package com.myra.dev.marian.management;
 
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class ErrorCatch {
-    // Errors
-    private final String missingPermsMESSAGE_WRITE = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_WRITE";
-    private final String missingPermsMESSAGE_EMBED = "Cannot perform action due to a lack of Permission. Missing permission: MESSAGE_EMBED_LINKS";
-    private final String missingPermsVIEW_CHANNEL = "Cannot perform action due to a lack of Permission. Missing permission: VIEW_CHANNEL";
-
     public void catchError(Exception exception, MessageReceivedEvent event) {
-        final String error = exception.getMessage(); // Get error
-        if (exception.getMessage() == null) {
-            exception.printStackTrace();
-            return;
-        }
-        // Missing permissions: MESSAGE_WRITE
-        if (error.startsWith(missingPermsMESSAGE_WRITE)) {
-        }
-        else if (error.startsWith(missingPermsMESSAGE_EMBED)) {
+        if (event.isFromGuild()) {
+            final TextChannel channel = event.getTextChannel();
 
+            if (!event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE)) return;
+            if (!event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_EMBED_LINKS)) return;
         }
-        // Missing permissions: VIEW_CHANNEL
-        else if (error.equals(missingPermsVIEW_CHANNEL)) {
-            error(event, "I'm not able to see the channel."); // Send error}
-        }
-        // Other error
-        else {
-            error(event, "An error accrued, please contact " + Utilities.getUtils().hyperlink("my developer", Utilities.getUtils().marianUrl()));
-            exception.printStackTrace();
-        }
+
+        error(event, "An error accrued, please contact " + Utilities.getUtils().hyperlink("my developer", Utilities.getUtils().marianUrl()));
+        exception.printStackTrace();
     }
 
     private void error(MessageReceivedEvent event, String error) {
