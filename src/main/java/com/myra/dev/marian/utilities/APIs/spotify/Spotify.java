@@ -68,6 +68,11 @@ public class Spotify {
             final String output = response.body().string(); // Fetch response
             jsonPlaylistThumbnail = new JSONArray(output); // Parse to JSONObject
         } catch (IOException e) {
+            try {
+                System.out.println(Utilities.HTTP_CLIENT.newCall(playlistThumbnailRequest).execute().body().string());
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
             e.printStackTrace();
         }
 
