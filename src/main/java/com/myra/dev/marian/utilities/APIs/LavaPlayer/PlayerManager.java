@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerManager {
@@ -36,8 +35,8 @@ public class PlayerManager {
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         // Set buffer
-        audioPlayerManager.setFrameBufferDuration(1000);
-        audioPlayerManager.setItemLoaderThreadPoolSize(500);
+        audioPlayerManager.setFrameBufferDuration(5000); // Add a 5 second buffer
+        audioPlayerManager.setItemLoaderThreadPoolSize(10);
     }
 
     public GuildMusicManager getMusicManager(Guild guild) {
@@ -59,22 +58,27 @@ public class PlayerManager {
         }
         // Load songs from other sources (handled by lavaplayer)
         else {
-            loadSong(message, query, isUrl, musicManager);
+            loadAndPlayQuery(message, query, isUrl, musicManager);
         }
         musicManager.audioPlayer.setVolume(50); // Set volume
     }
 
-    private void loadSong(Message message, String query, boolean isUrl, GuildMusicManager musicManager) {
 
-
+    private void loadAndPlayQuery(Message message, String query, boolean isUrl, GuildMusicManager musicManager) {
         final User author = message.getAuthor();  // Get author
 
         this.audioPlayerManager.loadItemOrdered(musicManager, query, new AudioLoadResultHandler() {
 
-            // Load a track into the queue
+            /**
+             * Load a track into the queue
+             * @param track The found audio track based on the query.
+             */
             @Override
             public void trackLoaded(AudioTrack track) {
+                final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
+                track.setUserData(requestData); // Add request data
                 musicManager.scheduler.queue(track); // Add audio track to queue
+
                 // Success message
                 new Success(null)
                         .setCommand("play")
@@ -85,38 +89,43 @@ public class PlayerManager {
                         .send();
             }
 
-            // Load a playlist into the queue
+            /**
+             * Load a playlist into the queue
+             * @param playlist The found playlist based on the query.
+             *                 if playlist#isSearchResult is true the playlist will
+             *                 be a list of search results which match the query
+             */
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
-                // Run if query is a link to a playlist
-                if (isUrl) {
-                    // Success message
-                    new Success(null)
+                // Query is a link to a playlist
+                if (!playlist.isSearchResult()) {
+                    Success success = new Success(null)
                             .setCommand("play")
                             .setAvatar(author.getEffectiveAvatarUrl())
                             .setHyperLink(query)
-                            .setMessage("Adding playlist to queue: " + Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", query))
-                            .setChannel(message.getChannel())
-                            .send();
-                    playlist.getTracks().forEach(musicManager.scheduler::queue); // Add every audio of the playlist track to queue
+                            .setChannel(message.getChannel());
+                    // Playlist is given by url
+                    if (isUrl) { // Add in message url to playlist
+                        success.setMessage("Adding playlist to queue: " + Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", query));
+                    } else {
+                        success.setMessage(String.format("Adding playlist to queue: `%s`", playlist.getName()));
+                    }
+                    success.send(); // Send success message
+
+                    // Add every audio of the playlist track to queue
+                    playlist.getTracks().forEach(track -> {
+                        final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
+                        track.setUserData(requestData); // Add request data
+                        musicManager.scheduler.queue(track); // Add audio track to queue
+                    });
                 }
 
-                // Playlist are results, which match query
-                else if (playlist.isSearchResult()) {
-                    final AudioTrack track = playlist.getTracks().get(0); // Get first track
-                    trackLoaded(track); // Load track in queue
-                }
-                // Playlist was found
+                // Playlist are audio racks, which match query
                 else {
-                    // Success message
-                    new Success(null)
-                            .setCommand("play")
-                            .setAvatar(author.getEffectiveAvatarUrl())
-                            .setHyperLink(query)
-                            .setMessage(String.format("Adding playlist to queue: `%s`", playlist.getName()))
-                            .setChannel(message.getChannel())
-                            .send();
-                    playlist.getTracks().forEach(musicManager.scheduler::queue); // Add every audio of the playlist track to queue
+                    final AudioTrack track = playlist.getTracks().get(0); // Get first track
+                    final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
+                    track.setUserData(requestData); // Add request data
+                    trackLoaded(track); // Load track in queue
                 }
             }
 
@@ -144,15 +153,19 @@ public class PlayerManager {
     }
 
     private void loadSpotifyPlaylist(Message message, Playlist playlist, GuildMusicManager musicManager) {
-        new Thread(() -> { // Create new thread
+        final User author = message.getAuthor(); // Get requester
+
+        final EmbedBuilder decoding = getDecodingEmbed(message.getAuthor(), playlist); // Get decoding embed
+        message.getChannel().sendMessage(decoding.build()).queue(msg -> {
 
             final AtomicInteger overall = new AtomicInteger(); // Amount of passed tracks
             final AtomicInteger loaded = new AtomicInteger(); // Amount of successfully loaded tracks
             final AtomicInteger failed = new AtomicInteger(); // Amount of failed tracks
 
             for (Song song : playlist.getSongs()) {
-                StringBuilder artists = new StringBuilder();
-                song.getArtists().forEach(artist -> artists.append(artist.getName() + " ")); // Add all artists
+                final StringBuilder artists = new StringBuilder();
+                song.getArtists().forEach(artist -> artists.append(artist.getName()).append(" ")); // Add all artists
+
                 final String songName = String.format("ytsearch:%s - %s", song.getName(), artists);
 
                 audioPlayerManager.loadItemOrdered(musicManager, songName, new AudioLoadResultHandler() {
@@ -174,9 +187,12 @@ public class PlayerManager {
                         if (!result.isSearchResult()) return;
 
                         final AudioTrack track = result.getTracks().get(0); // Get first song
+                        final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
+                        track.setUserData(requestData); // Add request data
                         musicManager.scheduler.queue(track); // Add track to queue
                         loaded.addAndGet(1); // Add one successfully loaded track
                         overall.addAndGet(1); // Add one passed track
+                        updateDecodingStatus(msg, message.getAuthor(), playlist, overall.get(), loaded.get(), failed.get()); // Update decoding status
                     }
 
                     /**
@@ -186,58 +202,62 @@ public class PlayerManager {
                     public void noMatches() {
                         failed.getAndAdd(1); // Add one failed song
                         overall.addAndGet(1); // Add one passed track
+                        updateDecodingStatus(msg, message.getAuthor(), playlist, overall.get(), loaded.get(), failed.get()); // Update decoding status
                     }
 
                     @Override
                     public void loadFailed(FriendlyException exception) {
                         failed.getAndAdd(1); // Add one failed song
                         overall.addAndGet(1); // Add one passed track
+                        updateDecodingStatus(msg, message.getAuthor(), playlist, overall.get(), loaded.get(), failed.get()); // Update decoding status
                     }
                 });
             }
 
-            // Decoding info
-            final EmbedBuilder decoding = new Success(null)
+        });
+    }
+
+
+    private void updateDecodingStatus(Message msg, User author, Playlist playlist, int passedInt, int loaded, int failed) {
+        final String currentBar = msg.getEmbeds().get(0).getFooter().getText(); // Get current loading bar
+        final long passed = Long.parseLong(String.valueOf(passedInt)); // Get passed tracks as long
+        final String updatedBar = new LoadingBar("□", "■", 10L, (long) playlist.getSongs().size()).render(passed); // Get updated loading bar
+
+        // Finished loading
+        if (playlist.getSongs().size() == passedInt) {
+            Success success = new Success(null)
                     .setCommand("play")
-                    .setAvatar(message.getAuthor().getEffectiveAvatarUrl())
+                    .setAvatar(author.getEffectiveAvatarUrl())
                     .setHyperLink(playlist.getUrl())
-                    .setMessage("Decoding " + Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", playlist.getUrl()))
-                    .setFooter("□□□□□□□□□□")
-                    .getEmbed();
-            message.getChannel().sendMessage(decoding.build()).queue(msg -> {
+                    .setThumbnail(playlist.getThumbnail())
+                    .setMessage(String.format("Added **%s** songs to the queue from the playlist %s", loaded, Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", playlist.getUrl())))
+                    .setFooter("by " + playlist.getOwner().getName());
+            if (failed > 0) success.appendMessage(String.format("%n⚠ │ `%s` songs failed to load", failed));
 
+            msg.editMessage(success.getEmbed().build()).queue(); // Edit message
+            return;
+        }
 
-                final LoadingBar bar = new LoadingBar("□", "■", 10L, (long) playlist.getSongs().size());
-                // Loading
-                while (overall.get() != playlist.getSongs().size()) {
-                    try {
-                        // Update loading bar
-                        final String loadingBar = bar.render(overall.get()); // Get current loading bar
-                        decoding.setFooter(loadingBar); // Set loading bar as footer
-                        msg.editMessage(decoding.build()).queue(); // Edit message
+        // Bar didn't change
+        if (currentBar.equals(updatedBar)) return;
 
-                        TimeUnit.SECONDS.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+            // Bar changed
+        else {
+            EmbedBuilder decoding = getDecodingEmbed(author, playlist);// Get decoding embed
+            decoding.setFooter(updatedBar); // Update loading bar
+            msg.editMessage(decoding.build()).queue(); // Edit message
+        }
 
-                // Success message
-                Success success = new Success(null)
-                        .setCommand("play")
-                        .setAvatar(message.getAuthor().getEffectiveAvatarUrl())
-                        .setHyperLink(playlist.getUrl())
-                        .setThumbnail(playlist.getThumbnail())
-                        .setMessage(String.format("Added **%s** songs to the queue from the playlist %s", loaded.get(), Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", playlist.getUrl())))
-                        .setFooter("by " + playlist.getOwner().getName());
-                if (failed.get() > 0)
-                    success.appendMessage(String.format("%n⚠ │ `%s` songs failed to load", failed.get()));
+    }
 
-                msg.editMessage(success.getEmbed().build()).queue(); // Edit message
-            });
-
-        }).start();
-
+    private EmbedBuilder getDecodingEmbed(User author, Playlist playlist) {
+        return new Success(null)
+                .setCommand("play")
+                .setAvatar(author.getEffectiveAvatarUrl())
+                .setHyperLink(playlist.getUrl())
+                .setMessage("Decoding " + Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", playlist.getUrl()))
+                .setFooter("□□□□□□□□□□")
+                .getEmbed();
     }
 
     // Return PlayerManager class
