@@ -1,5 +1,6 @@
 package com.myra.dev.marian.utilities.APIs.LavaPlayer;
 
+import com.myra.dev.marian.listeners.MusicAnnouncer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 
@@ -9,7 +10,7 @@ public class GuildMusicManager {
      */
     public final AudioPlayer audioPlayer;
     /**
-     * Track scheduler for the player.
+     * Track schedulers for the player.
      */
     public final TrackScheduler scheduler;
 
@@ -24,6 +25,7 @@ public class GuildMusicManager {
         this.audioPlayer = manager.createPlayer();
         this.scheduler = new TrackScheduler(this.audioPlayer);
         this.audioPlayer.addListener(this.scheduler);
+        this.audioPlayer.addListener(new MusicAnnouncer()); // Register track announcer
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
     }
 
