@@ -61,7 +61,8 @@ public class CommandEmbeds {
                 .addField("`" + prefix + "avatar @user`", "\uD83D\uDDBC │ Gives you profile pictures of other people", false)
                 .addField("`" + prefix + "information`", "\uD83D\uDDD2 │ Gives you information", false)
                 .addField("`" + prefix + "reminder <duration><time unit> <description>`", "\u23F0 │ Let " + jda.getSelfUser().getName() + " remind you of something", false)
-                .addField("`" + prefix + "suggest`", "\uD83D\uDDF3 │ Suggest something", false);
+                .addField("`" + prefix + "suggest`", "\uD83D\uDDF3 │ Suggest something", false)
+                .addField("`" + prefix + "`" + "character", "\u2049 │ Get the Unicode of a character or emoji", false);
     }
 
     //fun
