@@ -179,7 +179,17 @@ public class Utilities {
      * @return Returns a bot invite.
      */
     public String inviteJda(JDA jda) {
-        return jda.getInviteUrl(Permission.ADMINISTRATOR);
+        return jda.getInviteUrl(
+                Permission.MANAGE_ROLES,
+                Permission.MANAGE_WEBHOOKS,
+                Permission.NICKNAME_MANAGE,
+                Permission.KICK_MEMBERS,
+                Permission.MESSAGE_EMBED_LINKS,
+                Permission.MESSAGE_ATTACH_FILES,
+                Permission.MESSAGE_ADD_REACTION,
+                Permission.MESSAGE_EXT_EMOJI,
+                Permission.MESSAGE_MANAGE,
+                Permission.VOICE_CONNECT);
     }
 
     public String marianUrl() {
@@ -199,10 +209,10 @@ public class Utilities {
     /**
      * Get member from message.
      *
-     * @param event        The GuildMessageReceivedEvent
+     * @param event          The GuildMessageReceivedEvent
      * @param providedMember The String the user should be in
-     * @param command      The command name
-     * @param commandEmoji The emoji of the command
+     * @param command        The command name
+     * @param commandEmoji   The emoji of the command
      * @return
      */
     public Member getMember(MessageReceivedEvent event, String providedMember, String command, String commandEmoji) {

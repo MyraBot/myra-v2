@@ -21,6 +21,7 @@ import com.myra.dev.marian.commands.fun.TextFormatter;
 import com.myra.dev.marian.commands.fun.WouldYouRather;
 import com.myra.dev.marian.commands.general.Avatar;
 import com.myra.dev.marian.commands.general.Calculate;
+import com.myra.dev.marian.commands.general.Emoji;
 import com.myra.dev.marian.commands.general.Reminder;
 import com.myra.dev.marian.commands.general.information.*;
 import com.myra.dev.marian.commands.help.*;
@@ -108,6 +109,7 @@ public class Registration {
                 new Avatar(),
                 new Calculate(),
                 new Reminder(),
+                new Emoji(),
                 // Leveling
                 new LevelingHelp(),
                 new LevelingToggle(),
