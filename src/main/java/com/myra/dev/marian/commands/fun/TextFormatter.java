@@ -150,22 +150,26 @@ public class TextFormatter implements Command {
             Myra.WAITER.waitForEvent(
                     GuildMessageReactionAddEvent.class, // Event to wait for
                     e -> !e.getUser().isBot()// Condition
-                            && e.getUser() == ctx.getAuthor()
+                            && e.getUser().getIdLong() == ctx.getAuthor().getIdLong()
                             && e.getMessageId().equals(message.getId()),
                     e -> { // Run on event
 
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
+                        final String rawText = ctx.getArgumentsRaw(); // Get text to format
                         // Format message embed
                         EmbedBuilder formatted = new EmbedBuilder()
                                 .setAuthor("format", null, e.getUser().getEffectiveAvatarUrl())
                                 .setColor(Utilities.getUtils().blue);
 
                         // Format old german font
-                        if (reaction.equals(emojis[0])) formatted.setDescription(oldGerman(ctx.getArgumentsRaw()));
+                        if (reaction.equals(emojis[0]))
+                            formatted.setDescription(oldGerman(rawText.replace("\\", "\\\\")));
                         // Format handwritten font
-                        if (reaction.equals(emojis[1])) formatted.setDescription(handwritten(ctx.getArgumentsRaw()));
+                        if (reaction.equals(emojis[1]))
+                            formatted.setDescription(handwritten(rawText.replace("\\", "\\\\")));
                         // Format aesthetic font
-                        if (reaction.equals(emojis[2])) formatted.setDescription(aesthetic(ctx.getArgumentsRaw()));
+                        if (reaction.equals(emojis[2]))
+                            formatted.setDescription(aesthetic(rawText.replace("\\", "\\\\")));
 
                         message.editMessage(formatted.build()).queue(); // Edit message
                         message.clearReactions().queue(); // Clear reactions
@@ -174,5 +178,18 @@ public class TextFormatter implements Command {
                     () -> message.clearReactions().queue() // Run on timeout
             );
         });
+    }
+
+    private String codepointToString(int cp) {
+        StringBuilder sb = new StringBuilder();
+        if (Character.isBmpCodePoint(cp)) {
+            sb.append((char) cp);
+        } else if (Character.isValidCodePoint(cp)) {
+            sb.append(Character.highSurrogate(cp));
+            sb.append(Character.lowSurrogate(cp));
+        } else {
+            sb.append('?');
+        }
+        return sb.toString();
     }
 }
