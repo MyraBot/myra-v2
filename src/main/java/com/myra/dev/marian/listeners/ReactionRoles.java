@@ -51,9 +51,12 @@ public class ReactionRoles {
         switch (reactionRole.getString("type")) {
             // Normal reaction
             case "normal":
+                // Verify reaction
+            case "verify":
                 guild.addRoleToMember(member, role).queue(); // Add role to member
+                break;
 
-                // Unique reaction
+            // Unique reaction
             case "unique":
                 event.retrieveMessage().queue(message -> message.getReactions().forEach(reaction -> { // For each reaction
                     if (boundReactionRoles.stream().anyMatch(boundRr -> boundRr.getString("emoji").equals(reaction.getReactionEmote().getEmoji()))) { // Reaction is a reaction role
@@ -77,9 +80,7 @@ public class ReactionRoles {
                         });
                     }
                 }));
-                // Verify reaction
-            case "verify":
-                guild.addRoleToMember(member, role).queue(); // Add role to member
+                break;
         }
 
     }
@@ -113,14 +114,10 @@ public class ReactionRoles {
         if (member == null) return;
         final Guild guild = event.getGuild(); // Get guild
 
-        switch (reactionRole.getString("type")) {
-            // Normal reaction
-            case "normal":
-                guild.removeRoleFromMember(member, role).queue(); // Remove role from member
-
-                // Unique reaction
-            case "unique":
-                guild.removeRoleFromMember(member, role).queue(); // Remove role from member
+        // Remove role if type is not verify
+        if (!reactionRole.getString("type").equals("verify")) {
+            guild.removeRoleFromMember(member, role).queue(); // Remove role from member
         }
+
     }
 }
