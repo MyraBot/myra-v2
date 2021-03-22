@@ -11,7 +11,6 @@ import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Administrator;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
 @CommandSubscribe(
@@ -64,13 +63,17 @@ public class LevelingRolesAdd implements Command {
         db.getLeveling().addLevelingRole(level, role.getId());
 
         // Update every member
-        for (Member member : ctx.getGuild().getMembers()) {
-            if (member.getUser().isBot()) continue; // Ignore bots
-            // If members level is at least the level of the leveling roles
-            if (db.getMembers().getMember(member).getLevel() >= Integer.parseInt(ctx.getArguments()[0])) {
-                ctx.getGuild().addRoleToMember(member, role).queue(); // Add role
-            }
-        }
+        ctx.getGuild().loadMembers()
+                .onSuccess(members -> members.forEach(member -> {
+                    if (!member.getUser().isBot()) { // Ignore bots
+
+                        // If members level is at least the level of the leveling roles
+                        if (db.getMembers().getMember(member).getLevel() >= Integer.parseInt(ctx.getArguments()[0])) {
+                            ctx.getGuild().addRoleToMember(member, role).queue(); // Add role
+                        }
+
+                    }
+                }));
 
         // Success message
         new Success(ctx.getEvent())
