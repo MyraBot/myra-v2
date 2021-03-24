@@ -3,18 +3,10 @@ package com.myra.dev.marian.commands.general.information;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @CommandSubscribe(
         name = "information user",
@@ -45,6 +37,8 @@ public class InformationUser implements Command {
         // Badges
         final String badges = getBadges(user, utilities); // Get badges
         if (!badges.equals("")) userInfo.addField("\uD83C\uDFC5 │ badges", badges, false);
+
+        userInfo.addField("\uD83D\uDCC5 │ Account created", Format.asDate(user.getTimeCreated().toEpochSecond()), false);
 
         ctx.getChannel().sendMessage(userInfo.build()).queue();
     }

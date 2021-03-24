@@ -1,6 +1,12 @@
 package com.myra.dev.marian.utilities;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 public class Format {
+
     public static String asVariableName(String string) {
         final String[] words = string.split("\\s+"); // Split string in words
 
@@ -13,5 +19,12 @@ public class Format {
             formattedString.append(characters);
         }
         return formattedString.toString();
+    }
+
+    public static String asDate(long millis) {
+        final Instant instant = java.time.Instant.ofEpochMilli(millis);
+        final LocalDateTime date = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
+
+        return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 }

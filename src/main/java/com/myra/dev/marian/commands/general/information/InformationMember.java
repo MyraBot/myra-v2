@@ -4,6 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -88,7 +89,7 @@ public class InformationMember implements Command {
         }
 
         // Time joined server
-        final String joinedAt = member.getTimeJoined().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm"));
+        final String joinedAt = Format.asDate(member.getTimeJoined().toEpochSecond());
         memberInfo.addField("\uD83D\uDCC5 │ joined server", joinedAt, true);
 
         if (ctx.getGuild().getBoosters().contains(member)) {
