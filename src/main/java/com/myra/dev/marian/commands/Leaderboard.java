@@ -1,13 +1,15 @@
 package com.myra.dev.marian.commands;
 
+import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.allMethods.Database;
 import com.myra.dev.marian.database.allMethods.LeaderboardType;
 import com.myra.dev.marian.database.documents.MemberDocument;
-import com.github.m5rian.jdaCommandHandler.Command;
-import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.utilities.Format;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -23,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @CommandSubscribe(
         name = "leaderboard",
-        aliases = {"top"}
+        aliases = {"lb", "top"}
 )
 public class Leaderboard implements Command {
 
@@ -41,6 +43,7 @@ public class Leaderboard implements Command {
             // Add reactions
             message.addReaction("\uD83C\uDFC6").queue(); // Add level emoji
             message.addReaction(Utilities.getUtils().getEmote("coin")).queue(); // Add balance emote
+            message.addReaction("\uD83D\uDCDE").queue(); // Voice call emoji
 
             waiter(Myra.WAITER, message, ctx.getMember());
         });
@@ -49,8 +52,9 @@ public class Leaderboard implements Command {
     private void waiter(EventWaiter waiter, Message message, Member member) {
         // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
         final String[] emojis = {
-                "R" + Utilities.getUtils().getEmote("coin").toString(), // Reaction emotes starts with 'RE' and emote with 'E' so I remove the 'R'
-                "RE:U+1f3c6" // 🏆
+                "RE:U+1F3C6", // Leveling (🏆)
+                "R" + Utilities.getUtils().getEmote("coin").toString().toUpperCase(), // Reaction emotes starts with 'RE' and emote with 'E' so I remove the 'R'
+                "RE:U+1F4DE" // Voice call
         };
 
 
@@ -59,18 +63,15 @@ public class Leaderboard implements Command {
                 e -> !e.getUser().isBot()
                         && e.getUserIdLong() == member.getIdLong()
                         && e.getMessageIdLong() == message.getIdLong()
-                        && Arrays.stream(emojis).anyMatch(e.getReactionEmote().toString()::equals),
+                        && Arrays.asList(emojis).contains(e.getReactionEmote().toString().toUpperCase()),
                 e -> { // Code on event
-
 
                     // Create loading embed
                     EmbedBuilder loading = new EmbedBuilder()
                             .setAuthor(e.getGuild().getName() + "'s leaderboard", null, e.getGuild().getIconUrl())
                             .setColor(Utilities.getUtils().blue)
                             .setDescription("*loading*");
-                    // Edit message
-                    message.editMessage(loading.build()).queue(); // Edit message to show the balance leaderboard
-
+                    message.editMessage(loading.build()).queue(); // Edit message
 
                     // Reaction is emote
                     if (e.getReactionEmote().isEmote()) { // Reaction is emote
@@ -78,8 +79,13 @@ public class Leaderboard implements Command {
                     }
                     // Reaction is emoji
                     else {
-                        if (e.getReactionEmote().toString().equals(emojis[1])) {
+                        // Leveling leaderboard
+                        if (e.getReactionEmote().toString().toUpperCase().equals(emojis[0])) {
                             getLeaderboard(message, type.LEVEL); // Send level leaderboard
+                        }
+                        // Voice call leaderboard
+                        else if (e.getReactionEmote().toString().toUpperCase().equals(emojis[2])) {
+                            getLeaderboard(message, type.VOICE); // Send voice call leaderboard
                         }
                     }
 
@@ -93,7 +99,8 @@ public class Leaderboard implements Command {
 
     private enum type {
         LEVEL,
-        BALANCE
+        BALANCE,
+        VOICE
     }
 
     private void getLeaderboard(Message message, type type) {
@@ -103,8 +110,10 @@ public class Leaderboard implements Command {
         List<MemberDocument> leaderboardRaw;
         if (type == Leaderboard.type.LEVEL) // Get level leaderboard
             leaderboardRaw = new Database(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
-        else // Get balance leaderboard
+        else if (type == Leaderboard.type.BALANCE) // Get balance leaderboard
             leaderboardRaw = new Database(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
+        else // Get voice leaderboard
+            leaderboardRaw = new Database(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
 
         final List<String> ids = new ArrayList<>(); // Create a list to store top 10 member ids
         for (int i = 0; i < 10; i++) {
@@ -115,13 +124,13 @@ public class Leaderboard implements Command {
         String[] topIds = ids.toArray(new String[0]); // Convert List to Array
 
         guild.retrieveMembersByIds(topIds) // Retrieve top 10 members
-                .onSuccess(members -> { // Member was successfully retrieved
+                .onSuccess(members -> { // Members were successfully retrieved
                     StringBuilder leaderboard = new StringBuilder(); // Create leaderboard message
                     AtomicInteger place = new AtomicInteger();
 
                     for (final String id : ids) { // Add all members to leaderboard
                         Optional<Member> memberResult = members.stream() // Find member object
-                                .filter(user -> user.getId().equals(id)) // Member needs same id as id from the leaderboard of the database
+                                .filter(m -> m.getId().equals(id)) // Member needs same id as id from the leaderboard of the database
                                 .findFirst();
                         if (memberResult.isEmpty()) continue; // No member found
                         final Member member = memberResult.get();
@@ -135,8 +144,10 @@ public class Leaderboard implements Command {
                         String value;
                         if (type == Leaderboard.type.LEVEL)
                             value = String.valueOf(memberDocument.getLevel()); // Get level
-                        else
+                        else if (type == Leaderboard.type.BALANCE)
                             value = Utilities.getUtils().formatNumber(memberDocument.getBalance()); // Format balance
+                        else
+                            value = Format.toTime(memberDocument.getVoiceCallTime()); // Format time
 
                         leaderboard.append(String.format("%d \uD83C\uDF97 `%s` **%s**%n", place.get() + 1, value, member.getEffectiveName())); // Add member to leaderboard
                         place.getAndAdd(1); // Increase place
@@ -157,19 +168,6 @@ public class Leaderboard implements Command {
                     // Send message
                     message.editMessage(embed.build()).queue(); // Edit message to show the balance leaderboard
                 })
-                .onError(error -> {
-                    error.printStackTrace();
-                });
-        /*        String top10 =
-                        "1 \uD83D\uDC51 `" + leaderboardList.get(0).getLevel() + "` **" + leaderboardList.get(0).getName() + "**\n" +
-                                "2 \uD83D\uDD31 `" + leaderboardList.get(1).getLevel() + "` **" + leaderboardList.get(1).getName() + "**\n" +
-                                "3 \uD83C\uDFC6 `" + leaderboardList.get(2).getLevel() + "` **" + leaderboardList.get(2).getName() + "**\n" +
-                                "4 \uD83C\uDF96 `" + leaderboardList.get(3).getLevel() + "` **" + leaderboardList.get(3).getName() + "**\n" +
-                                "5 \uD83C\uDFC5 `" + leaderboardList.get(4).getLevel() + "` **" + leaderboardList.get(4).getName() + "**\n" +
-                                "6 \u26A1 `" + leaderboardList.get(5).getLevel() + "` **" + leaderboardList.get(5).getName() + "**\n" +
-                                "7 \uD83C\uDF97 `" + leaderboardList.get(6).getLevel() + "` **" + leaderboardList.get(6).getName() + "**\n" +
-                                "8 \uD83C\uDF97 `" + leaderboardList.get(7).getLevel() + "` **" + leaderboardList.get(7).getName() + "**\n" +
-                                "9 \uD83C\uDF97 `" + leaderboardList.get(8).getLevel() + "` **" + leaderboardList.get(8).getName() + "**\n" +
-                                "10 \uD83C\uDF97 `" + leaderboardList.get(9).getLevel() + "` **" + leaderboardList.get(9).getName() + "**\n";*/
+                .onError(Throwable::printStackTrace);
     }
 }

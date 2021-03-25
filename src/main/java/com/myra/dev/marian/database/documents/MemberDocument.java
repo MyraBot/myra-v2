@@ -9,6 +9,7 @@ public class MemberDocument {
     private int level;
     private int xp;
     private int balance;
+    private long voiceCallTime;
 
     public MemberDocument(Document memberDocument, Guild guild) {
         this.id = memberDocument.getString("userId");
@@ -17,6 +18,7 @@ public class MemberDocument {
         this.level = guildMemberDocument.getInteger("level");
         this.xp = guildMemberDocument.getInteger("xp");
         this.balance = guildMemberDocument.getInteger("balance");
+        this.voiceCallTime = guildMemberDocument.getLong("voiceCallTime");
     }
 
     public String getId() {
@@ -33,5 +35,9 @@ public class MemberDocument {
 
     public int getBalance() {
         return balance;
+    }
+
+    public long getVoiceCallTime() {
+        return voiceCallTime;
     }
 }

@@ -52,6 +52,9 @@ public class GetMembers {
         else if (type.equals(LeaderboardType.BALANCE)) { // Sort list by balance
             Collections.sort(leaderboard, Comparator.comparing(MemberDocument::getBalance).reversed()); // Sort list
         }
+        else if (type.equals(LeaderboardType.VOICE)) { // Sort list by voice call time
+            Collections.sort(leaderboard, Comparator.comparing(MemberDocument::getVoiceCallTime).reversed()); // Sort list
+        }
 
         return leaderboard; // Return leaderboard
     }
