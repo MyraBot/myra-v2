@@ -71,8 +71,7 @@ public class CommandEmbeds {
                 .setAuthor("fun", null, author.getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().gray)
                 .addField("`" + prefix + "meme`", "\uD83E\uDD2A │ Shows a random meme", false)
-                .addField("`" + prefix + "format <text>`", "\uD83D\uDDDA │ Change the font of your text", false)
-                .addField("`" + prefix + "would you rather`", " │ Play a round of would you rather", false);
+                .addField("`" + prefix + "format <text>`", "\uD83D\uDDDA │ Change the font of your text", false);
     }
 
     //leveling

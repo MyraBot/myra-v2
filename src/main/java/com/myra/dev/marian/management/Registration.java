@@ -18,7 +18,6 @@ import com.myra.dev.marian.commands.economy.administrator.shop.ShopRemove;
 import com.myra.dev.marian.commands.economy.blackjack.BlackJack;
 import com.myra.dev.marian.commands.fun.Meme;
 import com.myra.dev.marian.commands.fun.TextFormatter;
-import com.myra.dev.marian.commands.fun.WouldYouRather;
 import com.myra.dev.marian.commands.general.Avatar;
 import com.myra.dev.marian.commands.general.Calculate;
 import com.myra.dev.marian.commands.general.Emoji;
@@ -146,7 +145,6 @@ public class Registration {
                 // Fun
                 new Meme(),
                 new TextFormatter(),
-                new WouldYouRather(),
                 // Suggestions
                 new SuggestionsHelp(),
                 new SuggestionsChannel(),
