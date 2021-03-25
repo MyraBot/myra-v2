@@ -8,6 +8,7 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.DiscordBoats;
 import com.myra.dev.marian.utilities.APIs.TopGG;
 import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -37,7 +38,7 @@ public class Daily implements Command {
         // 12 didn't pass
         if (TimeUnit.MILLISECONDS.toHours(passedTime) < 12) {
             final long nextBonusAt = lastClaim + TimeUnit.HOURS.toMillis(12); // Get duration until you can claim your reward
-            String nextBonusIn = Utilities.getUtils().formatTime(nextBonusAt - System.currentTimeMillis()); // Make time look nicer
+            String nextBonusIn = Format.toTime(nextBonusAt - System.currentTimeMillis()); // Make time look nicer
 
             daily.setDescription("You need to wait more " + nextBonusIn); // Set description
             ctx.getChannel().sendMessage(daily.build()).queue(); // Send message

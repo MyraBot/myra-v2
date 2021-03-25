@@ -158,21 +158,6 @@ public class Utilities {
     }
 
     /**
-     * Format milliseconds to hh:mm:ss.
-     *
-     * @param timeInMillis The milliseconds to format.
-     * @return Returns the formatted milliseconds as a String in the pattern hh:mm:ss.
-     */
-    public String formatTime(long timeInMillis) {
-        final long millis = timeInMillis % 1000;
-        final long second = (timeInMillis / 1000) % 60;
-        final long minute = (timeInMillis / (1000 * 60)) % 60;
-        final long hour = (timeInMillis / (1000 * 60 * 60)) % 24;
-
-        return String.format("%02dh %02dmin %02ds", hour, minute, second, millis);
-    }
-
-    /**
      * Generate a new invite link for the bot.
      *
      * @param jda The bot.

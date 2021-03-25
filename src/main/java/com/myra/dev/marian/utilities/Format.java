@@ -27,4 +27,27 @@ public class Format {
 
         return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
+
+    public static String toTime(long millis) {
+
+        long seconds = (millis / 1000L) % 60;
+        long minutes = (millis / (1000L * 60L)) % 60;
+        long hours = (millis / (1000L * 60L * 60L)) % 24;
+        long days = (millis / (1000L * 60L * 60L * 24L)) % 7;
+        long weeks = (millis / (1000L * 60L * 60L * 24L * 7L)) % 4;
+        long months = (millis / (1000L * 60L * 60L * 24L * 31L));
+
+        if (minutes == 0L) {
+            return String.format("%s seconds", seconds);
+        } else if (hours == 0L) {
+            return String.format("%sm and %ss", minutes, seconds);
+        } else if (days == 0L) {
+            return String.format("%sh and %sm", hours, minutes);
+        } else if (weeks == 0L) {
+            return String.format("%sd %sh %sm", days, hours, minutes);
+        } else {
+            return String.format("%s months", months);
+        }
+
+    }
 }

@@ -4,14 +4,16 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.utilities.MessageReaction;
+import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 @CommandSubscribe(
         name = "information server",
@@ -33,47 +35,55 @@ public class InformationServer implements Command {
                 .addField("\uD83E\uDDEE │ member count", Integer.toString(ctx.getGuild().getMemberCount()), true)
                 .addBlankField(true)
                 .addField("\uD83D\uDCC6 │ created at", ctx.getGuild().getTimeCreated().getDayOfMonth() + " " + ctx.getGuild().getTimeCreated().getMonth() + " " + ctx.getGuild().getTimeCreated().getYear(), true);
-        Message message = ctx.getChannel().sendMessage(server.build()).complete();
-        //reactions
-        message.addReaction("\uD83D\uDCDC").queue();
+        ctx.getChannel().sendMessage(server.build()).queue(message -> {
+            //reactions
+            message.addReaction("\uD83D\uDCDC").queue();
 
-        MessageReaction.add(ctx.getGuild(), "informationServer", message, ctx.getAuthor(),true, "\uD83D\uDCDC");
+            extendedInfo(ctx.getEvent(), message);
+        });
+
     }
 
 
-    public void guildMessageReactionAddEvent(GuildMessageReactionAddEvent event) {
-        //if reaction was added on the wrong message return
-        if (!MessageReaction.check(event, "informationServer", true)) return;
+    public void extendedInfo(MessageReceivedEvent messageEvent, Message message) {
+        Myra.WAITER.waitForEvent(
+                GuildMessageReactionAddEvent.class, // Event to wait for
+                e -> !e.getUser().isBot()
+                        && e.getUser().getIdLong() == messageEvent.getAuthor().getIdLong()
+                        && e.getReactionEmote().getEmoji().equals("\uD83D\uDCDC"),
+                e -> { // Fires on event
+                    EmbedBuilder server = new EmbedBuilder()
+                            .setAuthor(e.getGuild().getName(), null, e.getGuild().getIconUrl())
+                            .setColor(Utilities.getUtils().blue)
+                            .setThumbnail(e.getGuild().getIconUrl())
+                            .addField("\uD83D\uDC51 │ owner", e.getGuild().getOwner().getAsMention(), true)
+                            .addField("\uD83C\uDF9F │ server id", e.getGuild().getId(), true)
+                            .addBlankField(true)
+                            .addField("\uD83D\uDE80 │ boosts", "level " + e.getGuild().getBoostTier().toString().replace("NONE", "0") + " (" + e.getGuild().getBoostCount() + " boosts)", true)
+                            .addField("\uD83E\uDDEE │ member count", Integer.toString(e.getGuild().getMemberCount()), true)
+                            .addBlankField(true)
+                            .addField("\uD83D\uDCC6 │ created at", e.getGuild().getTimeCreated().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy , hh:mm")), true)
 
-        if (event.getReactionEmote().getEmoji().equals("\uD83D\uDCDC")) {
-            //remove reaction
-            event.getChannel().retrieveMessageById(event.getMessageId()).complete().clearReactions().complete();
-            //servers information
-            EmbedBuilder server = new EmbedBuilder()
-                    .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setThumbnail(event.getGuild().getIconUrl())
-                    .addField("\uD83D\uDC51 │ owner", event.getGuild().getOwner().getAsMention(), true)
-                    .addField("\uD83C\uDF9F │ server id", event.getGuild().getId(), true)
-                    .addBlankField(true)
-                    .addField("\uD83D\uDE80 │ boosts", "level " + event.getGuild().getBoostTier().toString().replace("NONE", "0") + " (" + event.getGuild().getBoostCount() + " boosts)", true)
-                    .addField("\uD83E\uDDEE │ member count", Integer.toString(event.getGuild().getMemberCount()), true)
-                    .addBlankField(true)
-                    .addField("\uD83D\uDCC6 │ created at", event.getGuild().getTimeCreated().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy , hh:mm")), true)
 
+                            .addField("\uD83D\uDDFA │ region", e.getGuild().getRegionRaw(), false)
+                            .addField("\uD83D\uDDD2 │ details",
+                                    "\uD83D\uDCC1 │ channels: `" + e.getGuild().getChannels().size() + "`" +
+                                            "\n\uD83D\uDC65 │ roles: `" + e.getGuild().getRoles().size() + "`" +
+                                            "\n\uD83E\uDD2A │ emojis: `" + e.getGuild().getRoles().size() + "`",
+                                    true)
+                            .addField("\uD83D\uDDD2 │ moderation",
+                                    "\u2705 │ verification level: `" + e.getGuild().getVerificationLevel().toString().toLowerCase() + "`" +
+                                            "\n\uD83D\uDCFA │ media content filter: `" + e.getGuild().getExplicitContentLevel().toString().toLowerCase() + "`",
+                                    true);
+                    e.retrieveMessage().queue(msg -> { // Retrieve message
+                        message.editMessage(server.build()).queue(); // Edit message
+                        message.clearReactions().queue(); // Clear reactions
+                    });
+                },
+                30L, TimeUnit.SECONDS, // Timeout
+                () -> message.clearReactions().queue()
+        );
 
-                    .addField("\uD83D\uDDFA │ region", event.getGuild().getRegionRaw(), false)
-                    .addField("\uD83D\uDDD2 │ details",
-                            "\uD83D\uDCC1 │ channels: `" + event.getGuild().getChannels().size() + "`" +
-                                    "\n\uD83D\uDC65 │ roles: `" + event.getGuild().getRoles().size() + "`" +
-                                    "\n\uD83E\uDD2A │ emojis: `" + event.getGuild().getRoles().size() + "`",
-                            true)
-                    .addField("\uD83D\uDDD2 │ moderation",
-                            "\u2705 │ verification level: `" + event.getGuild().getVerificationLevel().toString().toLowerCase() + "`" +
-                                    "\n\uD83D\uDCFA │ media content filter: `" + event.getGuild().getExplicitContentLevel().toString().toLowerCase() + "`",
-                            true);
-            event.getChannel().editMessageById(event.getMessageId(), server.build()).queue();
-        }
     }
 }
 

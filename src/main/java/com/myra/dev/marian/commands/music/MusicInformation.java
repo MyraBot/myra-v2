@@ -3,8 +3,10 @@ package com.myra.dev.marian.commands.music;
 import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -45,7 +47,7 @@ public class MusicInformation implements Command {
         EmbedBuilder info = new EmbedBuilder()
                 .setAuthor(player.getPlayingTrack().getInfo().title + " by " + player.getPlayingTrack().getInfo().author, player.getPlayingTrack().getInfo().uri, ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(utilities.blue)
-                .setDescription(player.isPaused() ? "\u23F8\uFE0F " : "\u23F8\uFE0F " + utilities.formatTime(player.getPlayingTrack().getPosition()) + " - " + utilities.formatTime(player.getPlayingTrack().getDuration()))
+                .setDescription(player.isPaused() ? "\u23F8\uFE0F " : "\u23F8\uFE0F " + Format.toTime(player.getPlayingTrack().getPosition()) + " - " + Format.toTime(player.getPlayingTrack().getDuration()))
                 .setFooter(displayPosition(player));
         ctx.getChannel().sendMessage(info.build()).queue();
     }

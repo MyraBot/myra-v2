@@ -3,7 +3,9 @@ package com.myra.dev.marian.commands.leveling;
 import com.myra.dev.marian.database.allMethods.Database;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Utilities;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.utilities.Format;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -22,7 +24,7 @@ public class Time implements Command {
             if (member == null) return;
         }
 
-        final String voiceCallTime = Utilities.getUtils().formatTime(new Database(ctx.getGuild()).getMembers().getMember(member).getLong("voiceCallTime"));
+        final String voiceCallTime = Format.toTime(new Database(ctx.getGuild()).getMembers().getMember(member).getLong("voiceCallTime"));
         EmbedBuilder time = new EmbedBuilder()
                 .setAuthor("time", null, member.getUser().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue)
