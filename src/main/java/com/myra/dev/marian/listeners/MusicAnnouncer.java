@@ -32,7 +32,10 @@ public class MusicAnnouncer extends AudioEventAdapter {
 
             // Delete old message
             if (oldMessageId != null) {
-                requestData.getChannel().retrieveMessageById(oldMessageId).queue(msg -> msg.delete().queue());
+                requestData.getChannel().retrieveMessageById(oldMessageId).queue(
+                        msg -> msg.delete().queue(),
+                        error -> {}
+                );
             }
             // Send message
             requestData.getChannel().sendMessage(nowPlaying.build()).queue(msg -> oldMessageId = msg.getId());
