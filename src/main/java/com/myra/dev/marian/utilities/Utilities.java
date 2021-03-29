@@ -139,16 +139,49 @@ public class Utilities {
      */
     public String inviteJda(JDA jda) {
         return jda.getInviteUrl(
-                Permission.MANAGE_ROLES,
-                Permission.MANAGE_WEBHOOKS,
-                Permission.NICKNAME_MANAGE,
+                Permission.CREATE_INSTANT_INVITE,
                 Permission.KICK_MEMBERS,
+                Permission.BAN_MEMBERS,
+                //Permission.ADMINISTRATOR,
+                Permission.MANAGE_CHANNEL,
+                //Permission.MANAGE_SERVER,
+                Permission.MESSAGE_ADD_REACTION,
+                //Permission.VIEW_AUDIT_LOGS,
+                //Permission.PRIORITY_SPEAKER,
+                //Permission.VIEW_GUILD_INSIGHTS,
+
+                // Applicable to all channel types
+                Permission.VIEW_CHANNEL,
+
+                // Text Permissions
+                Permission.MESSAGE_READ,
+                Permission.MESSAGE_WRITE,
+                //Permission.MESSAGE_TTS,
+                Permission.MESSAGE_MANAGE,
                 Permission.MESSAGE_EMBED_LINKS,
                 Permission.MESSAGE_ATTACH_FILES,
-                Permission.MESSAGE_ADD_REACTION,
+                Permission.MESSAGE_HISTORY,
+                //Permission.MESSAGE_MENTION_EVERYONE,
                 Permission.MESSAGE_EXT_EMOJI,
-                Permission.MESSAGE_MANAGE,
-                Permission.VOICE_CONNECT);
+                Permission.USE_SLASH_COMMANDS,
+
+                // Voice Permissions
+                //Permission.VOICE_STREAM,
+                Permission.VOICE_CONNECT,
+                Permission.VOICE_SPEAK,
+                //Permission.VOICE_MUTE_OTHERS,
+                //Permission.VOICE_DEAF_OTHERS,
+                //Permission.VOICE_MOVE_OTHERS,
+                //Permission.VOICE_USE_VAD,
+
+                //Permission.NICKNAME_CHANGE,
+                Permission.NICKNAME_MANAGE,
+
+                Permission.MANAGE_ROLES,
+                //Permission.MANAGE_PERMISSIONS,
+                Permission.MANAGE_WEBHOOKS
+                //Permission.MANAGE_EMOTES,
+        );
     }
 
     public String marianUrl() {
