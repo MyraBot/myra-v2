@@ -29,7 +29,7 @@ public class Report implements Command {
 
         // Bug report
         final Webhook report = new Webhook(webhookUrl); // Set webhook
-        report.setUsername(ctx.getAuthor().getName()); // Set webhook name
+        report.setUsername(ctx.getAuthor().getAsTag()); // Set webhook name
         report.setAvatarUrl(ctx.getAuthor().getEffectiveAvatarUrl()); // Set webhook profile picture
 
         Webhook.EmbedObject bug = new Webhook.EmbedObject() // Create JSON embed
