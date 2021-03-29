@@ -4,7 +4,6 @@ import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -35,9 +34,10 @@ public class GetListenerManager {
 
     /**
      * Toggle a listener on or off.
-     * @param listener The listener to toggle.
+     *
+     * @param listener      The listener to toggle.
      * @param listenerEmoji The emoji of the listener.
-     * @param event The GuildMessageReceivedEvent.
+     * @param event         The GuildMessageReceivedEvent.
      */
     public void toggle(String listener, String listenerEmoji, MessageReceivedEvent event) {
         final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(); // Get guild document
@@ -50,6 +50,6 @@ public class GetListenerManager {
                 .setCommand(listener)
                 .setEmoji(listenerEmoji)
                 .setAvatar(event.getAuthor().getEffectiveAvatarUrl());
-        success.setMessage("the condition is " + (newValue ? "true" : "false")).send();
+        success.setMessage("Leveling got toggled " + (newValue ? "on" : "off")).send();
     }
 }
