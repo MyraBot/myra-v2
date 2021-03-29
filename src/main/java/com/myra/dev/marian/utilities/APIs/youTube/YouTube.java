@@ -23,6 +23,23 @@ public class YouTube {
     public List<Channel> searchChannelByName(String query) throws IOException {
         final String baseUrl = "https://www.youtube.com/results?search_query={query}&sp=EgIQAg%253D%253D";
 
+        /*final Document jsoup = Jsoup
+                .connect(baseUrl.replace("{query}", query))
+                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                .get();
+
+        JSONObject infoJson = null;
+        final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
+        while (scripts.hasNext()) {
+            final Element script = scripts.next(); // Get next script
+
+            if (!script.html().startsWith("var ytInitialData =")) continue;
+
+            final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
+            final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
+            infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
+            break;
+        }*/
         final Document jsoup = Jsoup
                 .connect(baseUrl.replace("{query}", query))
                 .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
@@ -38,6 +55,7 @@ public class YouTube {
             final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
             final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
             infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
+            break;
         }
 
         final int results = Integer.parseInt(infoJson.getString("estimatedResults"));
@@ -57,16 +75,22 @@ public class YouTube {
         return channels;
     }
 
-    public Channel getChannel(String channelId) throws IOException {
+    public Channel getChannel(String channelId) {
         final String baseUrl = "https://www.youtube.com/channel/{channelId}/about";
 
-        final Document json = Jsoup
-                .connect(baseUrl.replace("{channelId}", channelId))
-                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                .get();
+        Document jsoup = null;
+        try {
+            jsoup = Jsoup
+                    .connect(baseUrl.replace("{channelId}", channelId))
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         JSONObject infoJson = null;
-        final Iterator<Element> scripts = json.getElementsByTag("script").iterator();
+        final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
         while (scripts.hasNext()) {
             final Element script = scripts.next(); // Get next script
 
@@ -107,27 +131,29 @@ public class YouTube {
         final Elements videosInfoXml = content.getElementsByTag("entry");
 
 
-        final Document json = Jsoup
-                .connect(baseUrl + channelId)
-                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                .get();
-        // Create iterator for all script tags
-        final Iterator<Element> scripts = json.getElementsByTag("script").iterator();
-        JSONObject infoJson = null;
+        JSONObject json = null;
+        while (json == null) {
+            final Document jsoup = Jsoup
+                    .connect(baseUrl + channelId)
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .get();
 
-        while (scripts.hasNext()) {
-            final Element script = scripts.next(); // Get next script
+            // Create iterator for all script tags
+            final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
 
-            if (!script.html().startsWith("var ytInitialData =")) continue;
+            while (scripts.hasNext()) {
+                final Element script = scripts.next(); // Get next script
 
-            final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
-            final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
-            infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
+                if (!script.html().startsWith("var ytInitialData =")) continue;
+
+                final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
+                final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
+                json = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
+            }
         }
 
-        if (infoJson == null) System.out.println(json);
         // Get youtube channel information
-        final JSONObject channelInfo = infoJson.getJSONObject("metadata").getJSONObject("channelMetadataRenderer");
+        final JSONObject channelInfo = json.getJSONObject("metadata").getJSONObject("channelMetadataRenderer");
         final String channelName = channelInfo.getString("title"); // Get username
         final String avatar = channelInfo.getJSONObject("avatar").getJSONArray("thumbnails").getJSONObject(0).getString("url"); //  Get avatar url
 
@@ -181,8 +207,5 @@ public class YouTube {
         final String ownerName = ownerInfo.getJSONObject("title").getJSONArray("runs").getJSONObject(0).getString("text"); // Get name of owner
         final String ownerId = ownerInfo.getJSONObject("title").getJSONArray("runs").getJSONObject(0).getJSONObject("navigationEndpoint").getJSONObject("browseEndpoint").getString("browseId"); // Get id of owner
         final String ownerAvatar = ownerInfo.getJSONObject("thumbnail").getJSONArray("thumbnails").getJSONObject(2).getString("url"); // Get avatar of owner
-
-
-        System.out.println(info);
     }
 }
