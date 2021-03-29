@@ -45,7 +45,7 @@ public class GetMember {
             userDocument.put(guild.getId(), guildMemberDocument); // Add document for guild to user document
             mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
         }
-        this.memberDocument = (Document) userDocument.get(guild.getId()); // Get the guild document of the member
+        this.memberDocument = userDocument.get(guild.getId(), Document.class); // Get the guild document of the member
     }
 
     //get xp
