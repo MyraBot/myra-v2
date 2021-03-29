@@ -239,7 +239,7 @@ public class BlackJack implements Command {
                             // Create match message
                             EmbedBuilder match = new EmbedBuilder()
                                     .setAuthor("blackjack", null, player.getPlayer().getUser().getEffectiveAvatarUrl())
-                                    .setColor(Utilities.getUtils().getMemberRoleColour(e.getMember()))
+                                    .setColor(e.getMember().getColor())
                                     // Player cards
                                     .addField("Your cards: " + playerValue, getPlayerCards(player, e.getJDA()), false)
                                     // Dealer cards
@@ -271,7 +271,7 @@ public class BlackJack implements Command {
                 // Player cards
                 .addField("Your cards: " + player.getValue(), getPlayerCards(player, guild.getJDA()), false);
 
-        match.setColor(Utilities.getUtils().getMemberRoleColour(player.getPlayer()));
+        match.setColor(player.getPlayer().getColor());
 
         // Get member in database
         final GetMember dbMember = new Database(guild).getMembers().getMember(player.getPlayer());

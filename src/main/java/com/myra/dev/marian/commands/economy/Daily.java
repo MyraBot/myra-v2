@@ -33,7 +33,7 @@ public class Daily implements Command {
         // Create embed
         EmbedBuilder daily = new EmbedBuilder()
                 .setAuthor("daily", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().getMemberRoleColour(ctx.getEvent().getMember()));
+                .setColor(ctx.getMember().getColor());
 
         // 12 didn't pass
         if (TimeUnit.MILLISECONDS.toHours(passedTime) < 12) {

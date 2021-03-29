@@ -54,7 +54,7 @@ public class SubmitSuggestion implements Command {
         ctx.getGuild().getTextChannelById(db.getString("suggestionsChannel")).sendMessage(
                 new EmbedBuilder()
                         .setAuthor("suggestion by " + ctx.getAuthor().getAsTag(), ctx.getEvent().getMessage().getJumpUrl(), ctx.getGuild().getIconUrl())
-                        .setColor(utilities.getMemberRoleColour(ctx.getEvent().getMember()))
+                        .setColor(ctx.getMember().getColor())
                         .setThumbnail(ctx.getAuthor().getEffectiveAvatarUrl())
                         .setDescription(suggestion)
                         .setTimestamp(Instant.now())

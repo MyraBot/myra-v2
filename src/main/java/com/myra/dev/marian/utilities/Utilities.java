@@ -9,9 +9,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import org.json.JSONObject;
 
-import java.awt.*;
 import java.text.NumberFormat;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -77,30 +75,6 @@ public class Utilities {
         //Remove last space
         string = new StringBuilder(string.substring(0, string.length() - 1));
         return string.toString();
-    }
-
-    /**
-     * Get the colour of a member.
-     *
-     * @param member The User you want the colour from.
-     * @return The colour as a Color Object.
-     */
-    public Color getMemberRoleColour(Member member) {
-        // Get all roles of the member
-        List<Role> roles = member.getRoles();
-        // If member doesn't have any roles
-        if (roles.isEmpty()) {
-            return new Color(gray);
-        } else
-            // Loop through every roles
-            for (Role role : roles) {
-                // When the role hasn't the default color
-                if (role.getColorRaw() != 536870911) { //RGB int value of default color
-                    return role.getColor();
-                }
-            }
-        // If none of the roles aren't the default colour
-        return new Color(gray);
     }
 
     /**
@@ -206,7 +180,8 @@ public class Utilities {
         // Member given by id or mention
         if (providedMember.startsWith("<@") || providedMember.matches("\\d+")) {
             member = event.getGuild().retrieveMemberById(providedMember.replaceAll("[<@!>]", "")).complete();
-        } else if (!event.getGuild().getMembersByEffectiveName(providedMember, true).isEmpty()) {
+        }
+        else if (!event.getGuild().getMembersByEffectiveName(providedMember, true).isEmpty()) {
             member = event.getGuild().getMembersByEffectiveName(providedMember, true).get(0);
         }
 

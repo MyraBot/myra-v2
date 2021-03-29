@@ -25,7 +25,7 @@ public class Avatar implements Command {
         EmbedBuilder avatar = new EmbedBuilder()
                 .setAuthor(user.getName() + "'s avatar:", user.getEffectiveAvatarUrl(), user.getEffectiveAvatarUrl());
         if (ctx.getGuild().getMember(user) != null) {
-            avatar.setColor(utilities.getMemberRoleColour(ctx.getGuild().getMember(user)));
+            avatar.setColor(ctx.getGuild().getMember(user).getColor());
         }
         avatar.setImage(user.getEffectiveAvatarUrl());
 
