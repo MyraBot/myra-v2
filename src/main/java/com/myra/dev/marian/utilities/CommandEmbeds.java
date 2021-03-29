@@ -62,7 +62,7 @@ public class CommandEmbeds {
                 .addField("`" + prefix + "information`", "\uD83D\uDDD2 │ Gives you information", false)
                 .addField("`" + prefix + "reminder <duration><time unit> <description>`", "\u23F0 │ Let " + jda.getSelfUser().getName() + " remind you of something", false)
                 .addField("`" + prefix + "suggest`", "\uD83D\uDDF3 │ Suggest something", false)
-                .addField("`" + prefix + "`" + "character", "\u2049 │ Get the Unicode of a character or emoji", false);
+                .addField("`" + prefix + "character`", "\u2049 │ Get the Unicode of a character or emoji", false);
     }
 
     //fun
@@ -79,7 +79,6 @@ public class CommandEmbeds {
         return new EmbedBuilder()
                 .setAuthor("leveling", null, author.getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "leveling toggle", "\uD83D\uDD11 │ Toggle experience gain off and on", false)
                 .addField("`" + prefix + "rank <user>`", "\uD83C\uDFC5 │ Shows the rank of a user", false)
                 .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ Shows the leaderboard", false)
                 .addField("`" + prefix + "time <user>`", "\u231A │ Check the time a user spend in a voice call", false)
