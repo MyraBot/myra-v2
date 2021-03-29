@@ -17,7 +17,7 @@ public class MongoDbUpdate {
 
     //update Database
     public void update(ReadyEvent event) throws Exception {
-        updateGuilds();
+        //updateGuilds();
         //updateUsers();
     }
 
@@ -51,7 +51,7 @@ public class MongoDbUpdate {
                     .append("welcomeColour", welcomeRaw.getString("welcomeColour"))
                     .append("welcomeImageBackground", welcomeRaw.getString("welcomeImageBackground"))
                     .append("welcomeImageFont", welcomeRaw.getString("welcomeImageFont"))
-                    .append("welcomeEmbedMessage", welcomeRaw.getString("welcomeEmbedMessage"))
+                    .append("welcomeEmbedMessage",welcomeRaw.getString("welcomeEmbedMessage"))
                     .append("welcomeDirectMessage", welcomeRaw.getString("welcomeDirectMessage"));
             Document commands = new Document()
                     .append("calculate", commandsRaw.getBoolean("calculate"))

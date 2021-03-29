@@ -83,7 +83,7 @@ public class MongoDbDocuments {
                 .append("welcomeColour", String.format("0x%06X", (0xFFFFFF & Utilities.getUtils().blue)))
                 .append("welcomeImageBackground", "not set")
                 .append("welcomeImageFont", "default")
-                .append("welcome", "Welcome {user} to {server}! Enjoy your stay")
+                .append("welcomeEmbedMessage", "Welcome {user} to {server}! Enjoy your stay")
                 .append("welcomeDirectMessage", "Welcome {user} to {server}! Enjoy your stay");
 // Insert document
         //create Document
@@ -103,6 +103,7 @@ public class MongoDbDocuments {
                 .append("reactionRoles", new ArrayList<>())
                 .append("autoRole", new ArrayList<>())
                 .append("muteRole", "not set")
+                .append("musicVoting", false)
 
                 .append("welcome", welcome)
                 .append("commands", commands)
