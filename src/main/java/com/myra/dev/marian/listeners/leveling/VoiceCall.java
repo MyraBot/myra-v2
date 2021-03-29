@@ -12,12 +12,11 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class VoiceCall {
-    //              Guild         User   start time
+    //                     Guild           User    start time
     private static HashMap<String, HashMap<String, Long>> activeCalls = new HashMap<>(); // Create hashmap for tracking calls
 
     public void startXpGain(Member member) {
         try {
-            if (!new Database(member.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
             final Guild guild = member.getGuild(); // Get guild
             final GuildVoiceState voiceState = member.getVoiceState(); // Get members voice state
             if (voiceState.isMuted()) return; // Member is muted
@@ -34,13 +33,12 @@ public class VoiceCall {
 
             // Add user
             activeCalls.get(guild.getId()).put(member.getId(), System.currentTimeMillis()); // Save voice call start time
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
 
     public void updateXpGain(GuildVoiceMuteEvent event) throws Exception {
-        if (!new Database(event.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
         final GuildVoiceState state = event.getMember().getVoiceState(); // Members voice sate
 
         // Member was muted
@@ -53,7 +51,6 @@ public class VoiceCall {
 
     public void stopXpGain(Member member) {
         try {
-            if (!new Database(member.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
             if (!activeCalls.containsKey(member.getGuild().getId())) return;
             if (!activeCalls.get(member.getGuild().getId()).containsKey(member.getId())) return;
 
@@ -63,14 +60,17 @@ public class VoiceCall {
             final Long timeSpoken = System.currentTimeMillis() - activeCalls.get(member.getGuild().getId()).get(member.getId()); // Get voice call time from the active voice call
             dbMember.setLong("voiceCallTime", currentSpokenTime + timeSpoken); // Update voice call time
 
-            final int newXp = getXp(timeSpoken); // Get gathered xp
-            new Leveling().levelUp(member, null, dbMember, newXp); // Check for new level
+            // Leveling is enabled
+            if (new Database(member.getGuild()).getListenerManager().check("leveling")) {
+                final int newXp = getXp(timeSpoken); // Get gathered xp
+                new Leveling().levelUp(member, null, dbMember, newXp); // Check for new level
 
-            final int xp = dbMember.getInteger("xp"); // Get current xp
-            dbMember.setInteger("xp", xp + newXp); // Update xp
+                final int xp = dbMember.getInteger("xp"); // Get current xp
+                dbMember.setInteger("xp", xp + newXp); // Update xp
+            }
 
             activeCalls.get(member.getGuild().getId()).remove(member.getId()); // Remove user from active calls
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
