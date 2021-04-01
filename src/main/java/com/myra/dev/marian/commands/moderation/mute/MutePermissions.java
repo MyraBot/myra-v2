@@ -14,6 +14,11 @@ public class MutePermissions  {
         if (id.equals("not set")) return;
         Role muteRole = event.getGuild().getRoleById(id);
         if (muteRole == null) return;
-        event.getChannel().getManager().putPermissionOverride(muteRole, null, EnumSet.of(Permission.MESSAGE_WRITE)).queue();
+
+        // Bot has permissions to change channel
+        if (event.getGuild().getSelfMember().hasPermission(event.getChannel(), Permission.MANAGE_CHANNEL)) {
+            event.getChannel().getManager().putPermissionOverride(muteRole, null, EnumSet.of(Permission.MESSAGE_WRITE)).queue();
+        }
+
     }
 }
