@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
@@ -62,9 +63,10 @@ public class Myra {
                         CacheFlag.CLIENT_STATUS,
                         CacheFlag.VOICE_STATE
                 )
+                .setChunkingFilter(ChunkingFilter.NONE) // Disable member chunking on startup
+                .setLargeThreshold(50)
                 .setStatus(OnlineStatus.IDLE)
                 .setActivity(Activity.watching(LOADING_STATUS))
-
                 .addEventListeners(
                         WAITER,
                         new Listeners(),
