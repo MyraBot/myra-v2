@@ -39,7 +39,7 @@ public class Spotify {
             final JSONObject json = new JSONObject(output); // Parse response to JSONObject
             final String accessToken = json.getString("access_token"); // Get access token
             this.accessToken = accessToken;
-        } catch (IOException e) {
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
@@ -54,7 +54,7 @@ public class Spotify {
         try (Response response = Utilities.HTTP_CLIENT.newCall(playlistRequest).execute()) {
             final String output = response.body().string(); // Fetch response
             jsonPlaylist = new JSONObject(output); // Parse to JSONObject
-        } catch (IOException e) {
+        } catch (IOException e){
             e.printStackTrace();
         }
 
@@ -66,13 +66,17 @@ public class Spotify {
         JSONArray jsonPlaylistThumbnail = null;
         try (Response response = Utilities.HTTP_CLIENT.newCall(playlistThumbnailRequest).execute()) {
             final String output = response.body().string(); // Fetch response
-            jsonPlaylistThumbnail = new JSONArray(output); // Parse to JSONObject
-        } catch (IOException e) {
-            try {
-                System.out.println(Utilities.HTTP_CLIENT.newCall(playlistThumbnailRequest).execute().body().string());
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+
+            // Access token expired
+            if (output.contains("The access token expired")) {
+                generateAuthToken(); // Generate new access token
+                return getPlaylist(playlistId); // Rerun method
             }
+            else {
+                jsonPlaylistThumbnail = new JSONArray(output); // Parse to JSONObject
+            }
+        } catch (IOException e){
+
             e.printStackTrace();
         }
 
