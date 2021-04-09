@@ -1,6 +1,6 @@
 package com.myra.dev.marian.utilities.EmbedMessage;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -64,14 +64,14 @@ public class CommandUsage {
             // Command is premium command
             if (usage.getPremiumStatus()) {
                 embed.addField(
-                        String.format("`%s%s`  %s", new Database(this.e.getGuild()).getString("prefix"), usage.getUsage(), Config.PREMIUM),
+                        String.format("`%s%s`  %s", new MongoGuild(this.e.getGuild()).getString("prefix"), usage.getUsage(), Config.PREMIUM),
                         String.format("%s │ %s", usage.getEmoji(), usage.getDescription()),
                         false);
             }
             // Command is normal command
             else {
                 embed.addField(
-                        String.format("`%s%s`", new Database(this.e.getGuild()).getString("prefix"), usage.getUsage()),
+                        String.format("`%s%s`", new MongoGuild(this.e.getGuild()).getString("prefix"), usage.getUsage()),
                         String.format("%s │ %s", usage.getEmoji(), usage.getDescription()),
                         false);
             }

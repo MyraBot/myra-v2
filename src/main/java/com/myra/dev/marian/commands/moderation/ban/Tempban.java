@@ -5,7 +5,7 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.mongodb.client.MongoCollection;
 import com.myra.dev.marian.database.MongoDb;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
@@ -160,7 +160,7 @@ public class Tempban implements Command {
     }
 
     private void unbanMessage(User user, Guild guild, User author) {
-        Database db = new Database(guild); // Get database
+        MongoGuild db = new MongoGuild(guild); // Get database
         // Direct message
         EmbedBuilder directMessage = new EmbedBuilder()
                 .setAuthor("│ You got unbanned", null, guild.getIconUrl())

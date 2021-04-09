@@ -1,6 +1,6 @@
 package com.myra.dev.marian.commands.leveling;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
@@ -24,7 +24,7 @@ public class Time implements Command {
             if (member == null) return;
         }
 
-        final String voiceCallTime = Format.toTime(new Database(ctx.getGuild()).getMembers().getMember(member).getLong("voiceCallTime"));
+        final String voiceCallTime = Format.toTime(new MongoGuild(ctx.getGuild()).getMembers().getMember(member).getVoiceTime());
         EmbedBuilder time = new EmbedBuilder()
                 .setAuthor("time", null, member.getUser().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue)

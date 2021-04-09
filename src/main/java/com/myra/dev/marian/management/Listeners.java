@@ -9,6 +9,7 @@ import com.myra.dev.marian.commands.moderation.ban.Tempban;
 import com.myra.dev.marian.commands.moderation.mute.MutePermissions;
 import com.myra.dev.marian.commands.moderation.mute.Tempmute;
 import com.myra.dev.marian.commands.music.MusicVoteListener;
+import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.MongoDbUpdate;
 import com.myra.dev.marian.listeners.*;
 import com.myra.dev.marian.listeners.leveling.LevelingListener;
@@ -19,8 +20,8 @@ import com.myra.dev.marian.listeners.premium.UnicornChange;
 import com.myra.dev.marian.listeners.welcome.WelcomeListener;
 import com.myra.dev.marian.marian.Roles;
 import com.myra.dev.marian.marian.ServerTracking;
-import com.myra.dev.marian.utilities.APIs.spotify.Spotify;
 import com.myra.dev.marian.utilities.APIs.Twitch;
+import com.myra.dev.marian.utilities.APIs.spotify.Spotify;
 import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Activity;
@@ -31,6 +32,7 @@ import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -52,6 +54,8 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import static com.mongodb.client.model.Filters.eq;
 
 public class Listeners extends ListenerAdapter {
     public static boolean ready = false;
@@ -96,11 +100,11 @@ public class Listeners extends ListenerAdapter {
                 try {
                     shard.getPresence().setActivity(Activity.listening(String.format("~help │  %s servers", guilds))); // Change status|
                     shard.getSelfUser().getManager().setAvatar(Icon.from(inputStream)).queue(); // Change profile picture
-                } catch (IOException e) {
+                } catch (IOException e){
                     e.printStackTrace();
                 }
             });
-        } catch (IOException e) {
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
@@ -112,7 +116,7 @@ public class Listeners extends ListenerAdapter {
             while (!ready) {
                 try {
                     TimeUnit.SECONDS.sleep(10);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException e){
                     Thread.currentThread().interrupt(); // restore interrupted status
                 }
             }
@@ -132,7 +136,7 @@ public class Listeners extends ListenerAdapter {
             new UnicornChange().change();
             LOGGER.info(onlineInfo);
             Config.startUp = System.currentTimeMillis();
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -143,7 +147,7 @@ public class Listeners extends ListenerAdapter {
     public void onGuildMessageUpdate(@Nonnull GuildMessageUpdateEvent event) {
         try {
             globalChat.messageEdited(event);
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -154,14 +158,9 @@ public class Listeners extends ListenerAdapter {
             if (!ready) return;
             if (event.getUser().isBot()) return; // Don't react to bots
 
-            // Administrator
-            notificationsList.switchList(event); // List notification
             reactionRoles.reactionRoleAssign(event); // Reaction roles
-            // Commands
-            informationServer.guildMessageReactionAddEvent(event);
-            // Music
-            new MusicVoteListener().onVoteAdd(event);
-        } catch (Exception e) {
+            new MusicVoteListener().onVoteAdd(event); // Music commands voting
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -171,7 +170,7 @@ public class Listeners extends ListenerAdapter {
         try {
             if (!ready) return;
             reactionRoles.reactionRoleRemove(event); // Reaction roles remove listener
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -183,13 +182,22 @@ public class Listeners extends ListenerAdapter {
             final Message msg = event.getMessage();
             if (msg.getFlags().contains(Message.MessageFlag.IS_CROSSPOST)) return; // Message is a server announcement
             if (msg.isWebhookMessage()) return; // Message is a WebHook
+
+
+            if (event.getAuthor().isBot()) {
+                if (event.getAuthor().isBot()) {
+                    if (MongoDb.getInstance().getCollection("users").find(eq("userId", event.getAuthor().getId())).first() != null) {
+                        MongoDb.getInstance().getCollection("users").findOneAndDelete(MongoDb.getInstance().getCollection("users").find(eq("userId", event.getAuthor().getId())).first());
+                    }
+                }
+            }
             if (event.getAuthor().isBot()) return; // Message is from another bot
 
             globalChat.onMessage(event);
             levelingListener.onMessage(event);
             someone.onMessage(event);
             easterEggs.onMessage(event);
-        } catch (Exception exception) {
+        } catch (Exception exception){
             new ErrorCatch().catchError(exception, event);
         }
     }
@@ -201,7 +209,7 @@ public class Listeners extends ListenerAdapter {
             if (!ready) return;
             // Set permissions for mute role
             new MutePermissions().textChannelCreateEvent(event);
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -217,7 +225,7 @@ public class Listeners extends ListenerAdapter {
             new ServerTracking().guildJoinEvent(event);
             // Thank message to server owner
             new InviteThanks().guildJoinEvent(event);
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -226,9 +234,17 @@ public class Listeners extends ListenerAdapter {
     public void onGuildLeave(@Nonnull GuildLeaveEvent event) {
         try {
             if (!ready) return;
-            //delete guild document
-            new MongoDbUpdate().guildLeaveEvent(event);
-        } catch (Exception e) {
+            // Nothing here yet :)
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onGuildMemberRemove(@Nonnull GuildMemberRemoveEvent event) {
+        try {
+            // Nothing here yet
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -239,7 +255,7 @@ public class Listeners extends ListenerAdapter {
         try {
             if (!ready) return;
             new MongoDbUpdate().guildNameUpdated(event);
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -253,7 +269,7 @@ public class Listeners extends ListenerAdapter {
             welcomeListener.welcome(event); // Welcome
             autoroleAssign.onGuildMemberJoin(event); // Autorole
             roles.exclusive(event); // Exclusive role
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -262,7 +278,7 @@ public class Listeners extends ListenerAdapter {
     public void onGuildMemberRoleAdd(@Nonnull GuildMemberRoleAddEvent event) {
         try {
             //new Roles().categories(event);
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -276,7 +292,7 @@ public class Listeners extends ListenerAdapter {
 
             voiceCall.updateXpGain(event.getChannelJoined()); // Start xp gian
             MusicTimeout.getGuildManager(event.getGuild()).interrupt();
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -290,7 +306,7 @@ public class Listeners extends ListenerAdapter {
             voiceCall.updateXpGain(event.getChannelLeft()); // Update xp for users, who are still in old voice call
             voiceCall.updateXpGain(event.getChannelJoined()); // Update xp for users in new voice call
             MusicTimeout.getGuildManager(event.getGuild()).timeout(event.getGuild(), event.getChannelLeft()); // Check for music timeout
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -303,7 +319,7 @@ public class Listeners extends ListenerAdapter {
 
             voiceCall.stopXpGain(event.getMember()); // Stop xp gain
             MusicTimeout.getGuildManager(event.getGuild()).timeout(event.getGuild(), event.getChannelLeft()); // Check for music timeout
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -315,7 +331,7 @@ public class Listeners extends ListenerAdapter {
             if (event.getMember().getUser().isBot()) return;
 
             voiceCall.updateXpGain(event); // Update xp gain
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }

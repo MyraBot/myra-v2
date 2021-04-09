@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
@@ -9,7 +9,6 @@ import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 @CommandSubscribe(
@@ -48,7 +47,7 @@ public class MusicClearQueue implements Command {
         final int size = (int) ctx.getMember().getVoiceState().getChannel().getMembers().stream().filter(member -> !member.getUser().isBot()).count();
 
         // Skip song
-        if (size <= 4 || !new Database(ctx.getGuild()).getBoolean("musicVoting")) {
+        if (size <= 4 || !new MongoGuild(ctx.getGuild()).getBoolean("musicVoting")) {
             clearQueue(scheduler, ctx.getChannel(), ctx.getAuthor());
         }
 

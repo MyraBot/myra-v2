@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.economy;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.DiscordBoats;
@@ -23,12 +23,12 @@ public class Daily implements Command {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
 
-        final GetMember member = new Database(ctx.getGuild()).getMembers().getMember(ctx.getEvent().getMember()); // Get member from database
+        final GuildMember member = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getEvent().getMember()); // Get member from database
         long lastClaim = member.getLastClaim(); // Get last claimed reward
 
 
         long passedTime = System.currentTimeMillis() - lastClaim; // Get duration, which passed (in milliseconds)
-        final String currency = new Database(ctx.getGuild()).getNested("economy").getString("currency").toString(); // Get currency
+        final String currency = new MongoGuild(ctx.getGuild()).getNested("economy").getString("currency").toString(); // Get currency
 
         // Create embed
         EmbedBuilder daily = new EmbedBuilder()
@@ -61,18 +61,18 @@ public class Daily implements Command {
                 member.setDailyStreak(1); // Reset daily streak
             }
             // New reward
-            else member.setDailyStreak(member.getInteger("dailyStreak") + 1); // Update daily streak
+            else member.setDailyStreak(member.getDailyStreak() + 1); // Update daily streak
 
             // Get streak bonus
             int streakReward;
-            if (member.getInteger("dailyStreak") > 14) streakReward = 14 * 100; // You can't get a higher streak than 14
-            else streakReward = member.getInteger("dailyStreak") * 100; // Get streak reward
+            if (member.getDailyStreak() > 14) streakReward = 14 * 100; // You can't get a higher streak than 14
+            else streakReward = member.getDailyStreak() * 100; // Get streak reward
 
             final int dailyReward = streakReward + voteBonus; // Get daily reward
 
             // Maximum amount of balance reached
-            if (member.getInteger("balance") + dailyReward > Config.ECONOMY_MAX) {
-                member.setInteger("balance", Config.ECONOMY_MAX); // Set members balance to the maximum
+            if (member.getBalance() + dailyReward > Config.ECONOMY_MAX) {
+                member.setBalance(Config.ECONOMY_MAX); // Set members balance to the maximum
                 daily.setDescription("You reached the limit! Now you have `"  + Config.ECONOMY_MAX + "` " + currency + "\n"); // Show streak reward
                 // User voted
                 if (voteBonus != 0) {
@@ -89,7 +89,7 @@ public class Daily implements Command {
                 }
             }
             member.updateClaimedReward(); // Update last claimed reward time
-            daily.setFooter("streak: " + member.getInteger("dailyStreak") + "/14"); // Show streak
+            daily.setFooter("streak: " + member.getDailyStreak() + "/14"); // Show streak
 
             ctx.getChannel().sendMessage(daily.build()).queue(); // Send daily reward
         }

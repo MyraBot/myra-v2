@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.administrator.notifications;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -35,7 +35,7 @@ public class NotificationsChannel implements Command {
          * Change notification channel
          */
         //Get database
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         //get channel
         TextChannel channel = utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "notification channel", "\uD83D\uDD14");
         if (channel == null) return;

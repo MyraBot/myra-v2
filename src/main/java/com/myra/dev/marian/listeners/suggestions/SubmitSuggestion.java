@@ -3,7 +3,7 @@ package com.myra.dev.marian.listeners.suggestions;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,7 +17,7 @@ public class SubmitSuggestion implements Command {
     @Override
     public void execute(CommandContext ctx) throws Exception {
         // Get database
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         //check if feature is disabled
         if (!db.getListenerManager().check("suggestions")) return;
         // Get utilities

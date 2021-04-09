@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.music;
 
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
 import com.myra.dev.marian.utilities.Utilities;
@@ -56,7 +56,7 @@ public class MusicVoteListener {
                                     System.out.println(votes.get());
                                     if (votes.get() < size / 2) return; // Not enough votes
 
-                                    final String prefix = new Database(event.getGuild()).getString("prefix"); // Get prefix
+                                    final String prefix = new MongoGuild(event.getGuild()).getString("prefix"); // Get prefix
                                     final TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(event.getGuild()).scheduler;  // Get track scheduler
 
                                     final List<String> skipExecutors = Myra.COMMAND_SERVICE.getCommandExecutors(MusicSkip.class); /** Get all executors from the {@link MusicSkip} class*/

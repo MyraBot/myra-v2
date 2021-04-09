@@ -1,8 +1,8 @@
 package com.myra.dev.marian.listeners.leveling;
 
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
-import com.myra.dev.marian.database.documents.LevelingRolesDocument;
+import com.myra.dev.marian.database.guild.member.GuildMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.LevelingRole;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Graphic;
 import net.dv8tion.jda.api.entities.Guild;
@@ -16,8 +16,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,17 +23,17 @@ import java.util.List;
 
 public class Leveling {
 
-    public void levelUp(Member member, MessageChannel channel, GetMember db, int xp) {
+    public void levelUp(Member member, MessageChannel channel, GuildMember db, int xp) {
         try {
-            final int newLevel = level(db.getInteger("xp") + xp); // Get new level
-            if (db.getInteger("level") == newLevel) return; // Current level is equal to new one
+            final int newLevel = level(db.getXp() + xp); // Get new level
+            if (db.getLevel() == newLevel) return; // Current level is equal to new one
 
             // Level up
-            db.setInteger("level", newLevel); // Update level in database
+            db.setLevel(newLevel); // Update level in database
             final Guild guild = member.getGuild(); // Get guild
             final Graphic graphic = Graphic.getInstance(); // Get graphics
             // Level up message
-            final String levelingChannel = new Database(guild).getNested("leveling").getString("channel"); // Get leveling channel
+            final String levelingChannel = new MongoGuild(guild).getNested("leveling").getString("channel"); // Get leveling channel
 
             if (!levelingChannel.equals("not set")) { // Custom level up channel
                 final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
@@ -53,7 +51,8 @@ public class Leveling {
                 guild.getTextChannelById(levelingChannel).sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
                         .addFile(graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
                         .queue();
-            } else if (channel != null) {
+            }
+            else if (channel != null) {
                 final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
                 channel
                         .sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
@@ -62,7 +61,7 @@ public class Leveling {
             }
             // Leveling role
             updateLevelingRoles(guild, member, db); // Check for leveling roles
-        } catch (FontFormatException | IOException e) {
+        } catch (FontFormatException | IOException e){
             e.printStackTrace();
         }
     }
@@ -113,23 +112,23 @@ public class Leveling {
         return background;
     }
 
-    public void updateLevelingRoles(Guild guild, Member member, GetMember dbMember) {
-        final Document levelingRolesDocument = new Database(guild).getNested("leveling").get("roles", Document.class); // Get leveling roles
+    public void updateLevelingRoles(Guild guild, Member member, GuildMember dbMember) {
+        final Document levelingRolesDocument = new MongoGuild(guild).getNested("leveling").get("roles", Document.class); // Get leveling roles
 
         // Create list of leveling roles documents
-        List<LevelingRolesDocument> levelingRoles = new ArrayList<>();
+        List<LevelingRole> levelingRoles = new ArrayList<>();
         levelingRolesDocument.keySet().forEach(key -> {
             Document levelingRole = levelingRolesDocument.get(key, Document.class); // Get current value as document
-            LevelingRolesDocument rolesDocument = new LevelingRolesDocument(levelingRole); // Create new leveling roles document
+            LevelingRole rolesDocument = new LevelingRole(levelingRole); // Create new leveling roles document
             levelingRoles.add(rolesDocument); // Add document
         });
-        Collections.sort(levelingRoles, Comparator.comparing(LevelingRolesDocument::getLevel)); // Sort list by level
+        Collections.sort(levelingRoles, Comparator.comparing(LevelingRole::getLevel)); // Sort list by level
 
-        final Boolean unique = new Database(guild).getNested("leveling").getBoolean("uniqueRoles");
-        final int level = dbMember.getInteger("level");
+        final Boolean unique = new MongoGuild(guild).getNested("leveling").getBoolean("uniqueRoles");
+        final int level = dbMember.getLevel();
         // For each role
         for (int i = levelingRoles.size() - 1; i > 0; i--) {
-            final LevelingRolesDocument levelingRole = levelingRoles.get(i); // Get current leveling role
+            final LevelingRole levelingRole = levelingRoles.get(i); // Get current leveling role
             // Member's level is higher or equal to required one
             if (level >= levelingRole.getLevel()) {
                 final Role role = guild.getRoleById(levelingRole.getRole()); // Get leveling role to add
@@ -168,12 +167,14 @@ public class Leveling {
 
     //return missing xp
     public int requiredXpForNextLevel(Guild guild, Member member) {
-        int currentLevel = new Database(guild).getMembers().getMember(member).getLevel();
+        int currentLevel = new MongoGuild(guild).getMembers().getMember(member).getLevel();
         //define variable
         double xp;
         //parabola
         double squaredNumber = Math.pow(currentLevel + 1, 2);
         double exactXp = squaredNumber * 5;
+        return (int) exactXp;
+        /*
         //round off
         DecimalFormat f = new DecimalFormat("###");
         xp = Double.parseDouble(f.format(exactXp));
@@ -181,6 +182,8 @@ public class Leveling {
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setMaximumFractionDigits(0);
         //convert to int and remove the '.0'
+        System.out.println(xp);
         return Integer.parseInt(String.valueOf(xp).replace(".0", ""));
+        */
     }
 }

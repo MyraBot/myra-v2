@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -12,7 +12,7 @@ public class AutoroleAssign {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         final Guild guild = event.getGuild(); // Get guild
 
-        final Database db = new Database(guild); // Get database
+        final MongoGuild db = new MongoGuild(guild); // Get database
         List<String> autoRoles = db.getList("autoRole", String.class);
         // Add all roles to member
         autoRoles.forEach(roleId -> {

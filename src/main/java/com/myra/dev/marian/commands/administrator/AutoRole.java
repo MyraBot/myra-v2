@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
@@ -45,7 +45,7 @@ public class AutoRole implements Command {
 
     public void updateAutoRole(MessageReceivedEvent e, Role role) {
         // Get database
-        final Database db = new Database(e.getGuild());
+        final MongoGuild db = new MongoGuild(e.getGuild());
         final List<String> autoRoles = db.getList("autoRole", String.class); // Get autoroles
         Success success = new Success(e)
                 .setCommand("auto role")

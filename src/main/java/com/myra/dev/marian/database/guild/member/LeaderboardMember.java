@@ -1,9 +1,9 @@
-package com.myra.dev.marian.database.documents;
+package com.myra.dev.marian.database.guild.member;
 
 import net.dv8tion.jda.api.entities.Guild;
 import org.bson.Document;
 
-public class MemberDocument {
+public class LeaderboardMember {
     private String id;
 
     private int level;
@@ -11,7 +11,7 @@ public class MemberDocument {
     private int balance;
     private long voiceCallTime;
 
-    public MemberDocument(Document memberDocument, Guild guild) {
+    public LeaderboardMember(Document memberDocument, Guild guild) {
         this.id = memberDocument.getString("userId");
 
         final Document guildMemberDocument = (Document) memberDocument.get(guild.getId()); // Get document of guild

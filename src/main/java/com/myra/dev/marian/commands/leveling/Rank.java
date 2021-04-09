@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.leveling;
 
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
@@ -56,9 +56,9 @@ public class Rank implements Command {
                     .send();
             return;
         }
-        final GetMember getMember = new Database(member.getGuild()).getMembers().getMember(member); // Get member in database
+        final GuildMember getMember = new MongoGuild(member.getGuild()).getMembers().getMember(member); // Get member in database
 
-        String backgroundUrl = getMember.getString("rankBackground");
+        String backgroundUrl = getMember.getRankBackground();
         BufferedImage background;
         // No background set
         if (backgroundUrl.equals("default")) {
@@ -80,7 +80,7 @@ public class Rank implements Command {
     }
 
     public BufferedImage rankCard(Member member, BufferedImage background) throws IOException, FontFormatException {
-        final GetMember getMember = new Database(member.getGuild()).getMembers().getMember(member); // Get member in database
+        final GuildMember getMember = new MongoGuild(member.getGuild()).getMembers().getMember(member); // Get member in database
 
         // Get variables
         String level = String.valueOf(getMember.getLevel());

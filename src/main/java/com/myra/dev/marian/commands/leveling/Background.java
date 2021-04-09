@@ -1,11 +1,12 @@
 package com.myra.dev.marian.commands.leveling;
 
-import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.database.guild.member.GuildMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Img;
 import com.myra.dev.marian.utilities.Utilities;
@@ -39,13 +40,13 @@ public class Background implements Command {
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
-        Database db = new Database(ctx.getGuild()); // Get database
+        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         // Not enough money
         if (db.getMembers().getMember(ctx.getMember()).getBalance() < 10000) {
             new Error(ctx.getEvent())
                     .setCommand("edit rank")
                     .setEmoji("\uD83D\uDDBC")
-                    .setMessage(String.format("You don't have enough money. You need 10 000%n", db.getNested("economy").getString("currency")))
+                    .setMessage(String.format("You don't have enough money. You need 10 000%s", db.getNested("economy").getString("currency")))
                     .send();
             return;
         }
@@ -54,7 +55,7 @@ public class Background implements Command {
             ImageIO.read(new URL(ctx.getArguments()[0])); // Argument is an image
         }
         // Argument isn't an image
-        catch (Exception e) {
+        catch (Exception e){
             new Error(ctx.getEvent())
                     .setCommand("edit rank")
                     .setEmoji("\uD83D\uDDBC")
@@ -96,7 +97,7 @@ public class Background implements Command {
 
                         // Checkmark
                         if (reaction.equals(emojis[0])) {
-                            final GetMember dbMember = db.getMembers().getMember(e.getMember()); // Get member in database
+                            final GuildMember dbMember = db.getMembers().getMember(e.getMember()); // Get member in database
                             dbMember.setBalance(dbMember.getBalance() - 10000); // Update balance
                             // Send success
                             EmbedBuilder success = new EmbedBuilder()
@@ -106,9 +107,9 @@ public class Background implements Command {
                                     .setImage("attachment://background.png");
                             try {
                                 e.getChannel().sendFile(background.getInputStream(), "background.png").embed(success.build()).queue(msg -> {
-                                    dbMember.setString("rankBackground", msg.getEmbeds().get(0).getImage().getUrl()); // Save new image in database
+                                    dbMember.setRankBackground(msg.getEmbeds().get(0).getImage().getUrl()); // Save new image in database
                                 });
-                            } catch (IOException ioException) {
+                            } catch (IOException ioException){
                                 ioException.printStackTrace();
                             }
                         }

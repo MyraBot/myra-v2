@@ -1,6 +1,6 @@
 package com.myra.dev.marian.commands.economy.administrator;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Config;
@@ -35,7 +35,7 @@ public class EconomySet implements Command {
         final Member member = utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "economy set", "\uD83D\uDC5B");
         if (member == null) return;
 
-        final Database db = new Database(ctx.getGuild()); // Get database
+        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         int updatedBalance = db.getMembers().getMember(member).getBalance(); // Get old balance
 
         long amount = Long.parseLong(ctx.getArguments()[1]); // Get amount of money to set/add/remove

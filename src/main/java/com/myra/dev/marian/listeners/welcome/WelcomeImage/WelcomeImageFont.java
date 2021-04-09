@@ -1,7 +1,7 @@
 package com.myra.dev.marian.listeners.welcome.WelcomeImage;
 
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
@@ -50,7 +50,7 @@ public class WelcomeImageFont implements Command {
                                     && e.getUser() == ctx.getAuthor()
                                     && e.getMessageId().equals(message.getId()),
                     e -> { // Run on event
-                        final Database db = new Database(e.getGuild()); // Get database
+                        final MongoGuild db = new MongoGuild(e.getGuild()); // Get database
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 
                         Success success = new Success(ctx.getEvent())

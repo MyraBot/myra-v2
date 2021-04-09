@@ -1,6 +1,6 @@
 package com.myra.dev.marian.commands.administrator.leveling;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
@@ -29,7 +29,7 @@ public class LevelingChannel implements Command {
             return;
         }
 // Change leveling channel
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
 
         if (utils.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "leveling channel", "\uD83E\uDDFE") == null)
             return;

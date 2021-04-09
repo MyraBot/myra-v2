@@ -1,7 +1,7 @@
 package com.myra.dev.marian.listeners;
 
 import com.myra.dev.marian.database.MongoDb;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.Webhook;
 import net.dv8tion.jda.api.entities.Guild;
@@ -29,13 +29,13 @@ public class GlobalChat {
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.isFromGuild()) return;
 
-        final String guildWebhookUrl = new Database(event.getGuild()).getString("globalChat"); // Get global chat webhook url
+        final String guildWebhookUrl = new MongoGuild(event.getGuild()).getString("globalChat"); // Get global chat webhook url
         if (guildWebhookUrl == null) return;
 
         final WebhookInformation guildWebhookInformation = new WebhookInformation(guildWebhookUrl); // Get webhook information
         // Invalid webhook
         if (!guildWebhookInformation.isValid) {
-            new Database(event.getGuild()).setString("globalChat", null); // Remove global chat
+            new MongoGuild(event.getGuild()).setString("globalChat", null); // Remove global chat
             return;
         }
         if (!guildWebhookInformation.getChannelId().equals(event.getChannel().getId())) return; // Wrong channel
@@ -71,7 +71,7 @@ public class GlobalChat {
     }
 
     public void messageEdited(GuildMessageUpdateEvent event) throws IOException {
-        final String guildWebhookUrl = new Database(event.getGuild()).getString("globalChat"); // Get global chat webhook url
+        final String guildWebhookUrl = new MongoGuild(event.getGuild()).getString("globalChat"); // Get global chat webhook url
         if (guildWebhookUrl == null) return;
 
         final WebhookInformation guildWebhookInformation = new WebhookInformation(guildWebhookUrl); // Get webhook information

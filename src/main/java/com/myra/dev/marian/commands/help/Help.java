@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.CommandEmbeds;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -57,7 +57,7 @@ public class Help implements Command {
                                     && e.getMessageId().equals(message.getId())
                                     && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals),
                     e -> {
-                        final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getJDA(), e.getUser(), new Database(e.getGuild()).getString("prefix")); // Get embeds
+                        final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getJDA(), e.getUser(), new MongoGuild(e.getGuild()).getString("prefix")); // Get embeds
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
                         // Invite bot
                         if (reaction.equals(emojis[0])) { // ✉️

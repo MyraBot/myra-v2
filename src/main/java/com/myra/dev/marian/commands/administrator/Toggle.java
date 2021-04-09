@@ -6,8 +6,8 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.commands.help.Help;
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.Nested;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.Nested;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -43,7 +43,7 @@ public class Toggle implements Command {
             return;
         }
 
-        Database db = new Database(ctx.getGuild()); // Get database
+        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         // Disable category 'Leveling'
         if (ctx.getArgumentsRaw().equalsIgnoreCase("leveling")) {
             final boolean newValue = toggleLeveling(db);
@@ -126,7 +126,7 @@ public class Toggle implements Command {
                 .send();
     }
 
-    private boolean toggleLeveling(Database db) {
+    private boolean toggleLeveling(MongoGuild db) {
         final Nested commands = db.getNested("commands");
 
         final Boolean[] musicCommands = {
@@ -150,7 +150,7 @@ public class Toggle implements Command {
         return newValue;
     }
 
-    private boolean toggleModeration(Database db) {
+    private boolean toggleModeration(MongoGuild db) {
         final Nested commands = db.getNested("commands");
 
         final Boolean[] musicCommands = {
@@ -180,7 +180,7 @@ public class Toggle implements Command {
         return newValue;
     }
 
-    private boolean toggleMusic(Database db) {
+    private boolean toggleMusic(MongoGuild db) {
         final Nested commands = db.getNested("commands");
 
         final Boolean[] musicCommands = {

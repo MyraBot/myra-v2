@@ -1,8 +1,7 @@
 package com.myra.dev.marian.listeners.leveling;
 
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
-import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.database.guild.member.GuildMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,25 +16,24 @@ public class LevelingListener {
 
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.isFromGuild()) return; // Ignore direct messages
-        if (!new Database(event.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
+        if (!new MongoGuild(event.getGuild()).getListenerManager().check("leveling"))
+            return; // Check if leveling is enabled
 
         final Member member = event.getMember();
         final Guild guild = event.getGuild();
-        final GetMember db = new Database(guild).getMembers().getMember(member); // Get member from database
+        final GuildMember db = new MongoGuild(guild).getMembers().getMember(member); // Get member from database
 
-        // Update message count
-        final Integer messages = db.getInteger("messages"); // Get current messages
-        db.setInteger("messages", messages + 1); // Add 1 message
+        db.addMessage(); // Update message count
 
-        if (event.getMessage().getContentRaw().startsWith(new Database(guild).getString("prefix")))
+        if (event.getMessage().getContentRaw().startsWith(new MongoGuild(guild).getString("prefix")))
             return; // Message is a command
         if (!cooldown(event)) return; // Cooldown
 
         LEVELING.levelUp(member, event.getChannel(), db, getXpFromMessage(event.getMessage())); // Check for new level
-        db.setInteger("xp", db.getInteger("xp") + getXpFromMessage(event.getMessage())); // Update xp
+        db.addXp(getXpFromMessage(event.getMessage())); // Update xp
     }
 
-    private static HashMap<Guild, HashMap<Member, Message>> cooldown = new HashMap<Guild, HashMap<Member, Message>>();
+    private static HashMap<Guild, HashMap<Member, Message>> cooldown = new HashMap<>();
 
     private boolean cooldown(MessageReceivedEvent event) {
         boolean returnedValue = true;

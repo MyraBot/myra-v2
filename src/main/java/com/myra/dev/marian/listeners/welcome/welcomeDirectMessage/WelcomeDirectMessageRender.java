@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome.welcomeDirectMessage;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -11,7 +11,7 @@ import java.awt.*;
 public class WelcomeDirectMessageRender {
 
     public MessageEmbed render(Guild guild, User user) {
-        Database db = new Database(guild); // Get database
+        MongoGuild db = new MongoGuild(guild); // Get database
         // Get variables
         String welcomeColour = db.getNested("welcome").getString("welcomeColour");
         String welcomeDirectMessage = db.getNested("welcome").getString("welcomeDirectMessage");

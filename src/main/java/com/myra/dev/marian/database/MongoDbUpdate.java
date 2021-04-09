@@ -154,7 +154,7 @@ public class MongoDbUpdate {
 
     //add guild document
     public void guildJoinEvent(GuildJoinEvent event) throws Exception {
-        MongoDbDocuments.guild(event.getGuild());
+        MongoDocuments.guild(event.getGuild());
     }
 
     /**
@@ -168,7 +168,7 @@ public class MongoDbUpdate {
         for (Guild guild : event.getJDA().getGuilds()) {
             // Guild isn't in database yet
             if (mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first() == null) {
-                MongoDbDocuments.guild(guild); // Create new guild document
+                MongoDocuments.guild(guild); // Create new guild document
             }
         }
         // Update the database itself (if necessary)

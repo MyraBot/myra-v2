@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.administrator.notifications;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
@@ -36,7 +36,7 @@ public class NotificationsMessageTwitch implements Command {
         }
 
         // Update database
-        new Database(ctx.getGuild()).getNested("notifications").setString("twitchMessage", ctx.getArgumentsRaw());
+        new MongoGuild(ctx.getGuild()).getNested("notifications").setString("twitchMessage", ctx.getArgumentsRaw());
         // Set success message
         new Success(ctx.getEvent())
                 .setCommand("notifications message twitch")

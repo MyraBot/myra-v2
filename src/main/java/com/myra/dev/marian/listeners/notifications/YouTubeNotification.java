@@ -1,7 +1,7 @@
 package com.myra.dev.marian.listeners.notifications;
 
 import com.myra.dev.marian.database.MongoDb;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
 import com.myra.dev.marian.utilities.APIs.youTube.Channel;
 import com.myra.dev.marian.utilities.APIs.youTube.Video;
@@ -33,7 +33,7 @@ public class YouTubeNotification {
                 final Iterator<Guild> guilds = event.getJDA().getGuilds().iterator(); // Create an iterator for the guilds
                 while (guilds.hasNext()) { // Loop through every guild
                     final Guild guild = guilds.next(); // Get next guild
-                    Database db = new Database(guild); // Get database
+                    MongoGuild db = new MongoGuild(guild); // Get database
 
                     List<String> youtubers = NotificationsYoutubeManager.getInstance().getYoutubers(guild); // Get all youtubers
                     if (youtubers.isEmpty()) continue;  // No streamers are set

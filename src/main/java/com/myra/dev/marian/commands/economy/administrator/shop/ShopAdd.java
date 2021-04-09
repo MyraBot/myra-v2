@@ -1,6 +1,6 @@
 package com.myra.dev.marian.commands.economy.administrator.shop;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Config;
@@ -55,7 +55,7 @@ public class ShopAdd implements Command {
         EmbedBuilder roleAdd = new EmbedBuilder()
                 .setAuthor("shop add", null, ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue)
-                .setDescription("Added " + role.getAsMention() + " to the shop for " + ctx.getArguments()[1] + " " + new Database(ctx.getGuild()).getNested("economy").getString("currency"));
+                .setDescription("Added " + role.getAsMention() + " to the shop for " + ctx.getArguments()[1] + " " + new MongoGuild(ctx.getGuild()).getNested("economy").getString("currency"));
         ctx.getChannel().sendMessage(roleAdd.build()).queue();
     }
 }

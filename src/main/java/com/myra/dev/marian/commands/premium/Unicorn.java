@@ -3,7 +3,7 @@ package com.myra.dev.marian.commands.premium;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.entities.Role;
 public class Unicorn implements Command {
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        final Database db = new Database(ctx.getGuild());
+        final MongoGuild db = new MongoGuild(ctx.getGuild());
         if (!db.getBoolean("premium")) return; // Check for premium
 
         // Command usage

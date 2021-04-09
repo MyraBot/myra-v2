@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.administrator;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -18,7 +18,7 @@ public class MusicVotingToggle implements Command {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return;
 
-        final Database db = new Database(ctx.getGuild()); // Get database
+        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         final boolean value = !db.getBoolean("musicVoting"); // Get new value
         db.setBoolean("musicVoting", value); // Update database
 

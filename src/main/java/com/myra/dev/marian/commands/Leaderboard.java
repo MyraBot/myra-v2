@@ -5,9 +5,9 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.LeaderboardType;
-import com.myra.dev.marian.database.documents.MemberDocument;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.LeaderboardType;
+import com.myra.dev.marian.database.guild.member.LeaderboardMember;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -107,18 +107,18 @@ public class Leaderboard implements Command {
         final Guild guild = message.getGuild(); // Get guild
 
         // Get leaderboard with all members
-        List<MemberDocument> leaderboardRaw;
+        List<LeaderboardMember> leaderboardRaw;
         if (type == Leaderboard.type.LEVEL) // Get level leaderboard
-            leaderboardRaw = new Database(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
+            leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
         else if (type == Leaderboard.type.BALANCE) // Get balance leaderboard
-            leaderboardRaw = new Database(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
+            leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
         else // Get voice leaderboard
-            leaderboardRaw = new Database(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
+            leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
 
         final List<String> ids = new ArrayList<>(); // Create a list to store top 10 member ids
         for (int i = 0; i < 10; i++) {
             if (i == leaderboardRaw.size()) break;
-            final MemberDocument member = leaderboardRaw.get(i); // Get current document
+            final LeaderboardMember member = leaderboardRaw.get(i); // Get current document
             ids.add(member.getId());
         }
         String[] topIds = ids.toArray(new String[0]); // Convert List to Array
@@ -135,7 +135,7 @@ public class Leaderboard implements Command {
                         if (memberResult.isEmpty()) continue; // No member found
                         final Member member = memberResult.get();
 
-                        final MemberDocument memberDocument = leaderboardRaw.stream() // Find member document to get the balance
+                        final LeaderboardMember memberDocument = leaderboardRaw.stream() // Find member document to get the balance
                                 .filter(doc -> doc.getId().equals(id))
                                 .findFirst()
                                 .get();

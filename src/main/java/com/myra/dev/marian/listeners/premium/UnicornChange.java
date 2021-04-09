@@ -1,7 +1,7 @@
 package com.myra.dev.marian.listeners.premium;
 
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 
@@ -17,7 +17,7 @@ public class UnicornChange {
             while (iterator.hasNext()) {
                 final Guild guild = iterator.next(); // Get next guild
 
-                final Database db = new Database(guild); // Get database
+                final MongoGuild db = new MongoGuild(guild); // Get database
                 if (!db.getBoolean("premium")) continue; // Check for premium
                 // Get unicorn role
                 final Long unicorn = db.getLong("unicorn"); // Get unicorn role

@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.economy;
 
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.CommandCooldown;
@@ -28,10 +28,10 @@ public class Fish implements Command {
         // Get randomizer
         Random random = new Random();
 
-        final GetMember db = new Database(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get Member in database
+        final GuildMember db = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get Member in database
 
         // Balance limit would be reached
-        if (db.getInteger("balance") + 7 > Config.ECONOMY_MAX) {
+        if (db.getBalance() + 7 > Config.ECONOMY_MAX) {
             new Error(ctx.getEvent())
                     .setCommand("fish")
                     .setEmoji("\uD83C\uDFA3")

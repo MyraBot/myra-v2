@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome.WelcomeImage;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.Graphic;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -22,7 +22,7 @@ public class WelcomeImageRender {
      */
     public InputStream render(Guild guild, User user) throws Exception {
         //database
-        Database db = new Database(guild);
+        MongoGuild db = new MongoGuild(guild);
         //get welcome image background
         BufferedImage background;
         //if no background is set

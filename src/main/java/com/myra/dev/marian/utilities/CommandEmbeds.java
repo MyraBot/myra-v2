@@ -1,6 +1,6 @@
 package com.myra.dev.marian.utilities;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -91,7 +91,7 @@ public class CommandEmbeds {
                 .setAuthor("economy", null, author.getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().gray)
                 .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ Shows the leaderboard", false)
-                .addField("`" + prefix + "balance <user>`", new Database(guild).getNested("economy").getString("currency") + " │ Shows how many " + new Database(guild).getNested("economy").getString("currency") + " you have.", false)
+                .addField("`" + prefix + "balance <user>`", new MongoGuild(guild).getNested("economy").getString("currency") + " │ Shows how many " + new MongoGuild(guild).getNested("economy").getString("currency") + " you have.", false)
                 .addField("`" + prefix + "daily`", "\uD83E\uDD47 │ Claim your daily reward", false)
                 .addField("`" + prefix + "streak`", "\uD83D\uDCCA │ Shows your current daily streak", false)
                 .addField("`" + prefix + "fish`", "\uD83C\uDFA3 │ Try to catch a fish", false)

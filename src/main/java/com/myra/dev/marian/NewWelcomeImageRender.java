@@ -1,6 +1,6 @@
 package com.myra.dev.marian;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.Graphic;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -20,7 +20,7 @@ public class NewWelcomeImageRender {
     private final String customText = "custom text here";
 
     public InputStream render(Guild guild, User user) throws IOException, FontFormatException {
-        final var db = new Database(guild); // Get database
+        final var db = new MongoGuild(guild); // Get database
         final var backgroundUrl = db.getNested("welcome").getString("welcomeImageBackground"); // Get welcome image background url
 
         BufferedImage image;

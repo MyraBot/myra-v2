@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Administrator;
@@ -36,11 +36,11 @@ public class LogChannel implements Command {
         TextChannel channel = utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "log channel", "\uD83E\uDDFE"); // Get channel
         if (channel == null) return;
 
-        Database db = new Database(ctx.getGuild()); // Get database
+        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         // Remove log channel
         if (channel.getId().equals(db.getString("logChannel"))) {
             // Update database
-            db.set("logChannel", "not set");
+            db.setString("logChannel", "not set");
             // Send success message
             Success success = new Success(ctx.getEvent())
                     .setCommand("log channel")
@@ -52,7 +52,7 @@ public class LogChannel implements Command {
         // Change log channel
         else {
             // Update database
-            db.set("logChannel", channel.getId());
+            db.setString("logChannel", channel.getId());
             // Success message
             EmbedBuilder logChannel = new EmbedBuilder()
                     .setAuthor("log channel", null, ctx.getAuthor().getEffectiveAvatarUrl())

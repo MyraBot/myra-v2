@@ -1,4 +1,4 @@
-package com.myra.dev.marian.database.allMethods;
+package com.myra.dev.marian.database.guild;
 
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -8,13 +8,16 @@ import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.eq;
 
-public class GetListenerManager {
-    //variables
+public class GuildListeners {
+    // Variables
     private MongoDb mongoDb;
     private Guild guild;
 
-    //constructor
-    public GetListenerManager(MongoDb mongoDb, Guild guild) {
+    /**
+     * @param mongoDb A {@link MongoDb} instance.w
+     * @param guild   The current server.
+     */
+    public GuildListeners(MongoDb mongoDb, Guild guild) {
         this.mongoDb = mongoDb;
         this.guild = guild;
     }

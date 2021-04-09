@@ -22,24 +22,7 @@ public class YouTube {
 
     public List<Channel> searchChannelByName(String query) throws IOException {
         final String baseUrl = "https://www.youtube.com/results?search_query={query}&sp=EgIQAg%253D%253D";
-
-        /*final Document jsoup = Jsoup
-                .connect(baseUrl.replace("{query}", query))
-                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                .get();
-
-        JSONObject infoJson = null;
-        final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
-        while (scripts.hasNext()) {
-            final Element script = scripts.next(); // Get next script
-
-            if (!script.html().startsWith("var ytInitialData =")) continue;
-
-            final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
-            final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
-            infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
-            break;
-        }*/
+        
         final Document jsoup = Jsoup
                 .connect(baseUrl.replace("{query}", query))
                 .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")

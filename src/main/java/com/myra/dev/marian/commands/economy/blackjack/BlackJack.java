@@ -5,8 +5,8 @@ import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
@@ -88,7 +88,7 @@ public class BlackJack implements Command {
         }
         // If game isn't a test match
         if (!ctx.getArguments()[0].equals("0")) {
-            final int win = new Database(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getInteger("balance") + Integer.parseInt(ctx.getArguments()[0]); // Get amount of money you would ge if you win
+            final int win = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() + Integer.parseInt(ctx.getArguments()[0]); // Get amount of money you would ge if you win
             // Balance limit would be reached
             if (win > Config.ECONOMY_MAX) {
                 new Error(ctx.getEvent())
@@ -100,7 +100,7 @@ public class BlackJack implements Command {
             }
         }
         // Not enough money
-        if (new Database(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() < Integer.parseInt(ctx.getArguments()[0])) {
+        if (new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() < Integer.parseInt(ctx.getArguments()[0])) {
             new Error(ctx.getEvent())
                     .setCommand("blackjack")
                     .setEmoji("\uD83C\uDCCF")
@@ -194,7 +194,7 @@ public class BlackJack implements Command {
                         }
 //Stay
                         else if (e.getReactionEmote().getEmoji().equals("\u23F8")) {
-                            final GetMember dbMember = new Database(e.getGuild()).getMembers().getMember(e.getMember()); // Get database
+                            final GuildMember dbMember = new MongoGuild(e.getGuild()).getMembers().getMember(e.getMember()); // Get database
 
                             // Add cards to the dealer until his card value is at least 17
                             while (dealer.getValue() < 17) {
@@ -274,7 +274,7 @@ public class BlackJack implements Command {
         match.setColor(player.getPlayer().getColor());
 
         // Get member in database
-        final GetMember dbMember = new Database(guild).getMembers().getMember(player.getPlayer());
+        final GuildMember dbMember = new MongoGuild(guild).getMembers().getMember(player.getPlayer());
 // Lost
         // Dealer and player have a value of 21
         if (dealer.getValue() == player.getValue() && dealer.getValue() == 21) {

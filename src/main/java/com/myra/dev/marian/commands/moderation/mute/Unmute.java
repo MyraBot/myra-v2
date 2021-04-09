@@ -3,7 +3,7 @@ package com.myra.dev.marian.commands.moderation.mute;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
@@ -34,7 +34,7 @@ public class Unmute implements Command {
         final Member member = utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "Unmute", "\uD83D\uDD08"); // Get member
         if (member == null) return;
 
-        final String muteRoleId = new Database(ctx.getGuild()).getString("muteRole"); // Get mute role id
+        final String muteRoleId = new MongoGuild(ctx.getGuild()).getString("muteRole"); // Get mute role id
         // No mute role set
         if (muteRoleId.equals("not set")) {
             new Error(ctx.getEvent())

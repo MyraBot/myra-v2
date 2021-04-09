@@ -1,7 +1,7 @@
 package com.myra.dev.marian.listeners.welcome;
 
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
@@ -38,7 +38,7 @@ public class WelcomeChannel implements Command {
         TextChannel channel = utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "welcome channel", "\uD83D\uDCC1");
         if (channel == null) return;
         // Get database
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         // Get current welcome channel
         String currentChannelId = db.getNested("welcome").getString("welcomeChannel");
         // Success

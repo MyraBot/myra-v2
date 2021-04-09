@@ -1,9 +1,10 @@
 package com.myra.dev.marian.commands.economy;
 
-import com.myra.dev.marian.database.allMethods.Database;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Utilities;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -25,7 +26,7 @@ public class Streak implements Command {
         EmbedBuilder streak = new EmbedBuilder()
                 .setAuthor("streak", null, member.getUser().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue)
-                .setDescription("Your current streak is **" + new Database(ctx.getGuild()).getMembers().getMember(member).getInteger("dailyStreak") + "**");
+                .setDescription("Your current streak is **" + new MongoGuild(ctx.getGuild()).getMembers().getMember(member).getDailyStreak() + "**");
         ctx.getChannel().sendMessage(streak.build()).queue();
     }
 }

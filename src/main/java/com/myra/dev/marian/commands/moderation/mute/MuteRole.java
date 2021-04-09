@@ -1,10 +1,9 @@
 package com.myra.dev.marian.commands.moderation.mute;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
-import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -31,7 +30,7 @@ public class MuteRole implements Command {
          * Change mute role
          */
         // Get database
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         // Get utilities
         Utilities utilities = Utilities.getUtils();
         // Get role
@@ -49,11 +48,11 @@ public class MuteRole implements Command {
             //success
             success.setMessage("The mute role will no longer be " + ctx.getGuild().getRoleById(muteRoleId).getAsMention()).send();
             //database
-            db.set("muteRole", role.getId());
+            db.setString("muteRole", role.getId());
             return;
         }
         //change mute role
-        db.set("muteRole", role.getId());
+        db.setString("muteRole", role.getId());
         //role changed
         success.setMessage("Mute role set to " + role.getAsMention()).send();
     }

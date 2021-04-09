@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.listeners.welcome.WelcomeImage.WelcomeImageRender;
 import com.myra.dev.marian.listeners.welcome.welcomeDirectMessage.WelcomeDirectMessageRender;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedRender;
@@ -20,7 +20,7 @@ public class WelcomePreview implements Command {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
         ctx.getChannel().sendTyping().queue(); // Send typing
-        Database db = new Database(ctx.getGuild()); // Get database
+        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         // Get greetings
         final MessageEmbed privateMessage = new WelcomeDirectMessageRender().render(ctx.getGuild(), ctx.getAuthor()); // Get direct message
         final MessageEmbed embed = new WelcomeEmbedRender().render(ctx.getGuild(), ctx.getAuthor()); // Get embed message

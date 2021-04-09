@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Administrator;
@@ -34,7 +34,7 @@ public class GlobalChatChannel implements Command {
         final TextChannel channel = Utilities.getUtils().getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "global chat", "\uD83C\uDF10"); // Get text channel
         if (channel == null) return;
 
-        final String webhookUrl = new Database(ctx.getGuild()).getString("globalChat"); // Get current webhook url
+        final String webhookUrl = new MongoGuild(ctx.getGuild()).getString("globalChat"); // Get current webhook url
 
         Success success = new Success(ctx.getEvent())
                 .setCommand("global chat")
@@ -64,7 +64,7 @@ public class GlobalChatChannel implements Command {
                 }
                 // Remove global chat
                 else {
-                    new Database(ctx.getGuild()).set("globalChat", null); // Update database
+                    new MongoGuild(ctx.getGuild()).setNull("globalChat"); // Update database
                     webhook.delete().queue(); // Delete webhook
                     success.setMessage("The global chat has been removed").send();
                 }
@@ -76,7 +76,7 @@ public class GlobalChatChannel implements Command {
     private void createWebhook(TextChannel channel) {
         channel.createWebhook("global chat").queue(webhook -> {
             final String url = webhook.getUrl(); // Get webhook url
-            new Database(channel.getGuild()).set("globalChat", url); // Update database
+            new MongoGuild(channel.getGuild()).setString("globalChat", url); // Update database
         });
     }
 }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import static com.mongodb.client.model.Filters.eq;
 
-public class MongoDbDocuments {
+public class MongoDocuments {
 
     public static void guild(Guild guild) throws Exception {
         MongoDb mongoDb = MongoDb.getInstance();

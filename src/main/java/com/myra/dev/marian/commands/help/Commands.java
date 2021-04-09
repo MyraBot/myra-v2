@@ -4,10 +4,8 @@ import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.CommandEmbeds;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.util.Arrays;
@@ -52,7 +50,7 @@ public class Commands implements Command {
                                     && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals), // matching emoji
 
                     e -> { // on event
-                        final String prefix = new Database(e.getGuild()).getString("prefix"); // Get Prefix
+                        final String prefix = new MongoGuild(e.getGuild()).getString("prefix"); // Get Prefix
                         final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getJDA(), e.getUser(), prefix); // Get Embeds
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 

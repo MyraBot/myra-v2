@@ -3,7 +3,7 @@ package com.myra.dev.marian.commands.administrator.leveling.levelingRoles;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
@@ -37,9 +37,9 @@ public class LevelingRolesRemove implements Command {
         Role role = Utilities.getUtils().getRole(ctx.getEvent(), ctx.getArguments()[0], "leveling roles remove", "\uD83C\uDFC5");
         if (role == null) return;
 
-        Database db = new Database(ctx.getGuild()); // Get database
+        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         Document roleDocument = db.getLeveling().getLevelingRole(role.getId()); // Get role document
-        db.getLeveling().removeLevelingRole(role.getId()); // Remove role from database
+        db.getLeveling().removeLevelingRole(role); // Remove role from database
         Role levelingRole = ctx.getGuild().getRoleById(roleDocument.getString("role")); // Get role
 
         // Update every member

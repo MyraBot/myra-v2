@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.administrator.reactionRoles;
 
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
@@ -34,7 +34,7 @@ public class ReactionRolesRemove implements Command {
                     e -> !e.getUser().isBot()
                             && e.getUser() == ctx.getAuthor(),
                     e -> { // Code on event
-                        final Database db = new Database(ctx.getGuild()); // Get database
+                        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
                         final List<Document> reactionRoles = db.getList("reactionRoles", Document.class); // Get reaction roles
 
                         final String reactionEmoji = e.getReactionEmote().getEmoji(); // Get emoji of removed reaction
@@ -58,7 +58,7 @@ public class ReactionRolesRemove implements Command {
                             // Remove reaction
                             if (reactionMessage.equals(messageId) && reactionEmoji.equals(emoji)) {
                                 reactionRoles.remove(reactionRole); // Remove reaction role
-                                db.set("reactionRoles", reactionRoles); // Update database
+                                db.setList("reactionRoles", reactionRoles); // Update database
                                 e.retrieveMessage().queue(message -> message.removeReaction(emoji, e.getJDA().getSelfUser()).queue()); // Remove reaction from message
 
                                 // Send success message

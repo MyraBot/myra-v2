@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.commands.administrator.AutoRole;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -59,8 +59,8 @@ public class LevelingRolesAdd implements Command {
         }
 
         // Update database
-        Database db = new Database(ctx.getGuild()); // Get database
-        db.getLeveling().addLevelingRole(level, role.getId());
+        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        db.getLeveling().addLevelingRole(level, role);
 
         // Update every member
         ctx.getGuild().loadMembers()

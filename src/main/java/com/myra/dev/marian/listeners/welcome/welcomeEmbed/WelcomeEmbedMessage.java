@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome.welcomeEmbed;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
@@ -32,7 +32,7 @@ public class WelcomeEmbedMessage implements Command {
         // Get message
         String message = utilities.getString(ctx.getArguments());
         // Get database
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         // Update database
         db.getNested("welcome").setString("welcome", message);
         // Success

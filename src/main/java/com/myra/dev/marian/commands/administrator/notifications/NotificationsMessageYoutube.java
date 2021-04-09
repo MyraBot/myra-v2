@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
@@ -34,7 +34,7 @@ public class NotificationsMessageYoutube implements Command {
         }
 
         // Update database
-        new Database(ctx.getGuild()).getNested("notifications").setString("youtubeMessage", ctx.getArgumentsRaw());
+        new MongoGuild(ctx.getGuild()).getNested("notifications").setString("youtubeMessage", ctx.getArgumentsRaw());
         // Set success message
         new Success(ctx.getEvent())
                 .setCommand("notifications message youtube")

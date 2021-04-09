@@ -1,13 +1,14 @@
 package com.myra.dev.marian.commands.administrator.leveling;
 
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.listeners.leveling.Leveling;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
-import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -31,7 +32,7 @@ public class LevelingSet implements Command {
             return;
         }
         // Get database
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         //get provided member
         Member member = utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "leveling set", "\uD83C\uDFC6");
         if (member == null) return;
@@ -46,8 +47,8 @@ public class LevelingSet implements Command {
         }
 
         // Update database
-        db.getMembers().getMember(member).setInteger("level", Integer.parseInt(ctx.getArguments()[1])); // Update level
-        db.getMembers().getMember(member).setInteger("xp", leveling.xpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
+        db.getMembers().getMember(member).setLevel(Integer.parseInt(ctx.getArguments()[1])); // Update level
+        db.getMembers().getMember(member).setXp(leveling.xpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
 
         //send success message
         new Success(ctx.getEvent())
@@ -57,6 +58,6 @@ public class LevelingSet implements Command {
                 .setMessage(member.getAsMention() + " is now level `" + ctx.getArguments()[1] + "`")
                 .send();
         // Check for leveling roles
-        leveling.updateLevelingRoles(ctx.getGuild(), member, new Database(ctx.getGuild()).getMembers().getMember(member));
+        leveling.updateLevelingRoles(ctx.getGuild(), member, new MongoGuild(ctx.getGuild()).getMembers().getMember(member));
     }
 }

@@ -5,7 +5,7 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.mongodb.client.MongoCollection;
 import com.myra.dev.marian.database.MongoDb;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
@@ -49,7 +49,7 @@ public class Tempmute implements Command {
         if (member == null) return;
 
 
-        String muteRoleId = new Database(ctx.getGuild()).getString("muteRole"); //Get mute role id
+        String muteRoleId = new MongoGuild(ctx.getGuild()).getString("muteRole"); //Get mute role id
         if (muteRoleId.equals("not set")) { // No mute role set
             new Error(ctx.getEvent())
                     .setCommand("tempmute")
@@ -144,7 +144,7 @@ public class Tempmute implements Command {
 
     //unmute message
     private void unmuteMessage(User user, Guild guild, User author) {
-        Database db = new Database(guild);
+        MongoGuild db = new MongoGuild(guild);
         //direct message unmute
         EmbedBuilder directMessage = new EmbedBuilder()
                 .setAuthor("You got unmuted from " + guild.getName(), null, guild.getIconUrl())
@@ -194,7 +194,7 @@ public class Tempmute implements Command {
                     mongoDb.getCollection("unmutes").deleteOne(doc); //delete document
                 }
                 // No mute role set
-                if (new Database(guild).getString("muteRole").equals("not set")) {
+                if (new MongoGuild(guild).getString("muteRole").equals("not set")) {
                     // No mute role set
                     new Error(null)
                             .setCommand("tempban")
@@ -205,7 +205,7 @@ public class Tempmute implements Command {
                             .send();
                     continue;
                 }
-                guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new Database(guild).getString("muteRole"))).queue(); // Remove role
+                guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new MongoGuild(guild).getString("muteRole"))).queue(); // Remove role
                 unmuteMessage(event.getJDA().getUserById(doc.getString("userId")), guild, event.getJDA().getUserById(doc.getString("moderatorId"))); // Send unmute message
                 mongoDb.getCollection("unmutes").deleteOne(doc); // Delete document
                 continue;
@@ -222,7 +222,7 @@ public class Tempmute implements Command {
                             mongoDb.getCollection("unmutes").deleteOne(doc);
                         }
                         //unmute
-                        guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new Database(guild).getString("muteRole"))).queue();
+                        guild.removeRoleFromMember(doc.getString("userId"), guild.getRoleById(new MongoGuild(guild).getString("muteRole"))).queue();
                         //send unmute message
                         unmuteMessage(event.getJDA().getUserById(doc.getString("userId")), guild, event.getJDA().getUserById(doc.getString("moderatorId")));
                         //delete document

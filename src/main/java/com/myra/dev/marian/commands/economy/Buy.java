@@ -6,9 +6,9 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.commands.economy.administrator.shop.ShopRolesManager;
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
-import com.myra.dev.marian.database.documents.ShopRolesDocument;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
+import com.myra.dev.marian.database.guild.ShopRolesDocument;
 import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -76,10 +76,10 @@ public class Buy implements Command {
         final ShopRolesDocument roleInfo = find.get();
 
 
-        final Database db = new Database(ctx.getGuild());
+        final MongoGuild db = new MongoGuild(ctx.getGuild());
         // Sell role
         if (ctx.getMember().getRoles().contains(ctx.getGuild().getRoleById(roleInfo.getId()))) {
-            final int balance = db.getMembers().getMember(ctx.getMember()).getInteger("balance"); // Get members balance
+            final int balance = db.getMembers().getMember(ctx.getMember()).getBalance(); // Get members balance
             final int sellPrice = roleInfo.getPrice() / 2; // Get price to sell role
 
             // Maximum amount of money would be reached
@@ -135,7 +135,7 @@ public class Buy implements Command {
 
         // Buy role
         else {
-            final GetMember member = db.getMembers().getMember(ctx.getMember()); // Get member in db
+            final GuildMember member = db.getMembers().getMember(ctx.getMember()); // Get member in db
             // Not enough money
             if (member.getBalance() < roleInfo.getPrice()) {
                 new Error(ctx.getEvent())

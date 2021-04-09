@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
@@ -55,7 +55,7 @@ public class WelcomeColour implements Command {
             return;
         }
         //save in database
-        new Database(ctx.getGuild()).getNested("welcome").setInteger("welcomeColour", Integer.parseInt(hex));
+        new MongoGuild(ctx.getGuild()).getNested("welcome").setInteger("welcomeColour", Integer.parseInt(hex));
         //success
         Success success = new Success(ctx.getEvent())
                 .setCommand("welcome embed colour")

@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.economy.administrator.shop;
 
 import com.myra.dev.marian.database.MongoDb;
-import com.myra.dev.marian.database.documents.ShopRolesDocument;
+import com.myra.dev.marian.database.guild.ShopRolesDocument;
 import net.dv8tion.jda.api.entities.Guild;
 import org.bson.Document;
 

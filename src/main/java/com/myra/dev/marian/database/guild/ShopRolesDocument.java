@@ -1,4 +1,4 @@
-package com.myra.dev.marian.database.documents;
+package com.myra.dev.marian.database.guild;
 
 import org.bson.Document;
 

@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome.welcomeDirectMessage;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
@@ -25,7 +25,7 @@ public class WelcomeDirectMessageMessage implements Command {
             ctx.getChannel().sendMessage(welcomeDirectMessageMessage.build()).queue();
             return;
         }
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         // Get message
         String message = "";
         for (int i = 0; i < ctx.getArguments().length; i++) {

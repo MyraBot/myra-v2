@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome.welcomeEmbed;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import net.dv8tion.jda.api.Permission;
@@ -16,6 +16,6 @@ public class WelcomeEmbedToggle implements Command {
         // Check for no arguments
         if (ctx.getArguments().length != 0) return;
         //toggle feature
-        new Database(ctx.getGuild()).getListenerManager().toggle("welcomeEmbed", "\uD83D\uDCC7", ctx.getEvent());
+        new MongoGuild(ctx.getGuild()).getListenerManager().toggle("welcomeEmbed", "\uD83D\uDCC7", ctx.getEvent());
     }
 }

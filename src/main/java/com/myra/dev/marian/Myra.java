@@ -51,16 +51,16 @@ public class Myra {
         DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(
                 TOKEN,
                 // Enabled events
-                GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
+                //GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
                 GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)
                 GatewayIntent.GUILD_MESSAGE_REACTIONS, // Reaction add remove bla bla
                 GatewayIntent.GUILD_VOICE_STATES,
-                GatewayIntent.GUILD_PRESENCES, // Is needed for the CLIENT_STATUS CacheFlag
+                //GatewayIntent.GUILD_PRESENCES, // Is needed for the CLIENT_STATUS CacheFlag
                 GatewayIntent.GUILD_EMOJIS // Emote add/update/delete events. Also is needed for the CacheFlag
         )
                 .enableCache(
                         CacheFlag.EMOTE,
-                        CacheFlag.CLIENT_STATUS,
+                        //CacheFlag.CLIENT_STATUS,
                         CacheFlag.VOICE_STATE
                 )
                 .setChunkingFilter(ChunkingFilter.NONE) // Disable member chunking on startup

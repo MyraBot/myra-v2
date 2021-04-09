@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
@@ -47,7 +47,7 @@ public class MusicSkip implements Command {
         final int size = (int) ctx.getMember().getVoiceState().getChannel().getMembers().stream().filter(member -> !member.getUser().isBot()).count();
 
         // Skip song
-        if (size <= 4 || !new Database(ctx.getGuild()).getBoolean("musicVoting")) {
+        if (size <= 4 || !new MongoGuild(ctx.getGuild()).getBoolean("musicVoting")) {
             skip(ctx.getGuild(), ctx.getChannel(), ctx.getAuthor());
         }
 

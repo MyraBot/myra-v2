@@ -1,6 +1,6 @@
 package com.myra.dev.marian.commands.economy;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Utilities;
@@ -17,7 +17,7 @@ public class Balance implements Command {
         // Get utilities
         Utilities utilities = Utilities.getUtils();
         // Get database
-        Database db = new Database(ctx.getGuild());
+        MongoGuild db = new MongoGuild(ctx.getGuild());
         // Get currency
         String currency = db.getNested("economy").getString("currency").toString();
         // Usage

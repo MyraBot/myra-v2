@@ -1,7 +1,7 @@
 package com.myra.dev.marian.listeners.leveling;
 
-import com.myra.dev.marian.database.allMethods.Database;
-import com.myra.dev.marian.database.allMethods.GetMember;
+import com.myra.dev.marian.database.guild.member.GuildMember;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -54,19 +54,19 @@ public class VoiceCall {
             if (!activeCalls.containsKey(member.getGuild().getId())) return;
             if (!activeCalls.get(member.getGuild().getId()).containsKey(member.getId())) return;
 
-            final GetMember dbMember = new Database(member.getGuild()).getMembers().getMember(member); // Get member in database
+            final GuildMember dbMember = new MongoGuild(member.getGuild()).getMembers().getMember(member); // Get member in database
+            if (dbMember.isBot()) return; // Member is bot account
 
-            final Long currentSpokenTime = dbMember.getLong("voiceCallTime"); // Get voice call time until now
+            final Long currentSpokenTime = dbMember.getVoiceTime(); // Get voice call time until now
             final Long timeSpoken = System.currentTimeMillis() - activeCalls.get(member.getGuild().getId()).get(member.getId()); // Get voice call time from the active voice call
-            dbMember.setLong("voiceCallTime", currentSpokenTime + timeSpoken); // Update voice call time
+            dbMember.setVoiceTime(currentSpokenTime + timeSpoken); // Update voice call time
 
             // Leveling is enabled
-            if (new Database(member.getGuild()).getListenerManager().check("leveling")) {
+            if (new MongoGuild(member.getGuild()).getListenerManager().check("leveling")) {
                 final int newXp = getXp(timeSpoken); // Get gathered xp
                 new Leveling().levelUp(member, null, dbMember, newXp); // Check for new level
 
-                final int xp = dbMember.getInteger("xp"); // Get current xp
-                dbMember.setInteger("xp", xp + newXp); // Update xp
+                dbMember.addXp(newXp); // Update xp
             }
 
             activeCalls.get(member.getGuild().getId()).remove(member.getId()); // Remove user from active calls
@@ -77,7 +77,6 @@ public class VoiceCall {
 
 
     public void updateXpGain(VoiceChannel vc) throws Exception {
-        if (!new Database(vc.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
         if (vc.getMembers().isEmpty()) return; // Voice call is empty :c
 
         int size = (int) vc.getMembers().stream().filter(member -> !member.getUser().isBot()).count(); // Get amount of members in the voice call (without bots)

@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.welcome;
 
-import com.myra.dev.marian.database.allMethods.Database;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.listeners.welcome.WelcomeImage.WelcomeImageRender;
 import com.myra.dev.marian.listeners.welcome.welcomeDirectMessage.WelcomeDirectMessageRender;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedRender;
@@ -13,7 +13,7 @@ import java.io.InputStream;
 public class WelcomeListener {
 
     public void welcome(GuildMemberJoinEvent event) throws Exception {
-        Database db = new Database(event.getGuild()); // Get database
+        MongoGuild db = new MongoGuild(event.getGuild()); // Get database
 
         // Get welcome channel
         if (db.getNested("welcome").getString("welcomeChannel").equals("not set")) return; // Return if no welcome channel is set
