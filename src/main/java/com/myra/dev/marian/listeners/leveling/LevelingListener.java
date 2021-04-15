@@ -51,7 +51,7 @@ public class LevelingListener {
         }
         //check if 1 minutes passed
         else {
-            if (Duration.between(event.getMessage().getTimeCreated(), cooldown.get(event.getGuild()).get(event.getMessage().getMember()).getTimeCreated()).toSeconds() < 15) {
+            if (Duration.between(event.getMessage().getTimeCreated(), cooldown.get(event.getGuild()).get(event.getMessage().getMember()).getTimeCreated()).toSeconds() < 5) {
                 cooldown.get(event.getGuild()).replace(event.getMessage().getMember(), event.getMessage());
                 returnedValue = false;
             }
