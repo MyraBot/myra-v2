@@ -1,6 +1,8 @@
 package com.myra.dev.marian.database;
 
 import com.mongodb.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
@@ -18,11 +20,15 @@ public class MongoDb {
         return MONGO_DB;
     }
 
-    final String uri = "mongodb+srv://Marian:dGP3e3Iewlqypmxq@cluster0.epzcx.mongodb.net/test?retryWrites=true&w=majority";
-    // Haven't tested it yet
-    private MongoClientURI clientURI = new MongoClientURI(uri);
-    private MongoClient client = new MongoClient(clientURI);
-    public MongoDatabase database = client.getDatabase("Myra");
+
+    final ConnectionString connectionString = new ConnectionString("mongodb+srv://Marian:dGP3e3Iewlqypmxq@cluster0.epzcx.mongodb.net/test?w=majority");
+    final MongoClientSettings settings = MongoClientSettings.builder()
+            .applyConnectionString(connectionString)
+            .retryWrites(true)
+            .build();
+
+    final MongoClient mongoClient = MongoClients.create(settings);
+    final MongoDatabase database = mongoClient.getDatabase("Myra"); // Get database
 
 
     //get Collection method
