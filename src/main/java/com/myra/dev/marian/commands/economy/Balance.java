@@ -1,9 +1,12 @@
 package com.myra.dev.marian.commands.economy;
 
-import com.myra.dev.marian.database.guild.MongoGuild;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Utilities;
+import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -14,25 +17,24 @@ import net.dv8tion.jda.api.entities.Member;
 public class Balance implements Command {
     @Override
     public void execute(CommandContext ctx) throws Exception {
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Get database
-        MongoGuild db = new MongoGuild(ctx.getGuild());
-        // Get currency
-        String currency = db.getNested("economy").getString("currency").toString();
-        // Usage
+        final Utilities utilities = Utilities.getUtils(); // Get utilities
+        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final String currency = db.getNested("economy").getString("currency"); // Get currency
+        // Command usage
         if (ctx.getArguments().length > 1) {
-            // When 'EconomySet' class is meant
+            // "economy set" is meant
             if (ctx.getArguments()[0].equalsIgnoreCase("set")) return;
-            // Usage
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("balance", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "balance <user>`", currency + " │ Shows how many " + currency + " you have.", false);
-            ctx.getChannel().sendMessage(usage.build()).queue();
+
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("balance")
+                    .addUsages(new Usage()
+                            .setUsage("balance (user)")
+                            .setEmoji(currency)
+                            .setDescription("Shows how many " + currency + " you have"))
+                    .send();
             return;
         }
-// Show balance
+
         // Get self user
         Member member = ctx.getMember();
         // Get given user
