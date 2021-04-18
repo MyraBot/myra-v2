@@ -4,7 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Marian;
 import net.dv8tion.jda.api.EmbedBuilder;

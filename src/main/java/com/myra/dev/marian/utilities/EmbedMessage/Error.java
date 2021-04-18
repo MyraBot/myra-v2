@@ -1,6 +1,6 @@
 package com.myra.dev.marian.utilities.EmbedMessage;
 
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;

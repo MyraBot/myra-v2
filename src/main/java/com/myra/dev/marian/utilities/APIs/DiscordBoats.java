@@ -1,6 +1,6 @@
 package com.myra.dev.marian.utilities.APIs;
 
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.User;
 import okhttp3.Request;

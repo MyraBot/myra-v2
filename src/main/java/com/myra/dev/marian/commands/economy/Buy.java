@@ -9,7 +9,7 @@ import com.myra.dev.marian.commands.economy.administrator.shop.ShopRolesManager;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.database.guild.ShopRolesDocument;
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;

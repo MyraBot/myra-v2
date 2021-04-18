@@ -5,7 +5,7 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
 import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.database.guild.MongoGuild;
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;

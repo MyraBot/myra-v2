@@ -1,6 +1,6 @@
 package com.myra.dev.marian.database;
 
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -85,8 +85,7 @@ public class MongoDocuments {
                 .append("welcomeImageFont", "default")
                 .append("welcomeEmbedMessage", "Welcome {user} to {server}! Enjoy your stay")
                 .append("welcomeDirectMessage", "Welcome {user} to {server}! Enjoy your stay");
-// Insert document
-        //create Document
+        // Create document
         Document guildDoc = new Document("guildId", guild.getId())
                 .append("guildName", guild.getName())
                 .append("prefix", Config.prefix)
@@ -113,7 +112,10 @@ public class MongoDocuments {
 
     public static Document createUserDocument(User user) {
         return new Document()
-                .append("userId", user.getId())
+                .append("userId", user.getId()) // Id
+                .append("name", user.getName()) // Username
+                .append("discriminator", user.getDiscriminator()) // User tag
+                .append("avatar", user.getEffectiveAvatarUrl())
                 .append("birthday", "not set")
                 .append("achievements", new Document());
     }

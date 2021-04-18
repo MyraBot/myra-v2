@@ -1,7 +1,7 @@
 package com.myra.dev.marian.utilities.EmbedMessage;
 
 import com.myra.dev.marian.database.guild.MongoGuild;
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

@@ -3,7 +3,7 @@ package com.myra.dev.marian.marian;
 import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Resources;
 import com.myra.dev.marian.utilities.Utilities;

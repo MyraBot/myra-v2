@@ -1,5 +1,6 @@
 package com.myra.dev.marian.utilities;
 
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.Myra;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;

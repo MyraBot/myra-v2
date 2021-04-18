@@ -4,17 +4,16 @@ import com.github.m5rian.jdaCommandHandler.CommandListener;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandServiceBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.myra.dev.marian.database.MongoDbUpdate;
 import com.myra.dev.marian.management.Listeners;
 import com.myra.dev.marian.management.Prefix;
 import com.myra.dev.marian.management.Registration;
-import com.myra.dev.marian.utilities.Config;
 import com.myra.dev.marian.utilities.ConsoleColours;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.permissions.Marian;
 import com.myra.dev.marian.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -40,13 +39,17 @@ public class Myra {
             .allowMention()
             .build();
 
-    private Myra() throws LoginException, RateLimitedException {
+    // Main method
+    public static void main(String[] args) {
+        new Myra();
+    }
+
+    private Myra() {
         COMMAND_SERVICE.registerRoles(
                 new Marian(),
                 new Administrator(),
                 new Moderator()
         );
-
 
         DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(
                 TOKEN,
@@ -73,16 +76,17 @@ public class Myra {
                         new CommandListener(COMMAND_SERVICE)
                 );
 
-        shardManager = jda.build(); // Build JDA
-        Registration.register(); // Register commands and listeners
-        consoleListener(); // Add console listener
+        // Update database
+        MongoDbUpdate.update(() -> {
+            try {
+                shardManager = jda.build(); // Start Bot
+                Registration.register(); // Register commands and listeners
+                consoleListener(); // Add console listener
+            } catch (LoginException e){
+                e.printStackTrace();
+            }
+        });
     }
-
-    // Main method
-    public static void main(String[] args) throws LoginException, RateLimitedException {
-        new Myra();
-    }
-
 
     private void consoleListener() {
         String line;
@@ -93,13 +97,10 @@ public class Myra {
                 // Shutdown command
                 if (line.equalsIgnoreCase("shutdown")) {
                     if (shardManager != null) {
-                        // Set status to "offline"
-                        shardManager.setStatus(OnlineStatus.OFFLINE);
-                        // Stop shard manager
-                        shardManager.shutdown();
-                        System.out.println(OFFLINE_INFO);
-                        // Stop jar file from running
-                        System.exit(0);
+                        shardManager.setStatus(OnlineStatus.OFFLINE); // Set status to offline
+                        shardManager.shutdown(); // Stop Bot
+                        System.out.println(OFFLINE_INFO); // Print offline info
+                        System.exit(0); // Stop program
                     }
                 }
                 // Help command
@@ -107,7 +108,7 @@ public class Myra {
                     System.out.println("Use " + ConsoleColours.RED + "shutdown" + ConsoleColours.RESET + " to shutdown the program");
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException e){
             e.printStackTrace();
         }
     }

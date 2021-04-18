@@ -1,6 +1,6 @@
 package com.myra.dev.marian.marian;
 
-import com.myra.dev.marian.utilities.Config;
+import com.myra.dev.marian.Config;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
