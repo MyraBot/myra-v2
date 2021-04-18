@@ -16,8 +16,6 @@ public class LevelingListener {
 
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.isFromGuild()) return; // Ignore direct messages
-        if (!new MongoGuild(event.getGuild()).getListenerManager().check("leveling"))
-            return; // Check if leveling is enabled
 
         final Member member = event.getMember();
         final Guild guild = event.getGuild();
@@ -25,8 +23,8 @@ public class LevelingListener {
 
         db.addMessage(); // Update message count
 
-        if (event.getMessage().getContentRaw().startsWith(new MongoGuild(guild).getString("prefix")))
-            return; // Message is a command
+        if (!new MongoGuild(event.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
+        if (event.getMessage().getContentRaw().startsWith(new MongoGuild(guild).getString("prefix"))) return; // Message is a command
         if (!cooldown(event)) return; // Cooldown
 
         LEVELING.levelUp(member, event.getChannel(), db, getXpFromMessage(event.getMessage())); // Check for new level
