@@ -189,7 +189,7 @@ public class GuildMember {
      * Add one message to the total amount of written messages.
      */
     public void addMessage() {
-        memberDocument.replace("messages", memberDocument.getInteger("messages" + 1)); // Add one message
+        memberDocument.replace("messages", memberDocument.getInteger("messages") + 1); // Add one message
         mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
     }
 
