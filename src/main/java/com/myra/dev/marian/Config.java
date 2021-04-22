@@ -14,5 +14,5 @@ public class Config {
     public static final boolean updateGuilds = false;
     public static final boolean updateUsers = false;
 
-    public final static String DEFAULT_AVATAR = "https://cdn.discordapp.com/attachments/670673977492111360/818744164496965682/nx4jf8ry1fy51.png";
+    public final static String DEFAULT_AVATAR = "https://cdn.discordapp.com/embed/avatars/4.png";
 }
