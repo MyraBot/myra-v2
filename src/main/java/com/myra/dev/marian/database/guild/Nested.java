@@ -41,8 +41,8 @@ public class Nested {
      */
     public void setString(String key, String value) {
         // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class);
-        updatedDocument.replace(key, value);
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
         mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
     }
@@ -63,11 +63,11 @@ public class Nested {
      */
     public void setInteger(String key, Integer value) {
         // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class);
-        updatedDocument.replace(key, value);
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
         mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
-    } 
+    }
 
     /**
      * @param key The key to search for.
@@ -85,8 +85,8 @@ public class Nested {
      */
     public void setLong(String key, Long value) {
         // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class);
-        updatedDocument.replace(key, value);
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
         mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
     }
@@ -107,8 +107,8 @@ public class Nested {
      */
     public void setBoolean(String key, boolean value) {
         // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class);
-        updatedDocument.replace(key, value);
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
         mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
     }
@@ -143,8 +143,8 @@ public class Nested {
      */
     public <T> void setList(String key, List<T> value) {
         // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class);
-        updatedDocument.replace(key, value);
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
         mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
     }
