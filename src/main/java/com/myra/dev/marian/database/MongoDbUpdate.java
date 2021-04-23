@@ -6,9 +6,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.slf4j.LoggerFactory;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -144,9 +142,11 @@ public class MongoDbUpdate {
     private static Document updateUser(Document userDocument) {
         Document updatedUserDocument = new Document() // Create a new user document
                 .append("userId", userDocument.getString("userId"))
-                .append("name", "not set") // Username
-                .append("discriminator", "not set") // User tag
-                .append("avatar", "not set") // Avatar url
+                .append("name", userDocument.getString("name")) // Username
+                .append("discriminator", userDocument.getString("discriminator")) // User tag
+                .append("avatar", userDocument.getString("avatar")) // Avatar url
+                .append("xp", 0) // Global xp
+                .append("messages", 0) // Global messages
                 .append("birthday", userDocument.getString("birthday"))
                 .append("achievements", userDocument.get("achievements", Document.class));
 
@@ -197,18 +197,17 @@ public class MongoDbUpdate {
             }
         }
 
-    }
+        MongoCursor<Document> iterator = mongoDb.getCollection("guilds").find().iterator();
+        while (iterator.hasNext()) {
+            Document next = iterator.next();
 
-    /**
-     * Change guild name.
-     *
-     * @param event The GuildUpdateNameEvent event.
-     */
-    public void onGuildNameUpdate(GuildUpdateNameEvent event) {
-        final MongoDb mongoDb = MongoDb.getInstance();
-        Document guildDoc = mongoDb.getCollection("guilds").find(eq("guildId", event.getGuild().getId())).first();
-        Bson updateGuildDoc = new Document("$set", new Document("guildName", event.getNewValue()));
-        mongoDb.getCollection("guilds").findOneAndUpdate(guildDoc, updateGuildDoc);
+            String guildId = next.getString("guildId");
+            boolean b = event.getJDA().getGuilds().stream().noneMatch(guild -> guild.getId().equals(guildId));
+            if (b) {
+                mongoDb.getCollection("guilds").findOneAndDelete(eq("guildId", guildId));
+            }
+        }
+
     }
 
     //delete document on guild leave

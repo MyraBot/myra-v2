@@ -1,7 +1,8 @@
 package com.myra.dev.marian.listeners.leveling;
 
-import com.myra.dev.marian.database.guild.member.GuildMember;
+import com.myra.dev.marian.database.MongoUser;
 import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,18 +18,23 @@ public class LevelingListener {
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.isFromGuild()) return; // Ignore direct messages
 
-        final Member member = event.getMember();
-        final Guild guild = event.getGuild();
-        final GuildMember db = new MongoGuild(guild).getMembers().getMember(member); // Get member from database
+        final MongoGuild dbGuild = new MongoGuild(event.getGuild()); // Get guild from database
+        final MongoUser dbUser = new MongoUser(event.getAuthor()); // Get User from database
+        final GuildMember dbMember = dbGuild.getMembers().getMember(event.getMember()); // Get member from database
 
-        db.addMessage(); // Update message count
+        final int xpFromMessage = getXpFromMessage(event.getMessage()); // Get xp from message
 
-        if (!new MongoGuild(event.getGuild()).getListenerManager().check("leveling")) return; // Check if leveling is enabled
-        if (event.getMessage().getContentRaw().startsWith(new MongoGuild(guild).getString("prefix"))) return; // Message is a command
+        dbMember.addMessage(); // Update message count
+
+        dbUser.addMessage(); // Update global messages count
+        dbUser.addXp(xpFromMessage); // Update global xp count
+
+        if (!dbGuild.getListenerManager().check("leveling")) return; // Check if leveling is enabled
+        if (event.getMessage().getContentRaw().startsWith(dbGuild.getString("prefix"))) return; // Message is a command
         if (!cooldown(event)) return; // Cooldown
 
-        LEVELING.levelUp(member, event.getChannel(), db, getXpFromMessage(event.getMessage())); // Check for new level
-        db.addXp(getXpFromMessage(event.getMessage())); // Update xp
+        LEVELING.levelUp(event.getMember(), event.getChannel(), dbMember, xpFromMessage); // Check for new level
+        dbMember.addXp(xpFromMessage); // Update xp
     }
 
     private static HashMap<Guild, HashMap<Member, Message>> cooldown = new HashMap<>();

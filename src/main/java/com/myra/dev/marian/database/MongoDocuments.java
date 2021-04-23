@@ -115,6 +115,8 @@ public class MongoDocuments {
                 .append("userId", user.getId()) // Id
                 .append("name", user.getName()) // Username
                 .append("discriminator", user.getDiscriminator()) // User tag
+                .append("xp", 0)
+                .append("messages", 0)
                 .append("avatar", user.getEffectiveAvatarUrl())
                 .append("birthday", "not set")
                 .append("achievements", new Document());
