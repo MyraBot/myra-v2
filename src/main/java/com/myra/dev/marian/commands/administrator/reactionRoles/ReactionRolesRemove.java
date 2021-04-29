@@ -1,13 +1,13 @@
 package com.myra.dev.marian.commands.administrator.reactionRoles;
 
-import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.guild.MongoGuild;
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
-import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import org.bson.Document;
@@ -15,13 +15,13 @@ import org.bson.Document;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "reaction roles remove",
-        aliases = {"reaction role", "rr remove"},
-        requires = Administrator.class
-)
-public class ReactionRolesRemove implements Command {
-    @Override
+public class ReactionRolesRemove implements CommandHandler {
+
+    @CommandEvent(
+            name = "reaction roles remove",
+            aliases = {"reaction role", "rr remove"},
+            requires = Administrator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
         EmbedBuilder usage = new EmbedBuilder()
                 .setAuthor("reaction roles remove", null, ctx.getAuthor().getEffectiveAvatarUrl())
@@ -29,11 +29,9 @@ public class ReactionRolesRemove implements Command {
                 .setDescription("Remove the reaction of the reaction role");
 
         ctx.getChannel().sendMessage(usage.build()).queue(msg -> {
-            Myra.WAITER.waitForEvent(
-                    GuildMessageReactionRemoveEvent.class, // Event to wait for
-                    e -> !e.getUser().isBot()
-                            && e.getUser() == ctx.getAuthor(),
-                    e -> { // Code on event
+            ctx.getWaiter().waitForEvent(GuildMessageReactionRemoveEvent.class)
+                    .setCondition(e -> !e.getUser().isBot() && e.getUser() == ctx.getAuthor())
+                    .setAction(e -> {
                         final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
                         final List<Document> reactionRoles = db.getList("reactionRoles", Document.class); // Get reaction roles
 
@@ -70,16 +68,18 @@ public class ReactionRolesRemove implements Command {
                                 break;
                             }
                         }
-                    },
-                    30L, TimeUnit.SECONDS, // Timeout
-                    () -> { // Code on timeout
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> {
                         new Error(ctx.getEvent())
                                 .setCommand("reaction roles remove")
                                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
                                 .setMessage("You didn't remove a reaction")
                                 .send();
-                    }
-            );
+                    })
+                    .load();
+
+
         });
     }
 }

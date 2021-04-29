@@ -1,18 +1,18 @@
 package com.myra.dev.marian.commands.administrator.reactionRoles;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.permissions.Administrator;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class ReactionRolesHelp implements CommandHandler {
+
+@CommandEvent(
         name = "reaction roles",
         aliases = {"reaction role", "rr"},
         requires = Administrator.class
 )
-public class ReactionRolesHelp implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length == 0) {

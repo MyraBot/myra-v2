@@ -1,15 +1,15 @@
 package com.myra.dev.marian.commands.help;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.CommandEmbeds;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.CommandEmbeds;
 
-@CommandSubscribe(
+public class Support implements CommandHandler {
+
+@CommandEvent(
         name = "support",
         aliases = {"support server", "bugs"}
 )
-public class Support implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         //check for no arguments
         if (ctx.getArguments().length != 0) return;

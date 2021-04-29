@@ -1,19 +1,19 @@
 package com.myra.dev.marian.commands.administrator.leveling.levelingRoles;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 
-@CommandSubscribe(
+public class LevelingRolesUnique implements CommandHandler {
+
+@CommandEvent(
         name = "leveling roles unique",
         aliases = {"leveling role unique"},
         requires = Administrator.class
 )
-public class LevelingRolesUnique implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         final boolean oldValue = db.getNested("leveling").getBoolean("uniqueRoles"); // Get old value

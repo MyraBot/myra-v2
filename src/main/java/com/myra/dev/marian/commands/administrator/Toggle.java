@@ -1,9 +1,6 @@
 package com.myra.dev.marian.commands.administrator;
 
-import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
-import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.*;
 import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.commands.help.Help;
 import com.myra.dev.marian.database.guild.MongoGuild;
@@ -18,13 +15,13 @@ import com.myra.dev.marian.utilities.permissions.Administrator;
 import java.util.Arrays;
 import java.util.Map;
 
-@CommandSubscribe(
+public class Toggle implements CommandHandler {
+
+@CommandEvent(
         name = "toggle",
         requires = Administrator.class,
         channel = Channel.GUILD
 )
-public class Toggle implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         //command usage
         if (ctx.getArguments().length == 0) {
@@ -92,7 +89,7 @@ public class Toggle implements Command {
         } else command = ctx.getArguments()[0];
 
         // Go throw every command
-        for (Map.Entry<Command, CommandSubscribe> entry : Myra.COMMAND_SERVICE.getCommands().entrySet()) {
+        for (Map.Entry<MethodInfo, CommandEvent> entry : Myra.COMMAND_SERVICE.getCommands().entrySet()) {
             // If a alias or name matches the given command
             if (Arrays.stream(entry.getValue().aliases()).anyMatch(command::equalsIgnoreCase) || command.equalsIgnoreCase(entry.getValue().name())) {
                 // Command is a help command

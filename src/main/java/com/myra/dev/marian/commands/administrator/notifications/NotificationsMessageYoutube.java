@@ -1,23 +1,23 @@
 package com.myra.dev.marian.commands.administrator.notifications;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 
-@CommandSubscribe(
+public class NotificationsMessageYoutube implements CommandHandler {
+
+@CommandEvent(
         name = "notifications message youtube",
         aliases = {"notification message youtube"},
         requires = Administrator.class,
         channel = Channel.GUILD
 )
-public class NotificationsMessageYoutube implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length == 0) {

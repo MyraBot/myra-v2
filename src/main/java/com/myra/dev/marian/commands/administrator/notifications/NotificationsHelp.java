@@ -2,22 +2,22 @@ package com.myra.dev.marian.commands.administrator.notifications;
 
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class NotificationsHelp implements CommandHandler {
+
+@CommandEvent(
         name = "notifications",
         aliases = {"notification"},
         requires = Administrator.class,
         channel = Channel.GUILD
 )
-public class NotificationsHelp implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
         if (ctx.getArguments().length != 0) return;

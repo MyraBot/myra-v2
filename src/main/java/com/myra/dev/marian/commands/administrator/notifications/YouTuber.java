@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.administrator.notifications;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
 import com.myra.dev.marian.utilities.APIs.youTube.Channel;
 import com.myra.dev.marian.utilities.APIs.youTube.YouTube;
@@ -12,14 +12,14 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.net.URL;
 
-@CommandSubscribe(
+public class YouTuber implements CommandHandler {
+
+@CommandEvent(
         name = "notification youtube",
         aliases = {"notifications youtube", "notification youtuber", "notifications youtuber"},
         requires = Administrator.class,
         channel = com.github.m5rian.jdaCommandHandler.Channel.GUILD
 )
-public class YouTuber implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Usage
         if (ctx.getArguments().length == 0) {

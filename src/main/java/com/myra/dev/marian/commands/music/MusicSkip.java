@@ -1,9 +1,9 @@
 package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
@@ -14,14 +14,13 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
-@CommandSubscribe(
+public class MusicSkip implements CommandHandler {
+
+@CommandEvent(
         name = "skip",
         aliases = {"next"},
         channel = Channel.GUILD
 )
-public class MusicSkip implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
 

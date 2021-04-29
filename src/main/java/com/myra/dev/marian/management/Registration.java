@@ -68,7 +68,7 @@ import com.myra.dev.marian.marian.*;
 public class Registration {
     public static void register() {
         // Register commands
-        Myra.COMMAND_SERVICE.registerCommands(
+        Myra.COMMAND_SERVICE.registerCommandClasses(
                 // Marian
                 new SetGuildPremium(),
                 new MariansDiscordEmbeds(),

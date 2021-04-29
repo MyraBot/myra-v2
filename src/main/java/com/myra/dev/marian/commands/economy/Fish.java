@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.economy;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.GuildMember;
@@ -15,12 +15,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-@CommandSubscribe(
+public class Fish implements CommandHandler {
+
+@CommandEvent(
         name = "fish"
 )
-public class Fish implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
         if (ctx.getArguments().length != 0) return;

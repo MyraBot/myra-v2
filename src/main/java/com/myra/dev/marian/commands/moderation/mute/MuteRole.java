@@ -1,21 +1,21 @@
 package com.myra.dev.marian.commands.moderation.mute;
 
 import com.myra.dev.marian.database.guild.MongoGuild;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
-@CommandSubscribe(
+public class MuteRole implements CommandHandler {
+
+@CommandEvent(
         name = "mute role",
         aliases = {"muted role"},
         requires = Moderator.class
 )
-public class MuteRole implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         //command usage
         if (ctx.getArguments().length != 1) {

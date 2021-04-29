@@ -2,9 +2,9 @@ package com.myra.dev.marian.commands.leveling;
 
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.GuildMember;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Graphic;
@@ -19,14 +19,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-@CommandSubscribe(
-        name = "rank"
-)
-public class Rank implements Command {
+public class Rank implements CommandHandler {
     private final Leveling leveling = new Leveling();
 
     @SuppressWarnings("ConstantConditions")
-    @Override
+
+@CommandEvent(
+        name = "rank"
+)
     public void execute(CommandContext ctx) throws Exception {
         Utilities utilities = Utilities.getUtils();
         // Usage

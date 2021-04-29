@@ -1,11 +1,10 @@
 package com.myra.dev.marian.commands.leveling;
 
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.guild.member.GuildMember;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Img;
@@ -20,16 +19,16 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "edit rank"
-)
-public class Background implements Command {
+public class Background implements CommandHandler {
     private final String[] emojis = {
             "\u2705", // Checkmark
             "\uD83D\uDEAB" // Barrier
     };
 
-    @Override
+
+    @CommandEvent(
+            name = "edit rank"
+    )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length != 1) {
@@ -86,13 +85,12 @@ public class Background implements Command {
             message.addReaction(emojis[0]).queue(); // Checkmark
             message.addReaction(emojis[1]).queue(); // Barrier
 
-            Myra.WAITER.waitForEvent(
-                    GuildMessageReactionAddEvent.class,
-                    e -> !e.getUser().isBot()
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e -> !e.getUser().isBot()
                             && e.getMember() == ctx.getMember()
                             && e.getMessageIdLong() == message.getIdLong()
-                            && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals),
-                    e -> { // On event
+                            && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals))
+                    .setAction(e -> {
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reaction emoji
 
                         // Checkmark
@@ -124,12 +122,11 @@ public class Background implements Command {
                                     .setMessage("Your purchase has been canceled")
                                     .send();
                         }
-                    },
-                    30L, TimeUnit.SECONDS, // Timeout
-                    () -> { // On timeout
-                        message.clearReactions().queue(); // Clear reactions
-                    }
-            );
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> message.clearReactions().queue())
+                    .load();
+
         });
     }
 }

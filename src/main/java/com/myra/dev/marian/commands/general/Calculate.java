@@ -1,18 +1,18 @@
 package com.myra.dev.marian.commands.general;
 
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class Calculate implements CommandHandler {
+
+@CommandEvent(
         name = "calculate",
         aliases = {"cal"}
 )
-public class Calculate implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         //usage
         if (ctx.getArguments().length == 0 || ctx.getArguments().length > 3) {

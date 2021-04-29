@@ -1,12 +1,12 @@
 package com.myra.dev.marian.commands.administrator.reactionRoles;
 
-import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.MongoDb;
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
-import com.myra.dev.marian.utilities.permissions.Administrator;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.database.MongoDb;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.Role;
@@ -19,19 +19,19 @@ import java.util.concurrent.TimeUnit;
 
 import static com.mongodb.client.model.Filters.eq;
 
-@CommandSubscribe(
-        name = "reaction roles add",
-        aliases = {"reaction role add", "rr add"},
-        requires = Administrator.class
-)
-public class ReactionRolesAdd implements Command {
+public class ReactionRolesAdd implements CommandHandler {
     private final String[] emojis = {
             "\uD83C\uDF81",
             "\uD83E\uDD84",
             "\u2705"
     };
 
-    @Override
+
+    @CommandEvent(
+            name = "reaction roles add",
+            aliases = {"reaction role add", "rr add"},
+            requires = Administrator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
         if (!MongoDb.getInstance().getCollection("guilds").find(eq("guildId", ctx.getGuild().getId())).first().getBoolean("premium"))
             return;
@@ -45,7 +45,7 @@ public class ReactionRolesAdd implements Command {
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
-// Add reaction roles
+        // Add reaction roles
         final Role role = Utilities.getUtils().getRole(ctx.getEvent(), ctx.getArguments()[0], "reaction roles add", ""); // Get given role
         if (role == null) return;
 
@@ -66,89 +66,87 @@ public class ReactionRolesAdd implements Command {
                 .addField("verify", "\u2705 │ Once you reacted to the message and get you're role, you're not able to remove the role", true);
         ctx.getChannel().sendMessage(type.build()).queue(msg1 -> { // Send message to select the reaction roles type
 
-                    // Add reactions
-                    msg1.addReaction(emojis[0]).queue(); // 🎁
-                    msg1.addReaction(emojis[1]).queue(); // 🦄
-                    msg1.addReaction(emojis[2]).queue(); // ✅
+            // Add reactions
+            msg1.addReaction(emojis[0]).queue(); // 🎁
+            msg1.addReaction(emojis[1]).queue(); // 🦄
+            msg1.addReaction(emojis[2]).queue(); // ✅
 
-                    // Event waiter
-                    Myra.WAITER.waitForEvent(
-                            GuildMessageReactionAddEvent.class, // Event to wait for
-                            e1 -> // Condition
-                                    !e1.getUser().isBot()
-                                            && e1.getUser() == ctx.getAuthor()
-                                            && e1.getMessageId().equals(msg1.getId())
-                                            && Arrays.stream(emojis).anyMatch(e1.getReactionEmote().getEmoji()::equals),
-                            e1 -> { // Code on event
-                                final String reaction = e1.getReactionEmote().getEmoji(); // Get reacted emoji
-                                // Choose reaction role type
-                                if (reaction.equals(emojis[0]))
-                                    reactionRolesInfo.replace("type", "normal"); // Set reaction roles type to normal
-                                if (reaction.equals(emojis[1]))
-                                    reactionRolesInfo.replace("type", "unique"); // Set reaction roles type to unique
-                                if (reaction.equals(emojis[2]))
-                                    reactionRolesInfo.replace("type", "verify"); // Set reaction roles type to verify
+            // Event waiter
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e1 -> !e1.getUser().isBot()
+                            && e1.getUser() == ctx.getAuthor()
+                            && e1.getMessageId().equals(msg1.getId())
+                            && Arrays.stream(emojis).anyMatch(e1.getReactionEmote().getEmoji()::equals))
+                    .setAction(e1 -> {
+                        final String reaction = e1.getReactionEmote().getEmoji(); // Get reacted emoji
+                        // Choose reaction role type
+                        if (reaction.equals(emojis[0]))
+                            reactionRolesInfo.replace("type", "normal"); // Set reaction roles type to normal
+                        if (reaction.equals(emojis[1]))
+                            reactionRolesInfo.replace("type", "unique"); // Set reaction roles type to unique
+                        if (reaction.equals(emojis[2]))
+                            reactionRolesInfo.replace("type", "verify"); // Set reaction roles type to verify
 
-                                msg1.clearReactions().queue(); // Clear reactions
-                                // Create embed as a information to choose now the message and reaction emoji
-                                EmbedBuilder messageAndEmojiSelection = new EmbedBuilder()
-                                        .setAuthor("reaction roles add", null, e1.getUser().getEffectiveAvatarUrl())
-                                        .setColor(Utilities.getUtils().blue)
-                                        .setDescription("Now react to the message you want the reaction role to be");
+                        msg1.clearReactions().queue(); // Clear reactions
+                        // Create embed as a information to choose now the message and reaction emoji
+                        EmbedBuilder messageAndEmojiSelection = new EmbedBuilder()
+                                .setAuthor("reaction roles add", null, e1.getUser().getEffectiveAvatarUrl())
+                                .setColor(Utilities.getUtils().blue)
+                                .setDescription("Now react to the message you want the reaction role to be");
 
-                                msg1.editMessage(messageAndEmojiSelection.build()).queue(msg2 -> { // Edit message to select the reaction roles message and emoji
+                        msg1.editMessage(messageAndEmojiSelection.build()).queue(msg2 -> { // Edit message to select the reaction roles message and emoji
 
-                                    Myra.WAITER.waitForEvent(
-                                            GuildMessageReactionAddEvent.class, // Event to wait for
-                                            e2 -> // Condition
-                                                    !e2.getUser().isBot()
-                                                            && e2.getUser() == ctx.getAuthor(),
-                                            e2 -> { // Run on event
-                                                final MessageReaction.ReactionEmote emote = e2.getReactionEmote(); // Get reaction emote as a variable
+                            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                                    .setCondition(e -> !e.getUser().isBot()
+                                            && e.getUser() == ctx.getAuthor())
+                                    .setAction(e -> {
+                                        final MessageReaction.ReactionEmote emote = e.getReactionEmote(); // Get reaction emote as a variable
 
-                                                String emoji = null; // Store emoji
-                                                if (emote.isEmoji()) emoji = emote.getEmoji(); // Save emoji
-                                                else if (emote.isEmoji()) emoji = emote.getEmote().getId(); // Save emote
+                                        String emoji = null; // Store emoji
+                                        if (emote.isEmoji()) emoji = emote.getEmoji(); // Save emoji
+                                        else if (emote.isEmoji()) emoji = emote.getEmote().getId(); // Save emote
 
-                                                reactionRolesInfo.replace("message", e2.getMessageId()); // Add message id
-                                                reactionRolesInfo.replace("emoji", emoji); // Emoji
+                                        reactionRolesInfo.replace("message", e.getMessageId()); // Add message id
+                                        reactionRolesInfo.replace("emoji", emoji); // Emoji
 
-                                                messageAndEmojiSelection.clear()
-                                                        .setAuthor("reaction roles add", null, e2.getUser().getEffectiveAvatarUrl())
-                                                        .setColor(Utilities.getUtils().blue)
-                                                        .setDescription("Successfully added");
-                                                e2.getChannel().sendMessage(messageAndEmojiSelection.build()).queue(); // Send success message
+                                        messageAndEmojiSelection.clear()
+                                                .setAuthor("reaction roles add", null, e.getUser().getEffectiveAvatarUrl())
+                                                .setColor(Utilities.getUtils().blue)
+                                                .setDescription("Successfully added");
+                                        e.getChannel().sendMessage(messageAndEmojiSelection.build()).queue(); // Send success message
 
-                                                e2.getChannel().retrieveMessageById(reactionRolesInfo.getString("message")).queue(message -> { // Get reaction roles message
-                                                    message.addReaction(reactionRolesInfo.getString("emoji")).queue(); // Add reaction
-                                                });
+                                        e.getChannel().retrieveMessageById(reactionRolesInfo.getString("message")).queue(message -> { // Get reaction roles message
+                                            message.addReaction(reactionRolesInfo.getString("emoji")).queue(); // Add reaction
+                                        });
 
-                                                final Document guildDocument = MongoDb.getInstance().getCollection("guilds").find(eq("guildId", e2.getGuild().getId())).first(); // Get guild document
-                                                List<Document> reactionRoles = guildDocument.getList("reactionRoles", Document.class); // Get reaction roles list
-                                                reactionRoles.add(reactionRolesInfo); // Add reaction roles info
+                                        final Document guildDocument = MongoDb.getInstance().getCollection("guilds").find(eq("guildId", e.getGuild().getId())).first(); // Get guild document
+                                        List<Document> reactionRoles = guildDocument.getList("reactionRoles", Document.class); // Get reaction roles list
+                                        reactionRoles.add(reactionRolesInfo); // Add reaction roles info
 
-                                                MongoDb.getInstance().getCollection("guilds").findOneAndReplace(eq("guildId", e2.getGuild().getId()), guildDocument); // Update guild document
-                                            },
-                                            30L, TimeUnit.SECONDS,
-                                            () -> { // Code on timeout
-                                                msg1.clearReactions().queue(); // Clear reactions
-                                                new Error(ctx.getEvent())
-                                                        .setCommand("reaction roles add")
-                                                        .setMessage("You took too long")
-                                                        .send();
-                                            }
-                                    );
-                                });
-                            }, 30L, TimeUnit.SECONDS, // Timeout
-                            () -> { // Code on timeout
-                                msg1.clearReactions().queue(); // Clear reactions
-                                new Error(ctx.getEvent())
-                                        .setCommand("reaction roles add")
-                                        .setMessage("You took too long")
-                                        .send();
-                            }
-                    );
-                }
-        );
+                                        MongoDb.getInstance().getCollection("guilds").findOneAndReplace(eq("guildId", e.getGuild().getId()), guildDocument); // Update guild document
+                                    })
+                                    .setTimeout(30L, TimeUnit.SECONDS)
+                                    .setTimeoutAction(() -> {
+                                        msg1.clearReactions().queue(); // Clear reactions
+                                        new Error(ctx.getEvent())
+                                                .setCommand("reaction roles add")
+                                                .setMessage("You took too long")
+                                                .send();
+                                    })
+                                    .load();
+
+                        });
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> {
+                        msg1.clearReactions().queue(); // Clear reactions
+                        new Error(ctx.getEvent())
+                                .setCommand("reaction roles add")
+                                .setMessage("You took too long")
+                                .send();
+                    })
+                    .load();
+        });
+
     }
 }

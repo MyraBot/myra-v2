@@ -1,15 +1,14 @@
 package com.myra.dev.marian.commands.economy;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.Myra;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.commands.economy.administrator.shop.ShopRolesManager;
 import com.myra.dev.marian.database.guild.MongoGuild;
-import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.database.guild.ShopRolesDocument;
-import com.myra.dev.marian.Config;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
@@ -20,13 +19,12 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import java.util.List;
 import java.util.Optional;
 
-@CommandSubscribe(
-        name = "buy",
-        channel = Channel.GUILD
-)
-public class Buy implements Command {
+public class Buy implements CommandHandler {
 
-    @Override
+    @CommandEvent(
+            name = "buy",
+            channel = Channel.GUILD
+    )
     public void execute(CommandContext ctx) throws Exception {
         final List<ShopRolesDocument> roles = ShopRolesManager.getInstance().getRoles(ctx.getGuild()); // Get buyable roles
 
@@ -100,11 +98,9 @@ public class Buy implements Command {
                         .setDescription("You already own this role. Do you want to sell this role for " + sellPrice + " " + db.getNested("economy").getString("currency"));
                 ctx.getChannel().sendMessage(removeRole.build()).queue(message -> {
                     // Event waiter
-                    Myra.WAITER.waitForEvent(
-                            GuildMessageReceivedEvent.class, // Event to wait for
-                            e -> !e.getAuthor().isBot()
-                                    && e.getAuthor().getIdLong() == ctx.getAuthor().getIdLong(),
-                            e -> { // On event
+                    ctx.getWaiter().waitForEvent(GuildMessageReceivedEvent.class)
+                            .setCondition(e -> !e.getAuthor().isBot() && e.getAuthor().getIdLong() == ctx.getAuthor().getIdLong())
+                            .setAction(e -> {
                                 final String response = e.getMessage().getContentRaw(); // Get response
 
                                 // Sell role
@@ -127,8 +123,8 @@ public class Buy implements Command {
                                             .setMessage(String.format("Canceled selling **%s**... Maybe next time?", role.getAsMention()))
                                             .send();
                                 }
-                            }
-                    );
+                            })
+                            .load();
                 });
             }
         }
@@ -148,7 +144,7 @@ public class Buy implements Command {
             // Add role
             try {
                 ctx.getGuild().addRoleToMember(ctx.getMember(), role).queue();
-            } catch (Exception e) {
+            } catch (Exception e){
                 // Role to buy is higher than bot
                 if (e.toString().startsWith("net.dv8tion.jda.api.exceptions.HierarchyException: Can't modify a role with higher or equal highest role than yourself!")) {
                     new Error(ctx.getEvent())
@@ -157,7 +153,8 @@ public class Buy implements Command {
                             .setMessage("I couldn't assign this role, my role needs to be higher than the one you tried to buy")
                             .send();
                     return;
-                } else e.printStackTrace();
+                }
+                else e.printStackTrace();
             }
             // Remove balance
             final int balance = member.getBalance();

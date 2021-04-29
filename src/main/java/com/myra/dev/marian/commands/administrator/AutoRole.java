@@ -1,9 +1,9 @@
 package com.myra.dev.marian.commands.administrator;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -15,14 +15,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
-@CommandSubscribe(
+public class AutoRole implements CommandHandler {
+
+@CommandEvent(
         name = "autorole",
         aliases = {"auto role", "defaultrole", "default role", "joinrole", "join role"},
         requires = Administrator.class,
         channel = Channel.GUILD
 )
-public class AutoRole implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length != 1) {

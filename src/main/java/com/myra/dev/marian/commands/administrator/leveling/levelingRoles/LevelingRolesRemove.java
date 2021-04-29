@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.administrator.leveling.levelingRoles;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -13,13 +13,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import org.bson.Document;
 
-@CommandSubscribe(
+public class LevelingRolesRemove implements CommandHandler {
+
+@CommandEvent(
         name = "leveling roles remove",
         aliases = {"leveling role remove"},
         requires = Administrator.class
 )
-public class LevelingRolesRemove implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length != 1) {

@@ -1,9 +1,9 @@
 package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Format;
@@ -11,14 +11,13 @@ import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class MusicInformation implements CommandHandler {
+
+@CommandEvent(
         name = "music information",
         aliases = {"music info", "track information", "track info", "track", "song", "song information", "song info"},
         channel = Channel.GUILD
 )
-public class MusicInformation implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
         if (ctx.getArguments().length != 0) return;

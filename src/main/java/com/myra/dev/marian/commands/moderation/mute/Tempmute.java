@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.moderation.mute;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.mongodb.client.MongoCollection;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.guild.MongoGuild;
@@ -22,15 +22,14 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "tempmute",
-        requires = Moderator.class
-)
-public class Tempmute implements Command {
+public class Tempmute implements CommandHandler {
     //Get database
     private final MongoDb mongoDb = MongoDb.getInstance();
 
-    @Override
+    @CommandEvent(
+            name = "tempmute",
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
         Utilities utilities = Utilities.getUtils(); // Get utilities
         //command usage

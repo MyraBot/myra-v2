@@ -1,20 +1,20 @@
 package com.myra.dev.marian.commands.help;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.Webhook;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class Report implements CommandHandler {
+    private final String webhookUrl = "https://discord.com/api/v6/webhooks/788764863106252800/ZN7j5NCIEtekAxyKXJ55BUp8UqLmvsUuGAh2-Dlsndul0ziuxxyxpGiDtVBmsLd_beBF";
+
+    
+@CommandEvent(
         name = "report",
         aliases = {"bug"}
 )
-public class Report implements Command {
-    private final String webhookUrl = "https://discord.com/api/v6/webhooks/788764863106252800/ZN7j5NCIEtekAxyKXJ55BUp8UqLmvsUuGAh2-Dlsndul0ziuxxyxpGiDtVBmsLd_beBF";
-
-    @Override
     public void execute(final CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length == 0) {

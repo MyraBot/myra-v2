@@ -1,8 +1,8 @@
 package com.myra.dev.marian.marian;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Resources;
@@ -11,13 +11,12 @@ import com.myra.dev.marian.utilities.permissions.Marian;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 
-@CommandSubscribe(
+public class Dashboard implements CommandHandler {
+    @CommandEvent(
         name = "dashboard",
         aliases = {"dash"},
         requires = Marian.class
 )
-public class Dashboard implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         int count = ctx.getEvent().getJDA().getGuilds().stream().mapToInt(Guild::getMemberCount).sum();
         final int memberCount = ctx.getEvent().getJDA().getUsers().size();

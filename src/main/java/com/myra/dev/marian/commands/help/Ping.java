@@ -1,17 +1,17 @@
 package com.myra.dev.marian.commands.help;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class Ping implements CommandHandler {
+
+@CommandEvent(
         name = "ping",
         aliases = {"latency"}
 )
-public class Ping implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         if (!ctx.getAuthor().isBot()) {
             final long time = System.currentTimeMillis();

@@ -1,17 +1,16 @@
 package com.myra.dev.marian.marian;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.permissions.Marian;
 
-@CommandSubscribe(
+public class GetInvite implements CommandHandler {
+    @CommandEvent(
         name = "get invite",
         requires = Marian.class
 )
-public class GetInvite implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Check for marian
         if (!ctx.getAuthor().getId().equals(Config.marian)) return;

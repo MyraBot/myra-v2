@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.moderation.ban;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.mongodb.client.MongoCollection;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.guild.MongoGuild;
@@ -21,15 +21,14 @@ import org.json.JSONObject;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "tempban",
-        aliases = {"temp ban", "tempbean", "temp bean"},
-        requires = Moderator.class
-)
-public class Tempban implements Command {
+public class Tempban implements CommandHandler {
     private final MongoDb mongoDb = MongoDb.getInstance();
 
-    @Override
+    @CommandEvent(
+            name = "tempban",
+            aliases = {"tempbean"},
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
         final Utilities utilities = Utilities.getUtils(); // Get utilities
         // Command usage
@@ -105,7 +104,12 @@ public class Tempban implements Command {
         Document document = createUnban(user.getId(), ctx.getGuild().getId(), durationInMilliseconds, ctx.getAuthor().getId()); // Create unban document
         //delay
         Utilities.TIMER.schedule(new Runnable() {
-            @Override
+
+@CommandEvent(
+        name = "tempban",
+        aliases = {"temp ban", "tempbean", "temp bean"},
+        requires = Moderator.class
+)
             public void run() {
                 ctx.getGuild().unban(user).queue(); // Unban
                 unbanMessage(user, ctx.getGuild(), ctx.getAuthor()); // Send unban message

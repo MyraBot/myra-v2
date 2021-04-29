@@ -1,9 +1,9 @@
 package com.myra.dev.marian.commands.administrator;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
@@ -13,13 +13,13 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@CommandSubscribe(
+public class GlobalChatChannel implements CommandHandler {
+
+@CommandEvent(
         name = "global chat",
         requires = Administrator.class,
         channel = Channel.GUILD
 )
-public class GlobalChatChannel implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length != 1) {

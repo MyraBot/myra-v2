@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.economy;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
@@ -10,12 +10,12 @@ import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
-@CommandSubscribe(
+public class Balance implements CommandHandler {
+
+@CommandEvent(
         name = "balance",
         aliases = {"bal", "money"}
 )
-public class Balance implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         final Utilities utilities = Utilities.getUtils(); // Get utilities
         final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database

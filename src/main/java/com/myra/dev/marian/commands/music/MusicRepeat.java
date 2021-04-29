@@ -1,22 +1,22 @@
 package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.LavaPlayer.GuildMusicManager;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.APIs.LavaPlayer.GuildMusicManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class MusicRepeat implements CommandHandler {
+
+@CommandEvent(
         name = "repeat",
         aliases = {"repeat queue", "queue repeat", "loop", "loop queue", "queue loop"},
         channel = Channel.GUILD
 )
-public class MusicRepeat implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
         if (ctx.getArguments().length != 0) return;

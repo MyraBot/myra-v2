@@ -1,20 +1,19 @@
 package com.myra.dev.marian.commands.general.information;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
-@CommandSubscribe(
+public class InformationUser implements CommandHandler {
+
+@CommandEvent(
         name = "information user",
         aliases = {"info user"}
 )
-public class InformationUser implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         final Utilities utilities = Utilities.getUtils(); // Get utilities
         User user = ctx.getAuthor(); // Get author as member

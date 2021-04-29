@@ -2,9 +2,9 @@ package com.myra.dev.marian.commands.general;
 
 import com.mongodb.client.MongoCollection;
 import com.myra.dev.marian.database.MongoDb;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -14,15 +14,15 @@ import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "reminder",
-        aliases = {"remind"}
-)
-public class Reminder implements Command {
+public class Reminder implements CommandHandler {
     //database
     private final MongoDb mongoDb = MongoDb.getInstance();
 
-    @Override
+
+@CommandEvent(
+        name = "reminder",
+        aliases = {"remind"}
+)
     public void execute(CommandContext ctx) throws Exception {
         //usage
         if (ctx.getArguments().length == 0) {

@@ -1,12 +1,11 @@
 package com.myra.dev.marian.commands;
 
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Myra;
-import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.LeaderboardType;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.LeaderboardMember;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
@@ -23,13 +22,18 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@CommandSubscribe(
-        name = "leaderboard",
-        aliases = {"lb", "top"}
-)
-public class Leaderboard implements Command {
+public class Leaderboard implements CommandHandler {
+    // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
+    final String[] emojis = {
+            "RE:U+1F3C6", // Leveling (🏆)
+            "R" + Utilities.getUtils().getEmote("coin").toString().toUpperCase(), // Reaction emotes starts with 'RE' and emote with 'E' so I remove the 'R'
+            "RE:U+1F4DE" // Voice call
+    };
 
-    @Override
+    @CommandEvent(
+            name = "leaderboard",
+            aliases = {"lb", "top"}
+    )
     public void execute(CommandContext ctx) throws Exception {
         // Create loading embed
         EmbedBuilder loading = new EmbedBuilder()
@@ -45,56 +49,37 @@ public class Leaderboard implements Command {
             message.addReaction(Utilities.getUtils().getEmote("coin")).queue(); // Add balance emote
             message.addReaction("\uD83D\uDCDE").queue(); // Voice call emoji
 
-            waiter(Myra.WAITER, message, ctx.getMember());
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e -> !e.getUser().isBot()
+                            && e.getUserIdLong() == ctx.getMember().getIdLong()
+                            && e.getMessageIdLong() == message.getIdLong()
+                            && Arrays.asList(emojis).contains(e.getReactionEmote().toString().toUpperCase()))
+                    .setAction(e -> {
+                        message.editMessage(loading.build()).queue(); // Edit to loading message
+
+                        // Reaction is emote
+                        if (e.getReactionEmote().isEmote()) { // Reaction is emote
+                            getLeaderboard(message, type.BALANCE); // Send balance leaderboard
+                        }
+                        // Reaction is emoji
+                        else {
+                            // Leveling leaderboard
+                            if (e.getReactionEmote().toString().toUpperCase().equals(emojis[0])) {
+                                getLeaderboard(message, type.LEVEL); // Send level leaderboard
+                            }
+                            // Voice call leaderboard
+                            else if (e.getReactionEmote().toString().toUpperCase().equals(emojis[2])) {
+                                getLeaderboard(message, type.VOICE); // Send voice call leaderboard
+                            }
+                        }
+
+                        e.getReaction().removeReaction(e.getUser()).queue(); // Remove reaction
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> message.clearReactions().queue())
+                    .remainsOnAction()
+                    .load();
         });
-    }
-
-    private void waiter(EventWaiter waiter, Message message, Member member) {
-        // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
-        final String[] emojis = {
-                "RE:U+1F3C6", // Leveling (🏆)
-                "R" + Utilities.getUtils().getEmote("coin").toString().toUpperCase(), // Reaction emotes starts with 'RE' and emote with 'E' so I remove the 'R'
-                "RE:U+1F4DE" // Voice call
-        };
-
-
-        waiter.waitForEvent(
-                GuildMessageReactionAddEvent.class,
-                e -> !e.getUser().isBot()
-                        && e.getUserIdLong() == member.getIdLong()
-                        && e.getMessageIdLong() == message.getIdLong()
-                        && Arrays.asList(emojis).contains(e.getReactionEmote().toString().toUpperCase()),
-                e -> { // Code on event
-
-                    // Create loading embed
-                    EmbedBuilder loading = new EmbedBuilder()
-                            .setAuthor(e.getGuild().getName() + "'s leaderboard", null, e.getGuild().getIconUrl())
-                            .setColor(Utilities.getUtils().blue)
-                            .setDescription("*loading*");
-                    message.editMessage(loading.build()).queue(); // Edit message
-
-                    // Reaction is emote
-                    if (e.getReactionEmote().isEmote()) { // Reaction is emote
-                        getLeaderboard(message, type.BALANCE); // Send balance leaderboard
-                    }
-                    // Reaction is emoji
-                    else {
-                        // Leveling leaderboard
-                        if (e.getReactionEmote().toString().toUpperCase().equals(emojis[0])) {
-                            getLeaderboard(message, type.LEVEL); // Send level leaderboard
-                        }
-                        // Voice call leaderboard
-                        else if (e.getReactionEmote().toString().toUpperCase().equals(emojis[2])) {
-                            getLeaderboard(message, type.VOICE); // Send voice call leaderboard
-                        }
-                    }
-
-                    e.getReaction().removeReaction(e.getUser()).queue(); // Remove reaction
-                    waiter(waiter, message, member); // Loop this method until it runs the timeout
-                },
-                30L, TimeUnit.SECONDS, // Timeout
-                () -> message.clearReactions().queue() // Run on timeout
-        );
     }
 
     private enum type {

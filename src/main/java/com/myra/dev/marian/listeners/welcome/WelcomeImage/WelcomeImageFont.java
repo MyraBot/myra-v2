@@ -2,9 +2,9 @@ package com.myra.dev.marian.listeners.welcome.WelcomeImage;
 
 import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.guild.MongoGuild;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
@@ -13,18 +13,18 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "welcome image font",
-        requires = Administrator.class
-)
-public class WelcomeImageFont implements Command {
+public class WelcomeImageFont implements CommandHandler {
     private final String[] emojis = {
             "1\uFE0F\u20E3", // 1️⃣
             "2\uFE0F\u20E3", // 2️⃣
             "3\uFE0F\u20E3" // 3️⃣
     };
 
-    @Override
+
+@CommandEvent(
+        name = "welcome image font",
+        requires = Administrator.class
+)
     public void execute(CommandContext ctx) throws Exception {
         Utilities utilities = Utilities.getUtils(); // Get utilities
         //change font
@@ -43,13 +43,11 @@ public class WelcomeImageFont implements Command {
             message.addReaction(emojis[2]).queue();
 
             // Event waiter
-            Myra.WAITER.waitForEvent(
-                    GuildMessageReactionAddEvent.class, // Event to wait for
-                    e -> // Condition
-                            !e.getUser().isBot()
-                                    && e.getUser() == ctx.getAuthor()
-                                    && e.getMessageId().equals(message.getId()),
-                    e -> { // Run on event
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e ->  !e.getUser().isBot()
+                            && e.getUser() == ctx.getAuthor()
+                            && e.getMessageId().equals(message.getId()))
+                    .setAction(e -> {
                         final MongoGuild db = new MongoGuild(e.getGuild()); // Get database
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 
@@ -70,9 +68,9 @@ public class WelcomeImageFont implements Command {
                             db.getNested("welcome").setString("welcomeImageFont", "handwritten"); // Update database
                             success.setMessage("You have changed the font to `handwritten`").send();
                         }
-                    },
-                    30, TimeUnit.SECONDS,
-                    () -> { // Run on timeout
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> {
                         message.clearReactions().queue(); // Clear reactions
                         // Send timeout error
                         new Error(ctx.getEvent())
@@ -80,8 +78,8 @@ public class WelcomeImageFont implements Command {
                                 .setEmoji("\uD83D\uDDDB")
                                 .setMessage("You took too long to react")
                                 .send();
-                    }
-            );
+                    })
+                    .load();
         });
     }
 }

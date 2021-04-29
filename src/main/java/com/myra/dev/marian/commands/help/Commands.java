@@ -1,21 +1,16 @@
 package com.myra.dev.marian.commands.help;
 
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.Myra;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.CommandEmbeds;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "commands",
-        aliases = {"command"}
-)
-public class Commands implements Command {
+public class Commands implements CommandHandler {
     private final String[] emojis = new String[]{
             "\uD83D\uDCD6", // Help
             "\uD83C\uDF88", // General
@@ -27,7 +22,11 @@ public class Commands implements Command {
             "\uD83D\uDD29" // Administrator
     };
 
-    @Override
+
+    @CommandEvent(
+            name = "commands",
+            aliases = {"command"}
+    )
     public void execute(CommandContext ctx) throws Exception {
         //menu
         ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(), ctx.getEvent().getJDA(), ctx.getAuthor(), ctx.getPrefix()).commands().build()).queue(message -> {
@@ -41,15 +40,12 @@ public class Commands implements Command {
             message.addReaction(emojis[6]).queue(); // Moderation
             message.addReaction(emojis[7]).queue(); // Administrator
             // Event waiter
-            Myra.WAITER.waitForEvent(
-                    MessageReactionAddEvent.class, // Event to wait
-                    e -> // Requirements
-                            !e.getUser().isBot() // No bot
-                                    && e.getMessageId().equals(message.getId()) // Same message
-                                    && e.getUserIdLong() == ctx.getAuthor().getIdLong() // Same author
-                                    && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals), // matching emoji
-
-                    e -> { // on event
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e -> !e.getUser().isBot() // No bot
+                            && e.getMessageId().equals(message.getId()) // Same message
+                            && e.getUserIdLong() == ctx.getAuthor().getIdLong() // Same author
+                            && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals)) // Match emoji
+                    .setAction(e -> {
                         final String prefix = new MongoGuild(e.getGuild()).getString("prefix"); // Get Prefix
                         final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getJDA(), e.getUser(), prefix); // Get Embeds
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
@@ -72,10 +68,11 @@ public class Commands implements Command {
                         if (reaction.equals(emojis[7])) message.editMessage(embed.administrator().build()).queue();
 
                         message.clearReactions().queue(); // Clear reactions
-                    },
-                    30L, TimeUnit.SECONDS, // Timeout
-                    () -> message.clearReactions().queue()
-            );
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> message.clearReactions().queue())
+                    .load();
         });
+
     }
 }

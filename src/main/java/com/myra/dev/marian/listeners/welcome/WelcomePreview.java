@@ -4,19 +4,19 @@ import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.listeners.welcome.WelcomeImage.WelcomeImageRender;
 import com.myra.dev.marian.listeners.welcome.welcomeDirectMessage.WelcomeDirectMessageRender;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedRender;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.permissions.Administrator;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
 import java.io.InputStream;
 
-@CommandSubscribe(
+public class WelcomePreview implements CommandHandler {
+
+@CommandEvent(
         name = "welcome preview",
         requires = Administrator.class
 )
-public class WelcomePreview implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
         ctx.getChannel().sendTyping().queue(); // Send typing

@@ -1,21 +1,19 @@
 package com.myra.dev.marian.marian;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.permissions.Administrator;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Marian;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-@CommandSubscribe(
+public class MariansDiscordEmbeds implements CommandHandler {
+    @CommandEvent(
         name = "update embeds",
         requires = Marian.class
 )
-public class MariansDiscordEmbeds implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         final TextChannel information = ctx.getGuild().getTextChannelById("717655383451107339");
 

@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.administrator.leveling;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.listeners.leveling.Leveling;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
@@ -12,14 +12,14 @@ import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
-@CommandSubscribe(
+public class LevelingSet implements CommandHandler {
+    private final Leveling leveling = new Leveling();
+
+
+@CommandEvent(
         name = "leveling set",
         requires = Administrator.class
 )
-public class LevelingSet implements Command {
-    private final Leveling leveling = new Leveling();
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         Utilities utilities = Utilities.getUtils(); // Get utilities
         // Usage

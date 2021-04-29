@@ -2,9 +2,9 @@ package com.myra.dev.marian.listeners.welcome;
 
 import com.myra.dev.marian.database.guild.MongoGuild;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
@@ -12,14 +12,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 
-@CommandSubscribe(
+public class WelcomeColour implements CommandHandler {
+
+@CommandEvent(
         name = "welcome colour",
         aliases = {"welcome color"},
         requires = Administrator.class
 )
-public class WelcomeColour implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Get utilities
         Utilities utilities = Utilities.getUtils();

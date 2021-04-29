@@ -2,9 +2,9 @@ package com.myra.dev.marian.commands.administrator.notifications;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
 import com.myra.dev.marian.database.managers.NotificationsTwitchManager;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.Twitch;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.APIs.Twitch;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
@@ -13,14 +13,14 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-@CommandSubscribe(
+public class Streamer implements CommandHandler {
+
+@CommandEvent(
         name = "notification twitch",
         aliases = {"notification live", "notifications twitch", "notifications live"},
         requires = Administrator.class,
         channel = Channel.GUILD
 )
-public class Streamer implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Usage
         if (ctx.getArguments().length != 1) {

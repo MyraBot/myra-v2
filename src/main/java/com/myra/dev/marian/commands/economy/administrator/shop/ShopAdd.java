@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.economy.administrator.shop;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
@@ -11,13 +11,12 @@ import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
-@CommandSubscribe(
+public class ShopAdd implements CommandHandler {
+
+@CommandEvent(
         name = "shop add",
         requires = Administrator.class
 )
-public class ShopAdd implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Usage
         if (ctx.getArguments().length != 2) {

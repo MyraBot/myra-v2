@@ -2,9 +2,9 @@ package com.myra.dev.marian.commands.music;
 
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.spotify.Playlist;
 import com.myra.dev.marian.utilities.APIs.spotify.Spotify;
@@ -20,13 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 
 @SuppressWarnings("ConstantConditions") // Requires '.enableCache(CacheFlag.VOICE_STATE)' to be not null
-@CommandSubscribe(
+public class MusicPlay implements CommandHandler {
+
+@CommandEvent(
         name = "play",
         channel = Channel.GUILD
 )
-public class MusicPlay implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         //command usage
         if (ctx.getArguments().length == 0) {

@@ -1,20 +1,20 @@
 package com.myra.dev.marian.commands.general.information;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.Utilities;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-@CommandSubscribe(
+public class InformationBot implements CommandHandler {
+
+@CommandEvent(
         name = "information bot",
         aliases = {"info bot", "information BOT_NAME", "info BOT_NAME"}
 )
-public class InformationBot implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Get JDA
         final JDA jda = ctx.getEvent().getJDA();

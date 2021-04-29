@@ -3,9 +3,9 @@ package com.myra.dev.marian.commands.economy;
 import com.github.m5rian.jdaCommandHandler.Channel;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.GuildMember;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.DiscordBoats;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.APIs.DiscordBoats;
 import com.myra.dev.marian.utilities.APIs.TopGG;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.Format;
@@ -14,12 +14,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
+public class Daily implements CommandHandler {
+
+@CommandEvent(
         name = "daily",
         channel = Channel.GUILD
 )
-public class Daily implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
 

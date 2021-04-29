@@ -1,13 +1,12 @@
 package com.myra.dev.marian.commands.economy.blackjack;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.Myra;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.GuildMember;
-import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
@@ -22,15 +21,15 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@CommandSubscribe(
-        name = "blackjack",
-        aliases = {"bj"},
-        channel = Channel.GUILD
-)
-public class BlackJack implements Command {
+public class BlackJack implements CommandHandler {
     private HashMap<String, HashMap<String, Game>> games = new HashMap<>();
 
-    @Override
+
+    @CommandEvent(
+            name = "blackjack",
+            aliases = {"bj"},
+            channel = Channel.GUILD
+    )
     public void execute(CommandContext ctx) throws Exception {
         // Usage
         if (ctx.getArguments().length != 1) {
@@ -140,18 +139,18 @@ public class BlackJack implements Command {
                     games.put(ctx.getGuild().getId(), new HashMap<>()); // Add guild to hashmap
                 }
                 games.get(ctx.getGuild().getId()).put(message.getId(), game); // Add game to hashmap
+
                 waitForReaction(message, ctx); // Event waiter
             }
         });
     }
 
     public void waitForReaction(Message message, CommandContext ctx) {
-        Myra.WAITER.waitForEvent(
-                GuildMessageReactionAddEvent.class, // Event to wait
-                e -> !e.getUser().isBot() // Condition
+        ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                .setCondition(e -> !e.getUser().isBot() // Condition
                         && e.getMember().getIdLong() == ctx.getMember().getIdLong()
-                        && e.getMessageIdLong() == message.getIdLong(),
-                e -> { // On event
+                        && e.getMessageIdLong() == message.getIdLong())
+                .setAction(e -> {
                     // Get variables
                     final String guildId = e.getGuild().getId(); // Get guild id
                     final String messageId = e.getMessageId(); // Get message id
@@ -167,7 +166,7 @@ public class BlackJack implements Command {
                         // Get players
                         final Player player = game.getPlayers().get(0);
                         final Player dealer = game.getPlayers().get(1);
-// Hit
+                        // Hit
                         if (e.getReactionEmote().getEmoji().equals("\u23CF")) {
                             player.add(game.getRandomCard()); // Add a new card to player
 
@@ -192,7 +191,7 @@ public class BlackJack implements Command {
                                 }
                             });
                         }
-//Stay
+                        //Stay
                         else if (e.getReactionEmote().getEmoji().equals("\u23F8")) {
                             final GuildMember dbMember = new MongoGuild(e.getGuild()).getMembers().getMember(e.getMember()); // Get database
 
@@ -204,12 +203,12 @@ public class BlackJack implements Command {
                             String footer = "";
                             final int playerValue = player.getValue(); // Get value of player
                             final int dealerValue = dealer.getValue(); // Get value of dealer
-// Return credits
+                            // Return credits
                             // Player and dealer have the same value and they aren't over 21
                             if (playerValue == dealerValue && playerValue <= 21) {
                                 footer = "Returned " + game.getBetMoney(); // Set footer
                             }
-// Won
+                            // Won
                             // Player has higher value than dealer and player's value is not more than 21
                             else if (playerValue > dealerValue && playerValue <= 21) {
                                 footer = "You won +" + game.getBetMoney() * 2 + "!"; // Set footer
@@ -220,7 +219,7 @@ public class BlackJack implements Command {
                                 footer = "You won +" + game.getBetMoney() * 2 + "!"; // Set footer
                                 dbMember.setBalance(dbMember.getBalance() + game.getBetMoney()); // Add money
                             }
-// Lost
+                            // Lost
                             // Dealer has higher value than player and dealer's value is not more than 21
                             else if (dealerValue > player.getValue() && dealerValue <= 21) {
                                 footer = "The dealer won!"; // Set footer
@@ -253,8 +252,8 @@ public class BlackJack implements Command {
                             games.get(guildId).remove(messageId); // Remove game
                         }
                     }
-                }
-        );
+                })
+                .load();
     }
 
     /**
@@ -275,7 +274,7 @@ public class BlackJack implements Command {
 
         // Get member in database
         final GuildMember dbMember = new MongoGuild(guild).getMembers().getMember(player.getPlayer());
-// Lost
+        // Lost
         // Dealer and player have a value of 21
         if (dealer.getValue() == player.getValue() && dealer.getValue() == 21) {
             // Remove balance
@@ -300,7 +299,7 @@ public class BlackJack implements Command {
                     .addField("Dealer cards: " + dealer.getValue(), getDealerCards(dealer, guild.getJDA(), true), false)
                     .setFooter("The dealer won!");
         }
-// Won
+        // Won
         // Player's value is 21
         else if (player.getValue() == 21) {
             // Add balance
@@ -343,7 +342,8 @@ public class BlackJack implements Command {
         for (Card dealerCard : dealer.getCards()) {
             if (dealer.getCards().get(0).equals(dealerCard) && !showsAll) {
                 dealerCards += jda.getGuildById("776389239293607956").getEmotesByName("CardBlank", true).get(0).getAsMention() + " ";
-            } else
+            }
+            else
                 dealerCards += dealerCard.getEmote(jda) + " ";
 
         }

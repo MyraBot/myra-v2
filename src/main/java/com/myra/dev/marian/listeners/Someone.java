@@ -13,7 +13,7 @@ public class Someone {
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.getMessage().getContentRaw().contains("@someone")) return;
 
-        List<Permission> permissions = Myra.COMMAND_SERVICE.getRole(Administrator.class).getPermissions(); // Get administrator permissions
+        List<Permission> permissions = Myra.COMMAND_SERVICE.getPermission(Administrator.class).getPermissions(); // Get administrator permissions
         if (!event.getMember().getPermissions().containsAll(permissions)) return;
 
         // Get random number

@@ -3,10 +3,9 @@ package com.myra.dev.marian;
 import com.github.m5rian.jdaCommandHandler.CommandListener;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandServiceBuilder;
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.myra.dev.marian.database.MongoDbUpdate;
+import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.management.Listeners;
-import com.myra.dev.marian.management.Prefix;
 import com.myra.dev.marian.management.Registration;
 import com.myra.dev.marian.utilities.ConsoleColours;
 import com.myra.dev.marian.utilities.permissions.Administrator;
@@ -32,10 +31,9 @@ public class Myra {
     private final static String LOADING_STATUS = "loading bars fill";
     private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
 
-    public static final EventWaiter WAITER = new EventWaiter();
     public static final DefaultCommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
             .setDefaultPrefix(Config.prefix)
-            .setVariablePrefix(new Prefix())
+            .setVariablePrefix(guild -> new MongoGuild(guild).getString("prefix"))
             .allowMention()
             .build();
 
@@ -45,7 +43,7 @@ public class Myra {
     }
 
     private Myra() {
-        COMMAND_SERVICE.registerRoles(
+        COMMAND_SERVICE.registerPermission(
                 new Marian(),
                 new Administrator(),
                 new Moderator()
@@ -71,7 +69,6 @@ public class Myra {
                 .setStatus(OnlineStatus.IDLE)
                 .setActivity(Activity.watching(LOADING_STATUS))
                 .addEventListeners(
-                        WAITER,
                         new Listeners(),
                         new CommandListener(COMMAND_SERVICE)
                 );
@@ -80,7 +77,6 @@ public class Myra {
         MongoDbUpdate.update(() -> {
             try {
                 shardManager = jda.build(); // Start Bot
-                Registration.register(); // Register commands and listeners
                 consoleListener(); // Add console listener
             } catch (LoginException e){
                 e.printStackTrace();

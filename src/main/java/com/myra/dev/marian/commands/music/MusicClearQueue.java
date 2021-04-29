@@ -2,23 +2,22 @@ package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
 import com.myra.dev.marian.database.guild.MongoGuild;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 
-@CommandSubscribe(
+public class MusicClearQueue implements CommandHandler {
+
+@CommandEvent(
         name = "clear queue",
         aliases = {"queue clear"},
         channel = Channel.GUILD
 )
-public class MusicClearQueue implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
 
         if (ctx.getArguments().length != 0) return; // Check for no arguments

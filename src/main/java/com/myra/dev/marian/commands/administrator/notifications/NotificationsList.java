@@ -1,9 +1,9 @@
 package com.myra.dev.marian.commands.administrator.notifications;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.managers.NotificationsTwitchManager;
 import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
@@ -19,24 +19,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "notifications list",
-        aliases = {"notification list"},
-        requires = Administrator.class,
-        channel = Channel.GUILD
-)
-public class NotificationsList implements Command {
+public class NotificationsList implements CommandHandler {
     private final String[] emojis = {
             "\uD83D\uDCE1", // Twitch
             "\uD83D\uDCFA" // YouTube
     };
 
-    @Override
+
+@CommandEvent(
+        name = "notifications list",
+        aliases = {"notification list"},
+        requires = Administrator.class,
+        channel = Channel.GUILD
+)
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
         if (ctx.getArguments().length != 0) return;
         // Create embed
-        EmbedBuilder streamers = new EmbedBuilder()
+        EmbedBuilder streamersEmbed = new EmbedBuilder()
                 .setAuthor("notifications list", null, ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue);
 
@@ -44,8 +44,8 @@ public class NotificationsList implements Command {
         List<String> streamersList = new NotificationsTwitchManager().getStreamers(ctx.getGuild());
         //if there are no streamers
         if (streamersList.isEmpty()) {
-            streamers.addField("\uD83D\uDD14 │ Streamers:", "No streamers have been set up yet", false);
-            ctx.getChannel().sendMessage(streamers.build()).queue();
+            streamersEmbed.addField("\uD83D\uDD14 │ Streamers:", "No streamers have been set up yet", false);
+            ctx.getChannel().sendMessage(streamersEmbed.build()).queue();
             return;
         }
         String streamersString = "";
@@ -53,70 +53,66 @@ public class NotificationsList implements Command {
         for (String streamer : streamersList) {
             streamersString += "• " + streamer + "\n";
         }
-        streamers.addField("\uD83D\uDD14 │ Streamers:", streamersString, false);
-        ctx.getChannel().sendMessage(streamers.build()).queue(message -> { // Send message
+    streamersEmbed.addField("\uD83D\uDD14 │ Streamers:", streamersString, false);
+        ctx.getChannel().sendMessage(streamersEmbed.build()).queue(message -> { // Send message
             message.addReaction("\uD83D\uDCE1").queue(); // Twitch reaction
             message.addReaction("\uD83D\uDCFA").queue(); // Youtube reaction
 
-            switchList(ctx.getEvent(), message); // Reactions
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e -> !e.getUser().isBot()
+                            && e.getUser().getIdLong() == ctx.getAuthor().getIdLong()
+                            && Arrays.asList(emojis).contains(e.getReactionEmote().getEmoji()))
+                    .setAction(e -> {
+                        // Create embed
+                        EmbedBuilder list = new EmbedBuilder()
+                                .setAuthor("notifications list", null, e.getUser().getEffectiveAvatarUrl())
+                                .setColor(Utilities.getUtils().blue);
+
+                        // Twitch
+                        if (e.getReactionEmote().getEmoji().equals("\uD83D\uDCE1")) {
+                            // No streamer has been set up yet
+                            if (NotificationsTwitchManager.getInstance().getStreamers(e.getGuild()).isEmpty()) {
+                                list.addField("\uD83D\uDD14 │ Streamers:", "No streamers have been set up yet", false);
+                            }
+                            // Streamers have been set up
+                            else {
+                                String streamers = "";
+                                for (String streamer : NotificationsTwitchManager.getInstance().getStreamers(e.getGuild())) {
+                                    streamers += "• " + streamer + "\n";
+                                }
+                                list.addField("\uD83D\uDD14 │ Streamers:", streamers, false);
+                            }
+
+                            message.editMessage(list.build()).queue(); // Edit message
+                        }
+
+                        // Youtube
+                        else if (e.getReactionEmote().getEmoji().equals("\uD83D\uDCFA")) {
+                            // No streamer has been set up yet
+                            if (NotificationsYoutubeManager.getInstance().getYoutubers(e.getGuild()).isEmpty()) {
+                                list.addField("\\\uD83D\uDCFA │ YouTubers:", "No youtubers have been set up yet", false);
+                            }
+                            // Youtubers have been set up
+                            else {
+
+                                StringBuilder youtubers = new StringBuilder();
+                                for (String youtuberId : NotificationsYoutubeManager.getInstance().getYoutubers(e.getGuild())) {
+                                    final String channelName = YouTube.getApi().getChannel(youtuberId).getChannelName(); // Get youtube channel name
+                                    youtubers.append("• ").append(channelName).append("\n"); // Append youtuber
+                                }
+                                list.addField("\\\uD83D\uDCFA │ YouTubers:", youtubers.toString(), false);
+
+                            }
+
+                            message.editMessage(list.build()).queue(); // Edit message
+                        }
+
+                        e.getReaction().removeReaction(e.getUser()).queue(); // Remove reaction
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> message.clearReactions().queue())
+                    .load();
         });
-    }
-
-    public void switchList(MessageReceivedEvent messageEvent, Message message) {
-        Myra.WAITER.waitForEvent(
-                GuildMessageReactionAddEvent.class, // Event to wait for
-                e -> !e.getUser().isBot()
-                        && e.getUser().getIdLong() == messageEvent.getAuthor().getIdLong()
-                        && Arrays.asList(emojis).contains(e.getReactionEmote().getEmoji()),
-                e -> { // Fires on event
-                    // Create embed
-                    EmbedBuilder list = new EmbedBuilder()
-                            .setAuthor("notifications list", null, e.getUser().getEffectiveAvatarUrl())
-                            .setColor(Utilities.getUtils().blue);
-
-                    // Twitch
-                    if (e.getReactionEmote().getEmoji().equals("\uD83D\uDCE1")) {
-                        // No streamer has been set up yet
-                        if (NotificationsTwitchManager.getInstance().getStreamers(e.getGuild()).isEmpty()) {
-                            list.addField("\uD83D\uDD14 │ Streamers:", "No streamers have been set up yet", false);
-                        }
-                        // Streamers have been set up
-                        else {
-                            String streamers = "";
-                            for (String streamer : NotificationsTwitchManager.getInstance().getStreamers(e.getGuild())) {
-                                streamers += "• " + streamer + "\n";
-                            }
-                            list.addField("\uD83D\uDD14 │ Streamers:", streamers, false);
-                        }
-
-                        message.editMessage(list.build()).queue(); // Edit message
-                    }
-
-                    // Youtube
-                    else if (e.getReactionEmote().getEmoji().equals("\uD83D\uDCFA")) {
-                        // No streamer has been set up yet
-                        if (NotificationsYoutubeManager.getInstance().getYoutubers(e.getGuild()).isEmpty()) {
-                            list.addField("\\\uD83D\uDCFA │ YouTubers:", "No youtubers have been set up yet", false);
-                        }
-                        // Youtubers have been set up
-                        else {
-                            String youtubers = "";
-                            for (String youtuberId : NotificationsYoutubeManager.getInstance().getYoutubers(e.getGuild())) {
-                                final String channelName = YouTube.getApi().getChannel(youtuberId).getChannelName(); // Get youtube channel name
-                                youtubers += "• " + channelName + "\n";
-                            }
-                            list.addField("\\\uD83D\uDCFA │ YouTubers:", youtubers, false);
-                        }
-
-                        message.editMessage(list.build()).queue(); // Edit message
-                    }
-
-                    e.getReaction().removeReaction(e.getUser()).queue(); // Remove reaction
-                    switchList(messageEvent, message);
-                },
-                30L, TimeUnit.SECONDS, // Timeout
-                () -> message.clearReactions().queue()
-        );
     }
 
 }

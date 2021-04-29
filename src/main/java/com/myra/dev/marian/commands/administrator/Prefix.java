@@ -2,20 +2,20 @@ package com.myra.dev.marian.commands.administrator;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
 import com.myra.dev.marian.database.guild.MongoGuild;
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class Prefix implements CommandHandler {
+
+@CommandEvent(
         name = "prefix",
         requires = Administrator.class,
         channel = Channel.GUILD
 )
-public class Prefix implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         //command usage
         if (ctx.getArguments().length != 1) {

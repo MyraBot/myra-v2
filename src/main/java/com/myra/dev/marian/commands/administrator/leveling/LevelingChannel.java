@@ -2,21 +2,20 @@ package com.myra.dev.marian.commands.administrator.leveling;
 
 import com.myra.dev.marian.database.guild.MongoGuild;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-@CommandSubscribe(
+public class LevelingChannel implements CommandHandler {
+
+@CommandEvent(
         name = "leveling channel",
         requires = Administrator.class
 )
-public class LevelingChannel implements Command {
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         final Utilities utils = new Utilities(); // Get utilities
 // Usage

@@ -1,8 +1,8 @@
 package com.myra.dev.marian.commands.administrator.leveling.levelingRoles;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.commands.administrator.AutoRole;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
@@ -13,15 +13,15 @@ import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.Role;
 
-@CommandSubscribe(
+public class LevelingRolesAdd implements CommandHandler {
+    private final AutoRole autoRole = new AutoRole();
+
+
+@CommandEvent(
         name = "leveling roles add",
         aliases = {"leveling role add"},
         requires = Administrator.class
 )
-public class LevelingRolesAdd implements Command {
-    private final AutoRole autoRole = new AutoRole();
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length == 0 || ctx.getArguments().length > 2) {

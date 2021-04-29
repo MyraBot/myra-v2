@@ -1,8 +1,8 @@
 package com.myra.dev.marian.marian;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -12,13 +12,11 @@ import org.bson.Document;
 
 import static com.mongodb.client.model.Filters.eq;
 
-@CommandSubscribe(
+public class SetGuildPremium implements CommandHandler {
+    @CommandEvent(
         name = "set premium",
         requires = Marian.class
 )
-
-public class SetGuildPremium implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         final String guildId = ctx.getArguments()[0]; // Get guild
         // No server found

@@ -3,22 +3,20 @@ package com.myra.dev.marian.listeners.welcome;
 
 import com.myra.dev.marian.database.guild.MongoGuild;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-@CommandSubscribe(
+public class WelcomeChannel implements CommandHandler {
+
+@CommandEvent(
         name = "welcome channel",
         requires = Administrator.class
 )
-public class WelcomeChannel implements Command {
-
-
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Get utilities
         Utilities utilities = Utilities.getUtils();

@@ -1,18 +1,18 @@
 package com.myra.dev.marian.listeners.suggestions;
 
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.permissions.Administrator;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-@CommandSubscribe(
+public class SuggestionsHelp implements CommandHandler {
+
+@CommandEvent(
         name = "suggestions",
         requires = Administrator.class
 )
-public class SuggestionsHelp implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         //usage
         if (ctx.getArguments().length == 0) {

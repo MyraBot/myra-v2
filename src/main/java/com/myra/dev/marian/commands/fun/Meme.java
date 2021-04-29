@@ -1,16 +1,16 @@
 package com.myra.dev.marian.commands.fun;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;import com.myra.dev.marian.utilities.APIs.Reddit;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.APIs.Reddit;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 
-@CommandSubscribe(
+public class Meme implements CommandHandler {
+
+@CommandEvent(
         name = "meme",
         aliases = {"memes"}
 )
-public class Meme implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         try {
             ctx.getChannel().sendMessage(new Reddit().getMeme(ctx.getAuthor()).build()).queue();

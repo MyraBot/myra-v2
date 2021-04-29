@@ -1,22 +1,16 @@
 package com.myra.dev.marian.commands.fun;
 
 
-import com.github.m5rian.jdaCommandHandler.Command;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
-import com.myra.dev.marian.Myra;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.concurrent.TimeUnit;
 
-@CommandSubscribe(
-        name = "format",
-        aliases = {"font"}
-)
-public class TextFormatter implements Command {
-
+public class TextFormatter implements CommandHandler {
     //old german
     private String oldGerman(String text) {
         text = text
@@ -119,7 +113,11 @@ public class TextFormatter implements Command {
             "\uD83C\uDF39" // 🌹
     };
 
-    @Override
+
+    @CommandEvent(
+            name = "format",
+            aliases = {"font"}
+    )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length == 0) {
@@ -147,13 +145,11 @@ public class TextFormatter implements Command {
             message.addReaction(emojis[1]).queue();
             message.addReaction(emojis[2]).queue();
 
-            Myra.WAITER.waitForEvent(
-                    GuildMessageReactionAddEvent.class, // Event to wait for
-                    e -> !e.getUser().isBot()// Condition
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e -> !e.getUser().isBot()
                             && e.getUser().getIdLong() == ctx.getAuthor().getIdLong()
-                            && e.getMessageId().equals(message.getId()),
-                    e -> { // Run on event
-
+                            && e.getMessageId().equals(message.getId()))
+                    .setAction(e -> {
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
                         final String rawText = ctx.getArgumentsRaw(); // Get text to format
                         // Format message embed
@@ -173,10 +169,10 @@ public class TextFormatter implements Command {
 
                         message.editMessage(formatted.build()).queue(); // Edit message
                         message.clearReactions().queue(); // Clear reactions
-                    },
-                    30L, TimeUnit.SECONDS, // Timeout
-                    () -> message.clearReactions().queue() // Run on timeout
-            );
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> message.clearReactions().queue())
+                    .load();
         });
     }
 
@@ -184,10 +180,12 @@ public class TextFormatter implements Command {
         StringBuilder sb = new StringBuilder();
         if (Character.isBmpCodePoint(cp)) {
             sb.append((char) cp);
-        } else if (Character.isValidCodePoint(cp)) {
+        }
+        else if (Character.isValidCodePoint(cp)) {
             sb.append(Character.highSurrogate(cp));
             sb.append(Character.lowSurrogate(cp));
-        } else {
+        }
+        else {
             sb.append('?');
         }
         return sb.toString();

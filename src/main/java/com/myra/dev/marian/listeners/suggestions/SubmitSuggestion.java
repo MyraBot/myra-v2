@@ -1,8 +1,8 @@
 package com.myra.dev.marian.listeners.suggestions;
 
-import com.github.m5rian.jdaCommandHandler.Command;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandSubscribe;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
@@ -10,11 +10,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.time.Instant;
 
-@CommandSubscribe(
+public class SubmitSuggestion implements CommandHandler {
+
+@CommandEvent(
         name = "suggest"
 )
-public class SubmitSuggestion implements Command {
-    @Override
     public void execute(CommandContext ctx) throws Exception {
         // Get database
         MongoGuild db = new MongoGuild(ctx.getGuild());
