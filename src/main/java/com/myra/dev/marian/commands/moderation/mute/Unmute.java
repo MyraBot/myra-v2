@@ -57,7 +57,7 @@ public class Unmute implements CommandHandler {
         final User user = member.getUser(); // Get member as user
         // Guild message
         EmbedBuilder guildMessage = new EmbedBuilder()
-                .setColor(utilities.green)
+                .setColor(utilities.blue)
                 .setAuthor(user.getAsTag() + " got unmuted", null, user.getEffectiveAvatarUrl())
                 .setDescription("\uD83D\uDD08 │ " + user.getAsMention() + " got unmuted on " + ctx.getGuild().getName())
                 .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
@@ -65,7 +65,7 @@ public class Unmute implements CommandHandler {
         //direct message
         EmbedBuilder directMessage = new EmbedBuilder()
                 .setAuthor("You got unmuted", null, user.getEffectiveAvatarUrl())
-                .setColor(utilities.green)
+                .setColor(utilities.blue)
                 .setDescription("\uD83D\uDD08 │ You got unmuted on " + ctx.getGuild().getName())
                 .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
                 .setTimestamp(Instant.now());

@@ -147,7 +147,7 @@ public class Tempmute implements CommandHandler {
         //direct message unmute
         EmbedBuilder directMessage = new EmbedBuilder()
                 .setAuthor("You got unmuted from " + guild.getName(), null, guild.getIconUrl())
-                .setColor(Utilities.getUtils().green)
+                .setColor(Utilities.getUtils().blue)
                 .setDescription("You got unmuted from " + guild.getName())
                 .setFooter("requested by " + author.getAsTag(), author.getEffectiveAvatarUrl())
                 .setTimestamp(Instant.now());

@@ -40,7 +40,7 @@ public class Nick implements CommandHandler {
         // Success
         EmbedBuilder success = new EmbedBuilder()
                 .setAuthor("nickname changed", null, user.getEffectiveAvatarUrl())
-                .setColor(utilities.green)
+                .setColor(utilities.blue)
                 .addField("\uD83D\uDCC4 │ nickname changed of " + user.getName(), "`" + ctx.getGuild().getMember(user).getEffectiveName() + "` **→** `" + nickname + "`", true)
                 .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
                 .setTimestamp(Instant.now());

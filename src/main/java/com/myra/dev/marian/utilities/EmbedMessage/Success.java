@@ -99,7 +99,7 @@ public class Success {
         if (this.message == null) throw new IllegalArgumentException("You need to set a message");
 
         int colour;
-        if (this.colour == 0) colour = Utilities.getUtils().green;
+        if (this.colour == 0) colour = Utilities.getUtils().blue;
         else colour = this.colour;
 
         String avatar;
@@ -125,7 +125,7 @@ public class Success {
         if (this.message == null) throw new IllegalArgumentException("You need to set a message");
 
         int colour;
-        if (this.colour == 0) colour = Utilities.getUtils().green;
+        if (this.colour == 0) colour = Utilities.getUtils().blue;
         else colour = this.colour;
 
         String avatar;
