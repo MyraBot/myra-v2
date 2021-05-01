@@ -1,8 +1,8 @@
 package com.myra.dev.marian.listeners.leveling;
 
-import com.myra.dev.marian.database.guild.member.GuildMember;
-import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.LevelingRole;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Graphic;
 import net.dv8tion.jda.api.entities.Guild;
@@ -122,30 +122,46 @@ public class Leveling {
             LevelingRole rolesDocument = new LevelingRole(levelingRole); // Create new leveling roles document
             levelingRoles.add(rolesDocument); // Add document
         });
-        Collections.sort(levelingRoles, Comparator.comparing(LevelingRole::getLevel)); // Sort list by level
+        Collections.sort(levelingRoles, Comparator.comparing(LevelingRole::getLevel).reversed()); // Sort list by level
 
-        final Boolean unique = new MongoGuild(guild).getNested("leveling").getBoolean("uniqueRoles");
-        final int level = dbMember.getLevel();
-        // For each role
-        for (int i = levelingRoles.size() - 1; i > 0; i--) {
-            final LevelingRole levelingRole = levelingRoles.get(i); // Get current leveling role
-            // Member's level is higher or equal to required one
-            if (level >= levelingRole.getLevel()) {
-                final Role role = guild.getRoleById(levelingRole.getRole()); // Get leveling role to add
-                guild.addRoleToMember(member, role).queue(); // Add role to member
+        final Boolean unique = new MongoGuild(guild).getNested("leveling").getBoolean("uniqueRoles"); // Should a member have only one leveling role at the same time?
+        final int level = dbMember.getLevel(); // Get members level
 
-                // Member is only allowed to have one role at the same time
-                if (unique) {
-                    // Remove all other roles
-                    for (int rest = i - 1; rest > 0; rest--) {
-                        final Role removeRole = guild.getRoleById(levelingRoles.get(rest).getRole()); // Get leveling role to remove
-                        guild.removeRoleFromMember(member, removeRole).queue(); // Remove role form member
+        // Members should have only 1 leveling role at the same time
+        if (unique) {
+            // Get highest leveling role this member can have
+            final LevelingRole highestLevelingRole = levelingRoles
+                    .stream()
+                    .filter(r -> level >= r.getLevel()) // Member level is higher or equal to required role
+                    .findFirst()
+                    .get();
+            final Role role = guild.getRoleById(highestLevelingRole.getRole()); // Get leveling role as role
+
+
+            guild.addRoleToMember(member, role).queue(); // Add role to member
+            // For each role
+            levelingRoles.forEach(lvlRole -> {
+                if (lvlRole != highestLevelingRole) {
+                    final Role r = guild.getRoleByBot(lvlRole.getRole()); // Get role
+                    // TODO Remove invalid roles
+                    if (r != null) {
+                        guild.removeRoleFromMember(member, r).queue(); // Remove role from member
                     }
-                    break; // Stop loop
                 }
-
-            }
+            });
         }
+
+        // Member can have unlimited leveling roles
+        else {
+            levelingRoles.forEach(levelingRole -> {
+                final Role role = guild.getRoleById(levelingRole.getRole()); // Get leveling role as role
+                // Member has higher or equal required level
+                if (level >= levelingRole.getLevel()) guild.addRoleToMember(member, role).queue(); // ADd role to member
+                    // Members level doesn't meet the required level
+                else guild.removeRoleFromMember(member, role).queue(); // Remove role from member
+            });
+        }
+
     }
 
     //return level
