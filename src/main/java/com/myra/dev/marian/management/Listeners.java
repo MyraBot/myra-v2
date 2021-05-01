@@ -63,10 +63,11 @@ public class Listeners extends ListenerAdapter {
     //Combined Message Events (Combines Guild and Private message into 1 event)
     private final GlobalChat globalChat = new GlobalChat();
     private final ReactionRoles reactionRoles = new ReactionRoles();
-
     private final LevelingListener levelingListener = new LevelingListener();
     private final Someone someone = new Someone();
     private final EasterEggs easterEggs = new EasterEggs();
+    //Guild Events
+    private final ServerTracking serverTracking = new ServerTracking();
     //Guild Member Events
     private final WelcomeListener welcomeListener = new WelcomeListener();
     private final AutoroleAssign autoroleAssign = new AutoroleAssign();
@@ -224,7 +225,7 @@ public class Listeners extends ListenerAdapter {
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
         try {
             new MongoDbUpdate().guildJoinEvent(event); // Add guild document to database
-            new ServerTracking().guildJoinEvent(event); // Server tracking message
+            serverTracking.onGuildJoin(event); // Server tracking message
             new InviteThanks().guildJoinEvent(event); // Thank message to server owner
         } catch (Exception e){
             e.printStackTrace();
@@ -234,6 +235,7 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildLeave(@Nonnull GuildLeaveEvent event) {
         try {
+            serverTracking.onGuildLeave(event); // Server tracking message
             new MongoDbUpdate().onGuildLeave(event);
         } catch (Exception e){
             e.printStackTrace();
