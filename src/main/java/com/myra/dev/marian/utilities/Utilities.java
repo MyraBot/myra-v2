@@ -363,4 +363,21 @@ public class Utilities {
         }
         return role;
     }
+
+    /**
+     * @param jda A {@link JDA} object.
+     * @return Returns the amount of {@link Member} of all servers.
+     */
+    public static long getMemberCount(JDA jda) {
+        return jda.getGuilds().stream().mapToLong(Guild::getMemberCount).sum();
+    }
+
+    /**
+     * @param jda A {@link JDA} object.
+     * @return Returns the amount of {@link User}.
+     */
+    public static long getUserCount(JDA jda) {
+        return jda.getUsers().size();
+    }
+
 }

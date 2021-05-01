@@ -2,6 +2,7 @@ package com.myra.dev.marian.database;
 
 import com.mongodb.client.MongoCursor;
 import com.myra.dev.marian.Config;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -171,13 +172,18 @@ public class MongoDbUpdate {
     }
 
     /**
-     * Add Guild Document on guild join.
+     * Update users stat and
+     * add Guild Document on guild join.
      *
-     * @param event
+     * @param event A {@link GuildJoinEvent}.
      * @throws Exception
      */
     public void guildJoinEvent(GuildJoinEvent event) throws Exception {
-        MongoDocuments.guild(event.getGuild());
+        final Document updatedDocument = MongoDb.getInstance().getCollection("config").find(eq("document", "stats")).first(); // Get stat document
+        updatedDocument.replace("users", Utilities.getUserCount(event.getJDA())); // Replace user count
+        MongoDb.getInstance().getCollection("config").findOneAndReplace(eq("document", "stats"), updatedDocument); // Update database
+
+        MongoDocuments.guild(event.getGuild()); // Add guild to database
     }
 
     /**
