@@ -5,6 +5,7 @@ import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
 import java.time.Instant;
 
@@ -99,7 +100,12 @@ public class Error {
         if (this.footer != null) embed.setFooter(this.footer);
         if (this.timestamp) embed.setTimestamp(Instant.now());
 
-        if (this.channel == null) this.e.getChannel().sendMessage(embed.build()).queue();
-        else this.channel.sendMessage(embed.build()).queue();
+        try {
+            if (this.channel == null) this.e.getChannel().sendMessage(embed.build()).queue();
+            else this.channel.sendMessage(embed.build()).queue();
+        } catch (InsufficientPermissionException e){
+            // Ignore missing permissions error
+        }
+
     }
 }
