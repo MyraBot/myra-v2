@@ -6,7 +6,6 @@ import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService
 import com.myra.dev.marian.database.MongoDbUpdate;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.management.Listeners;
-import com.myra.dev.marian.management.Registration;
 import com.myra.dev.marian.utilities.ConsoleColours;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.permissions.Marian;
@@ -17,6 +16,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import javax.security.auth.login.LoginException;
@@ -52,7 +52,7 @@ public class Myra {
         DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(
                 TOKEN,
                 // Enabled events
-                //GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
+                GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
                 GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)
                 GatewayIntent.GUILD_MESSAGE_REACTIONS, // Reaction add remove bla bla
                 GatewayIntent.GUILD_VOICE_STATES,
@@ -64,6 +64,9 @@ public class Myra {
                         //CacheFlag.CLIENT_STATUS,
                         CacheFlag.VOICE_STATE
                 )
+                // Needed to register user update events (update name, avatar, ...)
+                // Without ALL I'm not able to see members in voice channels
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .setChunkingFilter(ChunkingFilter.NONE) // Disable member chunking on startup
                 .setLargeThreshold(50)
                 .setStatus(OnlineStatus.IDLE)
