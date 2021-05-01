@@ -4,6 +4,7 @@ import com.myra.dev.marian.database.guild.MongoGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.exceptions.HierarchyException;
 
 import java.util.List;
 
@@ -23,8 +24,13 @@ public class AutoroleAssign {
             }
             // Role is valid
             else {
-                final Role role = guild.getRoleById(roleId); // Get role
-                guild.addRoleToMember(event.getMember(), role).queue(); // Add role to member
+                try {
+                    final Role role = guild.getRoleById(roleId); // Get role
+                    guild.addRoleToMember(event.getMember(), role).queue(); // Add role to member
+                }catch (HierarchyException e) {
+                    // Don't print out hierarchy exceptions
+                }
+
             }
         });
     }
