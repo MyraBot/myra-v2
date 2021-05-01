@@ -28,6 +28,68 @@ public class MongoUser {
         this.document = mongoDb.getCollection("users").find(eq("userId", user.getId())).first(); // Get user document
     }
 
+    /**
+     * Is null if user is a bot.
+     *
+     * @return Returns the name of the user.
+     */
+    public String getName() {
+        return (bot ? null : document.getString("name"));
+    }
+
+    /**
+     * Change a users name in the database.
+     *
+     * @param name New name.
+     */
+    public void setName(String name) {
+        if (bot) return;
+
+        document.replace("name", name); // Set name
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+    }
+
+    /**
+     * Is null if user is a bot.
+     *
+     * @return Returns the discriminator of the user.
+     */
+    public String getDiscriminator() {
+        return (bot ? null : document.getString("discriminator"));
+    }
+
+    /**
+     * Change a users discriminator in the database.
+     *
+     * @param discriminator New discriminator.
+     */
+    public void setDiscriminator(String discriminator) {
+        if (bot) return;
+
+        document.replace("discriminator", discriminator); // Set discriminator
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+    }
+
+    /**
+     * Is null if user is a bot.
+     *
+     * @return Returns the avatar of the user.
+     */
+    public String getAvatar() {
+        return (bot ? null : document.getString("avatar"));
+    }
+
+    /**
+     * Change a users avatar in the database.
+     *
+     * @param avatar New avatar.
+     */
+    public void setAvatar(String avatar) {
+        if (bot) return;
+
+        document.replace("avatar", avatar); // Set avatar
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+    }
 
     /**
      * Is null if user is a bot.

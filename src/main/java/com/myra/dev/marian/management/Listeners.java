@@ -39,6 +39,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +57,9 @@ import java.util.concurrent.TimeUnit;
 public class Listeners extends ListenerAdapter {
     private final static Logger LOGGER = LoggerFactory.getLogger(Listeners.class);
     private final static String onlineInfo = "Bot online!";
+    // User events
+    private final UserUpdates userUpdates = new UserUpdates();
+
     //Combined Message Events (Combines Guild and Private message into 1 event)
     private final GlobalChat globalChat = new GlobalChat();
     private final ReactionRoles reactionRoles = new ReactionRoles();
@@ -125,6 +131,33 @@ public class Listeners extends ListenerAdapter {
             e.printStackTrace();
         }
     }
+
+    //User Events
+    public void onUserUpdateName(@Nonnull UserUpdateNameEvent event) {
+        if (event.getUser().isBot()) return;
+
+        userUpdates.onNameChange(event);
+    }
+
+    public void onUserUpdateDiscriminator(@Nonnull UserUpdateDiscriminatorEvent event) {
+        if (event.getUser().isBot()) return;
+
+        userUpdates.onDiscriminatorChange(event);
+    }
+
+    public void onUserUpdateAvatar(@Nonnull UserUpdateAvatarEvent event) {
+        if (event.getUser().isBot()) return;
+
+        userUpdates.onAvatarChange(event);
+
+    }
+    //public void onUserUpdateOnlineStatus(@Nonnull UserUpdateOnlineStatusEvent event) {}
+    //public void onUserUpdateActivityOrder(@Nonnull UserUpdateActivityOrderEvent event) {}
+    //public void onUserUpdateFlags(@Nonnull UserUpdateFlagsEvent event) {}
+    //public void onUserTyping(@Nonnull UserTypingEvent event) {}
+    //public void onUserActivityStart(@Nonnull UserActivityStartEvent event) {}
+    //public void onUserActivityEnd(@Nonnull UserActivityEndEvent event) {}
+    //public void onUserUpdateActivities(@Nonnull UserUpdateActivitiesEvent event) {}
 
     //Message Events
     //Guild (TextChannel) Message Events
