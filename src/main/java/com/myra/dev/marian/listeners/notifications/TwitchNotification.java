@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class TwitchNotification {
@@ -26,6 +27,8 @@ public class TwitchNotification {
 
         Utilities.TIMER.scheduleAtFixedRate(() -> {   // Loop
             try {
+                final long random = ThreadLocalRandom.current().nextLong(1000000);
+
                 final Iterator<Guild> guilds = event.getJDA().getGuilds().iterator(); // Create an iterator for the guilds
                 while (guilds.hasNext()) { // Loop through every guild
                     final Guild guild = guilds.next(); // Get next guild
@@ -71,7 +74,7 @@ public class TwitchNotification {
                         final String name = stream.getString("user_name"); // Get user name of streamer
                         final String title = stream.getString("title"); // Get stream title
                         final String thumbnail = stream.getString("thumbnail_url"); // Get profile picture
-                        final String preview = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + name.toLowerCase() + "-1280x720.jpg"; // Get preview image
+                        final String preview = "https://static-cdn.jtvnw.net/previews-ttv/live_user_" + name.toLowerCase() + "-1920x1080.jpg?myra=" + random; // Get preview image
                         String game = ""; // Create variable to store game name
                         if (!stream.getString("game_id").equals("0")) { // Streamer set a game
                             game = new Twitch().getGame(stream.getString("game_id")); // initialize game
@@ -105,7 +108,7 @@ public class TwitchNotification {
                 updatedDocument.replace("twitch refresh", System.currentTimeMillis()); // Update last check
                 MongoDb.getInstance().getCollection("config").findOneAndReplace(MongoDb.getInstance().getCollection("config").find().first(), updatedDocument); // Update document
 
-            } catch (Exception e) {
+            } catch (Exception e){
                 e.printStackTrace();
             }
         }, start, 5, TimeUnit.MINUTES);
