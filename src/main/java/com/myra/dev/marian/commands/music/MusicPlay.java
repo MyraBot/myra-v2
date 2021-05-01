@@ -2,30 +2,27 @@ package com.myra.dev.marian.commands.music;
 
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.spotify.Playlist;
 import com.myra.dev.marian.utilities.APIs.spotify.Spotify;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.EmbedBuilder;
-import org.json.JSONObject;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
 
 @SuppressWarnings("ConstantConditions") // Requires '.enableCache(CacheFlag.VOICE_STATE)' to be not null
 public class MusicPlay implements CommandHandler {
 
-@CommandEvent(
-        name = "play",
-        channel = Channel.GUILD
-)
+    @CommandEvent(
+            name = "play",
+            channel = Channel.GUILD
+    )
     public void execute(CommandContext ctx) throws Exception {
         //command usage
         if (ctx.getArguments().length == 0) {
@@ -37,7 +34,7 @@ public class MusicPlay implements CommandHandler {
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
-// Add a audio track to the queue
+        // Add a audio track to the queue
         // Member isn't in a voice call
         if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
             new Error(ctx.getEvent())
@@ -80,14 +77,19 @@ public class MusicPlay implements CommandHandler {
             PlayerManager.getInstance().loadAndPlay(ctx.getEvent().getMessage(), String.format("ytsearch:%s", song), false, null); // Play song}
         }
 
-        ctx.getEvent().getMessage().delete().queue(); // Delete message
+        try {
+            ctx.getEvent().getMessage().delete().queue(); // Delete message
+        } catch (InsufficientPermissionException e){
+            // Ignore missing permissions
+        }
+
     }
 
     private boolean isValidURL(String url) {
         try {
             new URL(url);
             return true;
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException e){
             return false;
         }
     }
