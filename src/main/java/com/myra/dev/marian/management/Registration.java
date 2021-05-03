@@ -73,7 +73,6 @@ public class Registration {
                 new SetGuildPremium(),
                 new MariansDiscordEmbeds(),
                 new GetInvite(),
-                new Dashboard(),
                 new Shutdown(),
                 // Premium
                 new Unicorn(),
