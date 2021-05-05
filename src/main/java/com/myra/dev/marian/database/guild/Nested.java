@@ -150,6 +150,20 @@ public class Nested {
     }
 
     /**
+     * Replace a key with a any value.
+     *
+     * @param key   The key to search for.
+     * @param value The new value.
+     */
+    public void set(String key, Object value) {
+        // Replace value
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
+        // Update database
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+    }
+
+    /**
      * Set a key to null.
      *
      * @param key The key to find.
