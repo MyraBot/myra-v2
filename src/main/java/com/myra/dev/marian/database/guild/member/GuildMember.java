@@ -81,7 +81,7 @@ public class GuildMember {
     /**
      * @param xp Experience you want the member to have.
      */
-    public void setXp(int xp) {
+    public void setXp(long xp) {
         if (bot) return; // Member is bot
 
         memberDocument.replace("xp", xp); // Set xp
