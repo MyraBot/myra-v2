@@ -33,9 +33,6 @@ public class ReactionRolesAdd implements CommandHandler {
             requires = Administrator.class
     )
     public void execute(CommandContext ctx) throws Exception {
-        if (!MongoDb.getInstance().getCollection("guilds").find(eq("guildId", ctx.getGuild().getId())).first().getBoolean("premium"))
-            return;
-
         // Usage
         if (ctx.getArguments().length != 1) {
             EmbedBuilder usage = new EmbedBuilder()
@@ -45,7 +42,8 @@ public class ReactionRolesAdd implements CommandHandler {
             ctx.getChannel().sendMessage(usage.build()).queue();
             return;
         }
-        // Add reaction roles
+
+        // Get role
         final Role role = Utilities.getUtils().getRole(ctx.getEvent(), ctx.getArguments()[0], "reaction roles add", ""); // Get given role
         if (role == null) return;
 
@@ -74,7 +72,7 @@ public class ReactionRolesAdd implements CommandHandler {
             // Event waiter
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e1 -> !e1.getUser().isBot()
-                            && e1.getUser() == ctx.getAuthor()
+                            && e1.getUser().getIdLong() == ctx.getAuthor().getIdLong()
                             && e1.getMessageId().equals(msg1.getId())
                             && Arrays.stream(emojis).anyMatch(e1.getReactionEmote().getEmoji()::equals))
                     .setAction(e1 -> {
@@ -98,7 +96,7 @@ public class ReactionRolesAdd implements CommandHandler {
 
                             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                                     .setCondition(e -> !e.getUser().isBot()
-                                            && e.getUser() == ctx.getAuthor())
+                                            && e.getUser().getIdLong() == ctx.getMember().getIdLong())
                                     .setAction(e -> {
                                         final MessageReaction.ReactionEmote emote = e.getReactionEmote(); // Get reaction emote as a variable
 
