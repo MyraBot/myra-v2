@@ -48,7 +48,7 @@ public class LevelingSet implements CommandHandler {
 
         // Update database
         db.getMembers().getMember(member).setLevel(Integer.parseInt(ctx.getArguments()[1])); // Update level
-        db.getMembers().getMember(member).setXp(leveling.xpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
+        db.getMembers().getMember(member).setXp(leveling.getXpFromLevel(Integer.parseInt(ctx.getArguments()[1]))); // Update xp
 
         //send success message
         new Success(ctx.getEvent())

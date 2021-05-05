@@ -2,6 +2,7 @@ package com.myra.dev.marian.listeners.leveling;
 
 import com.myra.dev.marian.database.guild.LevelingRole;
 import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.database.guild.Nested;
 import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Graphic;
@@ -16,16 +17,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.*;
 
 public class Leveling {
 
     public void levelUp(Member member, MessageChannel channel, GuildMember db, int xp) {
         try {
-            final int newLevel = level(db.getXp() + xp); // Get new level
+            final int newLevel = getLevelFromXp(db.getXp() + xp); // Get new level
             if (db.getLevel() == newLevel) return; // Current level is equal to new one
 
             // Level up
@@ -113,7 +112,8 @@ public class Leveling {
     }
 
     public void updateLevelingRoles(Guild guild, Member member, GuildMember dbMember) {
-        final Document levelingRolesDocument = new MongoGuild(guild).getNested("leveling").get("roles", Document.class); // Get leveling roles
+        final Nested guildLeveling = new MongoGuild(guild).getNested("leveling"); // Get leveling document
+        final Document levelingRolesDocument = guildLeveling.get("roles", Document.class); // Get leveling roles
 
         // Create list of leveling roles documents
         List<LevelingRole> levelingRoles = new ArrayList<>();
@@ -124,31 +124,45 @@ public class Leveling {
         });
         Collections.sort(levelingRoles, Comparator.comparing(LevelingRole::getLevel).reversed()); // Sort list by level
 
-        final Boolean unique = new MongoGuild(guild).getNested("leveling").getBoolean("uniqueRoles"); // Should a member have only one leveling role at the same time?
+        final Boolean unique = guildLeveling.getBoolean("uniqueRoles"); // Should a member have only one leveling role at the same time?
         final int level = dbMember.getLevel(); // Get members level
 
         // Members should have only 1 leveling role at the same time
         if (unique) {
             // Get highest leveling role this member can have
-            final LevelingRole highestLevelingRole = levelingRoles
+            Optional<LevelingRole> newRoleDocument = levelingRoles
                     .stream()
                     .filter(r -> level >= r.getLevel()) // Member level is higher or equal to required role
-                    .findFirst()
-                    .get();
-            final Role role = guild.getRoleById(highestLevelingRole.getRole()); // Get leveling role as role
-
-
-            guild.addRoleToMember(member, role).queue(); // Add role to member
-            // For each role
-            levelingRoles.forEach(lvlRole -> {
-                if (lvlRole != highestLevelingRole) {
-                    final Role r = guild.getRoleByBot(lvlRole.getRole()); // Get role
-                    // TODO Remove invalid roles
-                    if (r != null) {
-                        guild.removeRoleFromMember(member, r).queue(); // Remove role from member
-                    }
+                    .findFirst();
+            // A role which has a lower required rank than the member exists
+            if (newRoleDocument.isPresent()) {
+                final Role newRole = guild.getRoleById(newRoleDocument.get().getRole()); // Get leveling role as role
+                // Role is invalid
+                if (newRole == null) {
+                    final Document newLevelingRoles = guildLeveling.get("roles", Document.class); // Get current leveling roles
+                    newLevelingRoles.remove(newRoleDocument.get().getRole()); // Remove leveling role from list
+                    guildLeveling.set("roles", newLevelingRoles); // Update database
                 }
-            });
+                // Role is valid
+                else guild.addRoleToMember(member, newRole).queue(); // Add role to member
+            }
+
+            // For each role
+            for (LevelingRole levelingRole : levelingRoles) {
+                // Current leveling role is the same as the one the user just got
+                if (newRoleDocument.isPresent() && levelingRole.getRole().equals(newRoleDocument.get().getRole()))
+                    continue;
+
+                final Role r = guild.getRoleById(levelingRole.getRole()); // Get role
+                // Role is invalid
+                if (r == null) {
+                    final Document newLevelingRoles = guildLeveling.get("roles", Document.class); // Get current leveling roles
+                    newLevelingRoles.remove(levelingRole.getRole()); // Remove leveling role from list
+                    guildLeveling.set("roles", newLevelingRoles); // Update database
+                }
+                // Role is valid
+                else guild.removeRoleFromMember(member, r).queue(); // Remove role from member
+            }
         }
 
         // Member can have unlimited leveling roles
@@ -164,21 +178,26 @@ public class Leveling {
 
     }
 
-    //return level
-    public int level(int xp) {
-        //parabola
-        double dividedNumber = xp / 5;
+    /**
+     * @param xp The experience, which should get converted to a level.
+     * @return Returns the level calculated by the experience.
+     */
+    public int getLevelFromXp(int xp) {
+        // Parabola
+        int dividedNumber = xp / 5;
         double exactLevel = Math.sqrt(dividedNumber);
-        //round
-        return (int) Math.round(exactLevel);
+        return (int) exactLevel;
     }
 
-    public Integer xpFromLevel(int level) {
-        //parabola
+    /**
+     * @param level The level, which should get converted to experience points.
+     * @return Returns the experience needed to reach the given level.
+     */
+    public long getXpFromLevel(int level) {
+        // Parabola
         double squaredNumber = Math.pow(level, 2);
         double exactXp = squaredNumber * 5;
-        //round
-        return (int) Math.round(exactXp);
+        return (int) exactXp;
     }
 
     //return missing xp
