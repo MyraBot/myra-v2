@@ -167,7 +167,15 @@ public class GuildMember {
      * @return Returns the time a member spent in voice calls in millis.
      */
     public Long getVoiceTime() {
-        return (bot ? null : memberDocument.getLong("voiceCallTime"));
+        if (bot) return null;
+
+        try {
+            return memberDocument.getLong("voiceCallTime");
+        }
+        // If voice call time is an integer
+        catch (ClassCastException e){
+            return Long.valueOf(memberDocument.getInteger("voiceCallTime")); // Parse to long
+        }
     }
 
     /**
