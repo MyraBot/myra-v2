@@ -18,7 +18,13 @@ public class LeaderboardMember {
         this.level = guildMemberDocument.getInteger("level");
         this.xp = guildMemberDocument.getInteger("xp");
         this.balance = guildMemberDocument.getInteger("balance");
-        this.voiceCallTime = guildMemberDocument.getLong("voiceCallTime");
+        try {
+            this.voiceCallTime = guildMemberDocument.getLong("voiceCallTime");
+        }
+        // If voice call time is an integer
+        catch (ClassCastException e){
+            this.voiceCallTime = Long.valueOf(guildMemberDocument.getInteger("voiceCallTime"));
+        }
     }
 
     public String getId() {
