@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.administrator.leveling;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.listeners.leveling.Leveling;
@@ -16,10 +16,10 @@ public class LevelingSet implements CommandHandler {
     private final Leveling leveling = new Leveling();
 
 
-@CommandEvent(
-        name = "leveling set",
-        requires = Administrator.class
-)
+    @CommandEvent(
+            name = "leveling set",
+            requires = Administrator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
         Utilities utilities = Utilities.getUtils(); // Get utilities
         // Usage
@@ -42,6 +42,19 @@ public class LevelingSet implements CommandHandler {
                     .setCommand("leveling set")
                     .setEmoji("\uD83C\uDFC6")
                     .setMessage("Bots aren't allowed to participate in the ranking competition")
+                    .send();
+            return;
+        }
+
+        try {
+            Integer.parseInt(ctx.getArguments()[1]); // Try parsing the string to integer
+        }
+        // Input isn't an Integer
+        catch (NumberFormatException e){
+            new Error(ctx.getEvent())
+                    .setCommand("leveling set")
+                    .setEmoji("\uD83C\uDFC6")
+                    .setMessage("This level is too high!")
                     .send();
             return;
         }
