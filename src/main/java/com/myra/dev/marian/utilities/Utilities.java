@@ -8,9 +8,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
+import org.bson.Document;
 import org.json.JSONObject;
 
 import java.text.NumberFormat;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -373,11 +376,21 @@ public class Utilities {
     }
 
     /**
+     * This method is not thread save!
+     *
      * @param jda A {@link JDA} object.
      * @return Returns the amount of {@link User}.
      */
     public static long getUserCount(JDA jda) {
-        return jda.getUsers().size();
+        LinkedHashSet<String> users = new LinkedHashSet<>();
+        for (Guild guild : jda.getGuilds()) {
+
+            Iterator<Member> members = guild.loadMembers().get().iterator();
+            while (members.hasNext()) {
+                users.add(members.next().getId());
+            }
+        }
+        return users.size();
     }
 
 }
