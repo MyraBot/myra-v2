@@ -368,6 +368,21 @@ public class Utilities {
     }
 
     /**
+     * @param document The document to get the long from.
+     * @param key The key of the long value.
+     * @return Returns a long even if BSON reads an Integer.
+     */
+    public static Long getBsonLong(Document document, String key) {
+        try {
+            return document.getLong(key);
+        }
+        // If voice call time is an integer
+        catch (ClassCastException e){
+            return Long.valueOf(document.getInteger(key)); // Parse to long
+        }
+    }
+
+    /**
      * @param jda A {@link JDA} object.
      * @return Returns the amount of {@link Member} of all servers.
      */

@@ -3,13 +3,13 @@ package com.myra.dev.marian.database.guild.member;
 import com.mongodb.client.MongoCursor;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.MongoDocuments;
+import com.myra.dev.marian.listeners.leveling.Leveling;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -74,8 +74,8 @@ public class GuildMember {
      *
      * @return Returns the xp of the member
      */
-    public Integer getXp() {
-        return (bot ? null : memberDocument.getInteger("xp"));
+    public Long getXp() {
+        return (bot ? null : Utilities.getBsonLong(memberDocument, "xp"));
     }
 
     /**
@@ -96,7 +96,7 @@ public class GuildMember {
     public void addXp(int xpToAdd) {
         if (bot) return; // Member is bot
 
-        memberDocument.replace("xp", memberDocument.getInteger("xp") + xpToAdd); // Add xp
+        memberDocument.replace("xp", getXp() + xpToAdd); // Add xp
         mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
     }
 
@@ -117,19 +117,8 @@ public class GuildMember {
     public void setLevel(int level) {
         memberDocument.replace("level", level); // Update level
         // Update xp
-        double xp;
-        // Parabola
-        double squaredNumber = Math.pow(level, 2);
-        double exactXp = squaredNumber * 5;
-        // Round off
-        DecimalFormat f = new DecimalFormat("###");
-        xp = Double.parseDouble(f.format(exactXp));
-        // Round down number
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        numberFormat.setMaximumFractionDigits(0);
-
-        int newXp = Integer.parseInt(String.valueOf(xp).replace(".0", "")); // Convert to int and remove the '.0'
-        memberDocument.replace("xp", newXp); // Replace xp
+        final long xp = new Leveling().getXpFromLevel(level); // Get xp from level
+        memberDocument.replace("xp", xp); // Replace xp
         mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
     }
 
@@ -167,15 +156,7 @@ public class GuildMember {
      * @return Returns the time a member spent in voice calls in millis.
      */
     public Long getVoiceTime() {
-        if (bot) return null;
-
-        try {
-            return memberDocument.getLong("voiceCallTime");
-        }
-        // If voice call time is an integer
-        catch (ClassCastException e){
-            return Long.valueOf(memberDocument.getInteger("voiceCallTime")); // Parse to long
-        }
+        return bot ? null : Utilities.getBsonLong(memberDocument, "voiceCallTime");
     }
 
     /**
