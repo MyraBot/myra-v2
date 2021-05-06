@@ -182,9 +182,9 @@ public class Leveling {
      * @param xp The experience, which should get converted to a level.
      * @return Returns the level calculated by the experience.
      */
-    public int getLevelFromXp(int xp) {
+    public int getLevelFromXp(long xp) {
         // Parabola
-        int dividedNumber = xp / 5;
+        long dividedNumber = xp / 5;
         double exactLevel = Math.sqrt(dividedNumber);
         return (int) exactLevel;
     }

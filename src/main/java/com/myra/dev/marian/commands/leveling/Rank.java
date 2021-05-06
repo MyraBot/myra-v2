@@ -84,7 +84,7 @@ public class Rank implements CommandHandler {
 
         // Get variables
         String level = String.valueOf(getMember.getLevel());
-        int xp = getMember.getXp();
+        long xp = getMember.getXp();
         int requiredXpForNextLevel = leveling.requiredXpForNextLevel(member.getGuild(), member);
         int rank = getMember.getRank();
         // Get rank background
