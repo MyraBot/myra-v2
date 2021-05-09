@@ -2,21 +2,23 @@ package com.myra.dev.marian.utilities;
 
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.database.MongoDb;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import org.bson.Document;
 import org.json.JSONObject;
 
 import java.text.NumberFormat;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static com.mongodb.client.model.Filters.eq;
 
 public class Utilities {
     public final static ScheduledExecutorService TIMER = Executors.newScheduledThreadPool(5);
@@ -369,7 +371,7 @@ public class Utilities {
 
     /**
      * @param document The document to get the long from.
-     * @param key The key of the long value.
+     * @param key      The key of the long value.
      * @return Returns a long even if BSON reads an Integer.
      */
     public static Long getBsonLong(Document document, String key) {
@@ -391,21 +393,14 @@ public class Utilities {
     }
 
     /**
-     * This method is not thread save!
+     * This value updates when the bot joins a new server.
+     * See in {@link com.myra.dev.marian.database.MongoDbUpdate#guildJoinEvent(GuildJoinEvent)}.
      *
-     * @param jda A {@link JDA} object.
      * @return Returns the amount of {@link User}.
      */
     public static long getUserCount(JDA jda) {
-        LinkedHashSet<String> users = new LinkedHashSet<>();
-        for (Guild guild : jda.getGuilds()) {
-
-            Iterator<Member> members = guild.loadMembers().get().iterator();
-            while (members.hasNext()) {
-                users.add(members.next().getId());
-            }
-        }
-        return users.size();
+        final Document stats = new MongoDb().getCollection("config").find(eq("document", "stats")).first(); // Get stats document
+        return getBsonLong(stats, "users"); // Returns user count as long
     }
 
 }

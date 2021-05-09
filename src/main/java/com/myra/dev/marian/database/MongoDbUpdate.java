@@ -2,13 +2,16 @@ package com.myra.dev.marian.database;
 
 import com.mongodb.client.MongoCursor;
 import com.myra.dev.marian.Config;
-import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import org.bson.Document;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -179,9 +182,21 @@ public class MongoDbUpdate {
      * @throws Exception
      */
     public void guildJoinEvent(GuildJoinEvent event) throws Exception {
-        final Document updatedDocument = MongoDb.getInstance().getCollection("config").find(eq("document", "stats")).first(); // Get stat document
-        updatedDocument.replace("users", Utilities.getUserCount(event.getJDA())); // Replace user count
-        MongoDb.getInstance().getCollection("config").findOneAndReplace(eq("document", "stats"), updatedDocument); // Update database
+        // Update user count in new Thread
+        new Thread(() -> {
+            // Get user count
+            LinkedHashSet<String> users = new LinkedHashSet<>(); // Create HashSet for user ids
+            for (Guild guild : event.getJDA().getGuilds()) { // Loop through each server
+                Iterator<Member> members = guild.loadMembers().get().iterator(); // Get all members
+                while (members.hasNext()) { // Go Through each member
+                    users.add(members.next().getId()); // Add each member id to user id list
+                }
+            }
+            final Document updatedDocument = MongoDb.getInstance().getCollection("config").find(eq("document", "stats")).first(); // Get stat document
+            updatedDocument.replace("users", users.size()); // Replace user count
+            MongoDb.getInstance().getCollection("config").findOneAndReplace(eq("document", "stats"), updatedDocument); // Update database
+        }).start();
+
 
         MongoDocuments.guild(event.getGuild()); // Add guild to database
     }
