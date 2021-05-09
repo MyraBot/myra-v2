@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Class used to execute Discord Webhooks with low effort
  */
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class Webhook {
     private final OkHttpClient client = new OkHttpClient();
 
@@ -20,47 +21,87 @@ public class Webhook {
     private String username;
     private String avatarUrl;
     private boolean tts;
-    private List<EmbedObject> embeds = new ArrayList<>();
+    private final List<EmbedObject> embeds = new ArrayList<>();
 
     /**
-     * Constructs a new DiscordWebhook instance
+     * Constructs a new Webhook instance.
      *
-     * @param url The webhook URL obtained in Discord
+     * @param url The webhook URL obtained in Discord.
      */
     public Webhook(String url) {
         this.url = url;
     }
 
-    public void setContent(String content) {
+    /**
+     * @param content The content of the send message.
+     * @return Returns a {@link Webhook} instance.
+     */
+    public Webhook setContent(String content) {
         this.content = content;
+        return this;
     }
 
-    public void appendContent(String content) {
+    /**
+     * @param content Append a text to the already existing content.
+     * @return Returns a {@link Webhook} instance.
+     */
+    public Webhook appendContent(String content) {
         if (this.content == null) this.content = content;
         else this.content += content;
+        return this;
     }
 
-    public void addAttachment(Message.Attachment attachment) {
+    /**
+     * @param attachment Add an {@link Message.Attachment} to the webhook message.
+     * @return Returns a {@link Webhook} instance.
+     */
+    public Webhook addAttachment(Message.Attachment attachment) {
         if (this.content == null) content = attachment.getUrl() + "\\n";
         else this.content += "\\n" + attachment.getUrl();
+        return this;
     }
 
-    public void setUsername(String username) {
+    /**
+     * @param username The displayed username of the message.
+     * @return Returns a {@link Webhook} instance.
+     */
+    public Webhook setUsername(String username) {
         this.username = username;
+        return this;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
+    /**
+     * @param avatarUrl The image URL of the avatar.
+     * @return Returns a {@link Webhook} instance.
+     */
+    public Webhook setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+        return this;
     }
 
-    public void setTts(boolean tts) {
+    /**
+     * @param tts Should the message be spoken?
+     * @return Returns a {@link Webhook} instance.
+     */
+    public Webhook setTts(boolean tts) {
         this.tts = tts;
+        return this;
     }
 
-    public void addEmbed(EmbedObject embed) {
+    /**
+     * @param embed Add an {@link EmbedObject} to your message.
+     * @return Returns a {@link Webhook} instance.
+     */
+    public Webhook addEmbed(EmbedObject embed) {
         this.embeds.add(embed);
+        return this;
     }
 
+    /**
+     * Send the create Webhook.
+     *
+     * @throws IOException Throws exception when the post request fails.
+     */
     public void send() throws IOException {
         if (this.content == null && this.embeds.isEmpty()) {
             throw new IllegalArgumentException("Set content or add at least one EmbedObject");
@@ -85,7 +126,7 @@ public class Webhook {
     /**
      * Edit a webhook message.
      *
-     * @throws IOException
+     * @throws IOException Throws exception when the post request fails.
      */
     public void edit(String messageId) throws Exception {
         if (this.content == null && this.embeds.isEmpty()) {
@@ -129,6 +170,9 @@ public class Webhook {
         editResponse.close();
     }
 
+    /**
+     * An embed builder for a webhook message.
+     */
     public static class EmbedObject {
         private String title;
         private String description;
@@ -139,7 +183,7 @@ public class Webhook {
         private Thumbnail thumbnail;
         private Image image;
         private Author author;
-        private List<Field> fields = new ArrayList<>();
+        private final List<Field> fields = new ArrayList<>();
 
         public String getTitle() {
             return title;
@@ -223,8 +267,8 @@ public class Webhook {
         }
 
         private static class Footer {
-            private String text;
-            private String iconUrl;
+            private final String text;
+            private final String iconUrl;
 
             private Footer(String text, String iconUrl) {
                 this.text = text;
@@ -241,7 +285,7 @@ public class Webhook {
         }
 
         private static class Thumbnail {
-            private String url;
+            private final String url;
 
             private Thumbnail(String url) {
                 this.url = url;
@@ -253,7 +297,7 @@ public class Webhook {
         }
 
         private static class Image {
-            private String url;
+            private final String url;
 
             private Image(String url) {
                 this.url = url;
@@ -265,9 +309,9 @@ public class Webhook {
         }
 
         private static class Author {
-            private String name;
-            private String url;
-            private String iconUrl;
+            private final String name;
+            private final String url;
+            private final String iconUrl;
 
             private Author(String name, String url, String iconUrl) {
                 this.name = name;
@@ -289,9 +333,9 @@ public class Webhook {
         }
 
         private static class Field {
-            private String name;
-            private String value;
-            private boolean inline;
+            private final String name;
+            private final String value;
+            private final boolean inline;
 
             private Field(String name, String value, boolean inline) {
                 this.name = name;
@@ -313,6 +357,10 @@ public class Webhook {
         }
     }
 
+    /**
+     * Convert the current {@link EmbedObject} instance to a JSONObject.
+     * @return Returns {@link JSONObject} out of the current embed.
+     */
     private JSONObject getAsJSONObject() {
         //this.content = content.replace("\n", "\\n"); // In JSON \n is \\n
 
