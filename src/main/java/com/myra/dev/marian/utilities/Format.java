@@ -31,11 +31,12 @@ public class Format {
     }
 
     public static String toTimeExact(long millis) {
-        final long second = (millis / 1000) % 60;
-        final long minute = (millis / (1000 * 60)) % 60;
-        final long hour = (millis / (1000 * 60 * 60)) % 24;
+        final long seconds = (millis / 1000) % 60;
+        final long minutes = (millis / (1000 * 60)) % 60;
+        final long hours = (millis / (1000 * 60 * 60)) % 24;
+        final long days = (millis / (1000 * 60 * 60 * 24));
 
-        return String.format("%02dh %02dmin %02ds", hour, minute, second);
+        return String.format("%02dd %02dh %02dmin %02ds", days, hours, minutes, seconds);
     }
 
     public static String toTime(long millis) {
