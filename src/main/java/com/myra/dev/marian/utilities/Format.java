@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Format {
 
@@ -28,26 +30,67 @@ public class Format {
         return date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
+    public static String toTimeExact(long millis) {
+        final long second = (millis / 1000) % 60;
+        final long minute = (millis / (1000 * 60)) % 60;
+        final long hour = (millis / (1000 * 60 * 60)) % 24;
+
+        return String.format("%02dh %02dmin %02ds", hour, minute, second);
+    }
+
     public static String toTime(long millis) {
 
-        long seconds = (millis / 1000L) % 60;
-        long minutes = (millis / (1000L * 60L)) % 60;
-        long hours = (millis / (1000L * 60L * 60L)) % 24;
-        long days = (millis / (1000L * 60L * 60L * 24L)) % 7;
-        long weeks = (millis / (1000L * 60L * 60L * 24L * 7L)) % 4;
-        long months = (millis / (1000L * 60L * 60L * 24L * 31L));
+        List<Time> times = new ArrayList<>() {{
+            Time seconds = new Time("seconds", millis / 1000);
 
-        if (minutes == 0L) {
-            return String.format("%s seconds", seconds);
-        } else if (hours == 0L) {
-            return String.format("%sm and %ss", minutes, seconds);
-        } else if (days == 0L) {
-            return String.format("%sh and %sm", hours, minutes);
-        } else if (weeks == 0L) {
-            return String.format("%sd %sh %sm", days, hours, minutes);
-        } else {
-            return String.format("%s months", months);
+            Time months = new Time("months", seconds.duration / 2629743);
+            seconds.subtract(months.duration * 2629743);
+
+            Time weeks = new Time("weeks", seconds.duration / 604800);
+            seconds.subtract(weeks.duration * 604800);
+
+            Time days = new Time("days", seconds.duration / 86400);
+            seconds.subtract(days.duration * 86400);
+
+            Time hours = new Time("hours", seconds.duration / 3600);
+            seconds.subtract(hours.duration * 3600);
+
+            Time minutes = new Time("minutes", seconds.duration / 60);
+            seconds.subtract(minutes.duration * 60);
+
+            add(months);
+            add(weeks);
+            add(days);
+            add(hours);
+            add(minutes);
+            add(seconds);
+        }};
+
+        final StringBuilder output = new StringBuilder();
+        for (Time time : times) {
+            if (time.duration == 0) continue; // Duration is 0
+            if (output.toString().contains("and")) continue; // There are already at least 2 values
+
+            if (!output.toString().equals("")) output.append(" and ");
+            if (time.duration != 1) output.append(time.duration).append(" ").append(time.timeUnit);
+            else output.append(time.duration).append(" ").append(time.timeUnit).substring(0, output.length() - 1);
+        }
+        if (output.isEmpty()) output.append("none");
+
+        return output.toString();
+    }
+
+    public static class Time {
+        public final String timeUnit;
+        public long duration;
+
+        public Time(String timeUnit, long duration) {
+            this.timeUnit = timeUnit;
+            this.duration = duration;
         }
 
+        public void subtract(long amount) {
+            this.duration -= amount;
+        }
     }
 }
