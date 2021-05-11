@@ -48,22 +48,22 @@ public class InformationMember implements CommandHandler {
         String onlineStatus;
         switch (member.getOnlineStatus().toString()) {
             case "OFFLINE": {
-                emoji = utilities.getEmote("offline").getAsMention();
+                emoji = Utilities.findEmote("offline").getAsEmote().getAsMention();
                 onlineStatus = "Offline";
                 break;
             }
             case "IDLE": {
-                emoji = utilities.getEmote("idle").getAsMention();
+                emoji = Utilities.findEmote("idle").getAsEmote().getAsMention();
                 onlineStatus = "Idle";
                 break;
             }
             case "DO_NOT_DISTURB": {
-                emoji = utilities.getEmote("doNotDisturb").getAsMention();
+                emoji = Utilities.findEmote("doNotDisturb").getAsEmote().getAsMention();
                 onlineStatus = "Do not disturb";
                 break;
             }
             case "ONLINE": {
-                emoji = utilities.getEmote("online").getAsMention();
+                emoji = Utilities.findEmote("online").getAsEmote().getAsMention();
                 onlineStatus = "Online";
                 break;
             }
@@ -94,7 +94,7 @@ public class InformationMember implements CommandHandler {
 
         if (ctx.getGuild().getBoosters().contains(member)) {
             final String boostingSince = member.getTimeBoosted().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm"));
-            memberInfo.addField(utilities.getEmote("nitroBoost") + " │ Is boosting", "since: " + boostingSince, true);
+            memberInfo.addField(Utilities.findEmote("nitroBoost").getAsMention() + " │ Is boosting", "since: " + boostingSince, true);
         }
 
         // Roles

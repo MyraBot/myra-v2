@@ -48,11 +48,31 @@ public class Utilities {
      * @param name The name of the emote.
      * @return Returns an emote from Myra's Server.
      */
-    public Emote getEmote(String name) {
+    public static Emote findEmote(String name) {
         final Guild guild = Myra.shardManager.getGuildById(Config.myraServer);
 
         if (guild.getEmotesByName(name, true).isEmpty()) return null;
-        return guild.getEmotesByName(name, true).get(0);
+        return new Emote(guild.getEmotesByName(name, true).get(0));
+    }
+
+    public static class Emote {
+        public final net.dv8tion.jda.api.entities.Emote emote;
+
+        public Emote(net.dv8tion.jda.api.entities.Emote emote) {
+            this.emote = emote;
+        }
+
+        public net.dv8tion.jda.api.entities.Emote getAsEmote() {
+            return this.emote;
+        }
+
+        public String getAsMention() {
+            return this.emote.getAsMention();
+        }
+
+        public String getAsReactionEmote() {
+            return "R" + this.emote;
+        }
     }
 
     /**

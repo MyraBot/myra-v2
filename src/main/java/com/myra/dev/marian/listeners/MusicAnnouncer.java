@@ -21,7 +21,7 @@ public class MusicAnnouncer extends AudioEventAdapter {
 
         requestData.getGuild().retrieveMemberById(requestData.getMemberId()).queue(member -> {
             final AudioTrackInfo trackInfo = track.getInfo(); // Get track information
-            String announcement = String.format("%s Now playing %s [%s]", Utilities.getUtils().getEmote("Voice"), Utilities.getUtils().hyperlink(String.format("`%s - %s`", trackInfo.title, trackInfo.author), trackInfo.uri), member.getAsMention());
+            String announcement = String.format("%s Now playing %s [%s]", Utilities.findEmote("Voice"), Utilities.getUtils().hyperlink(String.format("`%s - %s`", trackInfo.title, trackInfo.author), trackInfo.uri), member.getAsMention());
 
             final EmbedBuilder nowPlaying = new Success(null)
                     .setCommand("Now playing")

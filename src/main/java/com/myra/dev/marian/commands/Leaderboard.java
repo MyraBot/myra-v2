@@ -3,7 +3,6 @@ package com.myra.dev.marian.commands;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.guild.LeaderboardType;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.LeaderboardMember;
@@ -26,7 +25,7 @@ public class Leaderboard implements CommandHandler {
     // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
     final String[] emojis = {
             "RE:U+1F3C6", // Leveling (🏆)
-            "R" + Utilities.getUtils().getEmote("coin").toString().toUpperCase(), // Reaction emotes starts with 'RE' and emote with 'E' so I remove the 'R'
+            Utilities.findEmote("coin").getAsReactionEmote(), // Balance
             "RE:U+1F4DE" // Voice call
     };
 
@@ -46,7 +45,7 @@ public class Leaderboard implements CommandHandler {
             getLeaderboard(message, type.LEVEL);
             // Add reactions
             message.addReaction("\uD83C\uDFC6").queue(); // Add level emoji
-            message.addReaction(Utilities.getUtils().getEmote("coin")).queue(); // Add balance emote
+            message.addReaction(Utilities.findEmote("coin").getAsEmote()).queue(); // Add balance emote
             message.addReaction("\uD83D\uDCDE").queue(); // Voice call emoji
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)

@@ -49,28 +49,28 @@ public class InformationUser implements CommandHandler {
 
         String badges = "";
         //bug hunter
-        if (flags.contains("BUG_HUNTER_LEVEL_1")) badges += utils.getEmote("bugHunter").getAsMention() + " ";
+        if (flags.contains("BUG_HUNTER_LEVEL_1")) badges += Utilities.findEmote("bugHunter").getAsMention() + " ";
         //bug hunter level 2
-        if (flags.contains("BUG_HUNTER_LEVEL_2")) badges += utils.getEmote("bugHunterLvl2").getAsMention() + " ";
+        if (flags.contains("BUG_HUNTER_LEVEL_2")) badges += Utilities.findEmote("bugHunterLvl2").getAsMention() + " ";
         if (flags.contains("EARLY_SUPPORTER")) {
         }
         if (flags.contains("HYPESQUAD")) {
         }
         //hypeSquad balance
-        if (flags.contains("HYPESQUAD_BALANCE")) badges += utils.getEmote("balance").getAsMention() + " ";
+        if (flags.contains("HYPESQUAD_BALANCE")) badges += Utilities.findEmote("balance").getAsMention() + " ";
         //hypeSquad bravery
-        if (flags.contains("HYPESQUAD_BRAVERY")) badges += utils.getEmote("bravery").getAsMention() + " ";
+        if (flags.contains("HYPESQUAD_BRAVERY")) badges += Utilities.findEmote("bravery").getAsMention() + " ";
         //hypeSquad brilliance
-        if (flags.contains("HYPESQUAD_BRILLIANCE")) badges += utils.getEmote("brilliance").getAsMention() + " ";
-        if (flags.contains("PARTNER")) badges += utils.getEmote("partner").getAsMention() + " ";
-        if (flags.contains("STAFF")) badges += utils.getEmote("staff").getAsMention() + " ";
+        if (flags.contains("HYPESQUAD_BRILLIANCE")) badges += Utilities.findEmote("brilliance").getAsMention() + " ";
+        if (flags.contains("PARTNER")) badges += Utilities.findEmote("partner").getAsMention() + " ";
+        if (flags.contains("STAFF")) badges += Utilities.findEmote("staff").getAsMention() + " ";
         if (flags.contains("SYSTEM")) {
         }
         if (flags.contains("UNKNOWN")) {
         }
         if (flags.contains("VERIFIED_BOT")) {
         }
-        if (flags.contains("VERIFIED_DEVELOPER")) badges += utils.getEmote("verifiedDeveloper").getAsMention() + " ";
+        if (flags.contains("VERIFIED_DEVELOPER")) badges += Utilities.findEmote("verifiedDeveloper").getAsMention() + " ";
 
         return badges;
     }
