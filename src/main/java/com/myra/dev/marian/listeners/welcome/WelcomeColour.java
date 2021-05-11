@@ -31,12 +31,12 @@ public class WelcomeColour implements CommandHandler {
             ctx.getChannel().sendMessage(welcomeChannelUsage.build()).queue();
             return;
         }
-        String hex = null;
+        String hex;
         //remove #
         if (ctx.getArguments()[0].startsWith("#")) {
             StringBuilder raw = new StringBuilder(ctx.getArguments()[0]);
             raw.deleteCharAt(0);
-            hex = "0x" + raw.toString();
+            hex = "0x" + raw;
         }
         //add 0x
         else {
@@ -44,7 +44,8 @@ public class WelcomeColour implements CommandHandler {
         }
         //if colour doesn't exist
         try {
-            Color.decode(hex);
+            Color color = Color.decode(hex);
+            hex = Integer.toHexString(color.getRGB()).substring(2);
         } catch (Exception e) {
             new Error(ctx.getEvent())
                     .setCommand("welcome embed colour")
