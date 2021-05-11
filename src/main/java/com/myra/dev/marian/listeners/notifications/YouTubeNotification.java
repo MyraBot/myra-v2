@@ -76,10 +76,10 @@ public class YouTubeNotification {
 
                             // Create embed
                             EmbedBuilder notification = new EmbedBuilder()
-                                    .setAuthor(youtuber.getChannelName(), "https://www.youtube.com/watch?v=" + video.getId(), youtuber.getAvatar())
+                                    .setAuthor(youtuber.getChannelName(), "https://www.youtube.com/watch?v=" + video.getId())
                                     .setColor(Utilities.getUtils().blue)
                                     .setDescription(Utilities.getUtils().hyperlink(video.getTitle(), "https://www.youtube.com/watch?v=" + video.getId()) + "\n")
-                                    .setThumbnail(youtuber.getAvatar())
+                                    //.setThumbnail(youtuber.getAvatar())
                                     .setImage(video.getThumbnail())
                                     .setTimestamp(video.getUploadTime().toInstant());
 

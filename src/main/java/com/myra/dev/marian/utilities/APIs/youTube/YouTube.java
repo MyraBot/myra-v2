@@ -22,11 +22,18 @@ public class YouTube {
 
     public List<Channel> searchChannelByName(String query) throws IOException {
         final String baseUrl = "https://www.youtube.com/results?search_query={query}&sp=EgIQAg%253D%253D";
-        
-        final Document jsoup = Jsoup
+
+        Document jsoup = Jsoup
                 .connect(baseUrl.replace("{query}", query))
                 .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                 .get();
+        // Run until data is provided (When data is not provided it asks for cookies)
+        while (!jsoup.html().contains("var ytInitialData =")) {
+            jsoup = Jsoup
+                    .connect(baseUrl.replace("{query}", query))
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .get();
+        }
 
         JSONObject infoJson = null;
         final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
@@ -61,28 +68,32 @@ public class YouTube {
     public Channel getChannel(String channelId) {
         final String baseUrl = "https://www.youtube.com/channel/{channelId}/about";
 
-        Document jsoup = null;
-        try {
-            jsoup = Jsoup
-                    .connect(baseUrl.replace("{channelId}", channelId))
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
         JSONObject infoJson = null;
-        final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
-        while (scripts.hasNext()) {
-            final Element script = scripts.next(); // Get next script
+        // Run as long as infoJson is not null
+        while (infoJson == null) {
+            try {
 
-            if (!script.html().startsWith("var ytInitialData =")) continue;
+                final Document jsoup = Jsoup
+                        .connect(baseUrl.replace("{channelId}", channelId))
+                        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                        .get();
 
-            final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
-            final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
-            infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
+                final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
+                while (scripts.hasNext()) {
+                    final Element script = scripts.next(); // Get next script
+
+                    if (!script.html().startsWith("var ytInitialData =")) continue;
+
+                    final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
+                    final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
+                    infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
+                }
+
+            } catch (IOException e){
+                e.printStackTrace();
+            }
         }
+
 
         final JSONObject channelInfo = infoJson.getJSONObject("metadata").getJSONObject("channelMetadataRenderer");
         final String channelName = channelInfo.getString("title"); // Get channel name
@@ -101,65 +112,37 @@ public class YouTube {
     }
 
     public Videos getLatestVideos(String channelId) throws IOException {
-        final String baseUrlXml = "https://www.youtube.com/feeds/videos.xml?channel_id=";
-        final String baseUrl = "https://www.youtube.com/channel/";
-
+        final String baseUrlXml = "https://www.youtube.com/feeds/videos.xml?channel_id="; // Base request url
 
         final Document xml = Jsoup
                 .connect(baseUrlXml + channelId)
                 .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                 .get();
-        // Get xml content
-        final Element content = xml.getElementsByTag("feed").get(0);
-        final Elements videosInfoXml = content.getElementsByTag("entry");
 
+        final Element content = xml.getElementsByTag("feed").get(0); // Get content
 
-        JSONObject json = null;
-        while (json == null) {
-            final Document jsoup = Jsoup
-                    .connect(baseUrl + channelId)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .get();
+        final String name = content.getElementsByTag("author").get(0).getElementsByTag("name").get(0).text(); // Get channel name
+        final Channel channel = new Channel(channelId, name, null); // Create channel object
 
-            // Create iterator for all script tags
-            final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
+        List<Video> videos = new ArrayList<>();
+        final Elements videosInfo = content.getElementsByTag("entry"); // Get videos information
 
-            while (scripts.hasNext()) {
-                final Element script = scripts.next(); // Get next script
+        videosInfo.forEach(videoInfo -> {
+            final String id = videoInfo.getElementsByTag("yt:videoId").get(0).text(); // Get video id
+            final String title = videoInfo.getElementsByTag("title").get(0).text(); // Get video title
+            final String publishedAtRaw = videoInfo.getElementsByTag("published").get(0).text(); // Get upload time
+            final ZonedDateTime publishedAt = ZonedDateTime.parse(publishedAtRaw); // Parse upload time to ZoneDateTime
 
-                if (!script.html().startsWith("var ytInitialData =")) continue;
+            final Element mediaGroup = videoInfo.getElementsByTag("media:group").get(0); // Get tag where more detailed information is stored
+            final String thumbnail = mediaGroup.getElementsByTag("media:thumbnail").get(0).attr("url"); // Get video thumbnail url
+            final String description = mediaGroup.getElementsByTag("media:description").get(0).text(); // Get description
+            final String views = mediaGroup.getElementsByTag("media:community").get(0).getElementsByTag("media:statistics").get(0).attr("views"); // Get video view count
 
-                final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
-                final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
-                json = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
-            }
-        }
+            final Video video = new Video(id, title, publishedAt, description, views); //  Create video object
+            videos.add(video); // Add video
+        });
 
-        // Get youtube channel information
-        final JSONObject channelInfo = json.getJSONObject("metadata").getJSONObject("channelMetadataRenderer");
-        final String channelName = channelInfo.getString("title"); // Get username
-        final String avatar = channelInfo.getJSONObject("avatar").getJSONArray("thumbnails").getJSONObject(0).getString("url"); //  Get avatar url
-
-        final Channel channelClass = new Channel(channelId, channelName, avatar); // Create channel Object
-
-
-        final List<Video> videos = new ArrayList(); // Create new array list for all videos
-        for (int i = 0; i < videosInfoXml.size(); i++) {
-            final Element videoInfoXml = videosInfoXml.get(i); // Get video
-
-            final String videoId = videoInfoXml.getElementsByTag("yt:videoId").get(0).html(); // Get video id
-            final String videoTitle = videoInfoXml.getElementsByTag("title").get(0).html(); // Get title of video
-            final String videoPublishedAtRaw = videoInfoXml.getElementsByTag("published").get(0).html(); // Get upload time
-            final ZonedDateTime videoPublishedAt = ZonedDateTime.parse(videoPublishedAtRaw); // Parse upload time to ZoneDateTime
-            final String videoDescription = videoInfoXml.getElementsByTag("media:description").get(0).html(); // Get description of video
-            final String videoViews = videoInfoXml.getElementsByTag("media:community").get(0).getElementsByTag("media:statistics").get(0).attr("views"); // Get views
-
-
-            final Video videoClass = new Video(videoId, videoTitle, videoPublishedAt, videoDescription, videoViews); // Create new video object
-            videos.add(videoClass); // Add video to all videos
-        }
-
-        return new Videos(channelClass, videos);
+        return new Videos(channel, videos);
     }
 
     public void getVideo(String videoId) throws IOException {
