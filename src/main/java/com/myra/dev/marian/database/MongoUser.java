@@ -1,7 +1,11 @@
 package com.myra.dev.marian.database;
 
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -94,6 +98,41 @@ public class MongoUser {
     /**
      * Is null if user is a bot.
      *
+     * @return Returns all flags of the user.
+     */
+    public List<User.UserFlag> getBadges() {
+        if (bot) return null;
+
+        final List<User.UserFlag> badges = new ArrayList<>(); // List for all badges
+        final List<String> badgesRaw = document.getList("badges", String.class); // Get badges
+
+        for (String badgeRaw : badgesRaw) {
+            final User.UserFlag badge = User.UserFlag.valueOf(badgeRaw); // Get badge as UserFlag
+            badges.add(badge); // Add badge to list
+        }
+        return badges;
+    }
+
+    /**
+     * Set the badges of the user.
+     *
+     * @param badges All badges of {@link MongoUser#user}.
+     */
+    public void setBadges(List<User.UserFlag> badges) {
+        if (bot) return;
+
+        final List<String> badgesString = new ArrayList<>(); // Create list for badges as strings
+        for (User.UserFlag badge : badges) {
+            badgesString.add(badge.getName().toLowerCase()); // Add badge as lower case
+        }
+
+        document.replace("badges", badgesString); // Set badges
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+    }
+
+    /**
+     * Is null if user is a bot.
+     *
      * @return Returns the xp of the user.
      */
     public Integer getXp() {
@@ -108,7 +147,7 @@ public class MongoUser {
     public void addXp(int xpToAdd) {
         if (bot) return; // User is bot
 
-        document.replace("xp", document.getInteger("xp") + xpToAdd); // Add xp
+        document.replace("xp", Utilities.getBsonLong(document, "xp") + xpToAdd); // Add xp
         mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
     }
 

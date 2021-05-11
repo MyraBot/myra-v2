@@ -41,6 +41,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateFlagsEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
@@ -51,10 +52,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Listeners extends ListenerAdapter {
+    public final static List<String> unavailableGuilds = new ArrayList<>(); // Guilds which shouldn't receive events
     private final static Logger LOGGER = LoggerFactory.getLogger(Listeners.class);
     private final static String onlineInfo = "Bot online!";
     // User events
@@ -165,7 +169,15 @@ public class Listeners extends ListenerAdapter {
     }
     //public void onUserUpdateOnlineStatus(@Nonnull UserUpdateOnlineStatusEvent event) {}
     //public void onUserUpdateActivityOrder(@Nonnull UserUpdateActivityOrderEvent event) {}
-    //public void onUserUpdateFlags(@Nonnull UserUpdateFlagsEvent event) {}
+    public void onUserUpdateFlags(@Nonnull UserUpdateFlagsEvent event) {
+        try {
+            if (event.getUser().isBot()) return;
+
+            userUpdates.onBadgesChange(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     //public void onUserTyping(@Nonnull UserTypingEvent event) {}
     //public void onUserActivityStart(@Nonnull UserActivityStartEvent event) {}
     //public void onUserActivityEnd(@Nonnull UserActivityEndEvent event) {}
@@ -176,6 +188,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildMessageUpdate(@Nonnull GuildMessageUpdateEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
             globalChat.messageEdited(event);
         } catch (Exception e) {
             e.printStackTrace();
@@ -185,8 +199,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildMessageReactionAdd(@Nonnull GuildMessageReactionAddEvent event) {
         try {
-
             if (event.getUser().isBot()) return; // Don't react to bots
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             reactionRoles.reactionRoleAssign(event); // Reaction roles
             new MusicVoteListener().onVoteAdd(event); // Music commands voting
@@ -198,6 +212,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildMessageReactionRemove(@Nonnull GuildMessageReactionRemoveEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
             reactionRoles.reactionRoleRemove(event); // Reaction roles remove listener
         } catch (Exception e) {
             e.printStackTrace();
@@ -207,10 +223,11 @@ public class Listeners extends ListenerAdapter {
     //Combined Message Events (Combines Guild and Private message into 1 event)
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         try {
+            if (event.getAuthor().isBot()) return; // Message is from a bot
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
             final Message msg = event.getMessage();
             if (msg.getFlags().contains(Message.MessageFlag.IS_CROSSPOST)) return; // Message is a server announcement
             if (msg.isWebhookMessage()) return; // Message is a WebHook
-            if (event.getAuthor().isBot()) return; // Message is from a bot
 
             globalChat.onMessage(event);
             levelingListener.onMessage(event);
@@ -225,6 +242,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onTextChannelCreate(@Nonnull TextChannelCreateEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
             new MutePermissions().textChannelCreateEvent(event); // Set permissions for mute role
         } catch (Exception e) {
             e.printStackTrace();
@@ -235,6 +254,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
             new MongoDbUpdate().guildJoinEvent(event); // Add guild document to database
             serverTracking.onGuildJoin(event); // Server tracking message
             new InviteThanks().guildJoinEvent(event); // Thank message to server owner
@@ -246,6 +267,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildLeave(@Nonnull GuildLeaveEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
             serverTracking.onGuildLeave(event); // Server tracking message
             new MongoDbUpdate().onGuildLeave(event);
         } catch (Exception e) {
@@ -257,6 +280,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildUpdateName(@Nonnull GuildUpdateNameEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -266,6 +291,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(@Nonnull GuildMemberJoinEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
             welcomeListener.welcome(event); // Welcome
             autoroleAssign.onGuildMemberJoin(event); // Autorole
             roles.exclusive(event); // Exclusive role
@@ -277,6 +304,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildMemberRoleAdd(@Nonnull GuildMemberRoleAddEvent event) {
         try {
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
             //new Roles().categories(event);
         } catch (Exception e) {
             e.printStackTrace();
@@ -288,6 +317,7 @@ public class Listeners extends ListenerAdapter {
     public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent event) {
         try {
             if (event.getMember().getUser().isBot()) return;
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             voiceCall.updateXpGain(event.getChannelJoined()); // Start xp gian
             MusicTimeout.getGuildManager(event.getGuild()).interrupt();
@@ -300,6 +330,7 @@ public class Listeners extends ListenerAdapter {
     public void onGuildVoiceMove(@Nonnull GuildVoiceMoveEvent event) {
         try {
             if (event.getMember().getUser().isBot()) return;
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             voiceCall.updateXpGain(event.getChannelLeft()); // Update xp for users, who are still in old voice call
             voiceCall.updateXpGain(event.getChannelJoined()); // Update xp for users in new voice call
@@ -313,6 +344,7 @@ public class Listeners extends ListenerAdapter {
     public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
         try {
             if (event.getMember().getUser().isBot()) return;
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             voiceCall.stopXpGain(event.getMember()); // Stop xp gain
             MusicTimeout.getGuildManager(event.getGuild()).timeout(event.getGuild(), event.getChannelLeft()); // Check for music timeout
@@ -325,6 +357,7 @@ public class Listeners extends ListenerAdapter {
     public void onGuildVoiceMute(@Nonnull GuildVoiceMuteEvent event) {
         try {
             if (event.getMember().getUser().isBot()) return;
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             voiceCall.updateXpGain(event); // Update xp gain
         } catch (Exception e) {

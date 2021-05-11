@@ -21,7 +21,7 @@ public class MongoDocuments {
 
         // Economy
         Document economy = new Document()
-                .append("currency", Utilities.getUtils().getEmote("coin").getAsMention())
+                .append("currency", Utilities.findEmote("coin").getAsMention())
                 .append("shop", new Document());
         // Leveling
         Document levelingDocument = new Document()
@@ -115,6 +115,7 @@ public class MongoDocuments {
                 .append("userId", user.getId()) // Id
                 .append("name", user.getName()) // Username
                 .append("discriminator", user.getDiscriminator()) // User tag
+                .append("badges", new ArrayList<String>()) // badges
                 .append("xp", 0)
                 .append("messages", 0)
                 .append("avatar", user.getEffectiveAvatarUrl())

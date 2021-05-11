@@ -2,6 +2,7 @@ package com.myra.dev.marian.database;
 
 import com.mongodb.client.MongoCursor;
 import com.myra.dev.marian.Config;
+import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -149,8 +150,9 @@ public class MongoDbUpdate {
                 .append("name", userDocument.getString("name")) // Username
                 .append("discriminator", userDocument.getString("discriminator")) // User tag
                 .append("avatar", userDocument.getString("avatar")) // Avatar url
-                .append("xp", 0) // Global xp
-                .append("messages", 0) // Global messages
+                .append("badges", userDocument.getList("badges", String.class))
+                .append("xp", Utilities.getBsonLong(userDocument, "xp")) // Global xp
+                .append("messages", userDocument.getInteger("messages")) // Global messages
                 .append("birthday", userDocument.getString("birthday"))
                 .append("achievements", userDocument.get("achievements", Document.class));
 
@@ -160,9 +162,9 @@ public class MongoDbUpdate {
             final Document guildDocument = userDocument.get(key, Document.class); // Get guild document
             final Document updatedGuildDocument = new Document() // Create a new guild document
                     .append("level", guildDocument.getInteger("level"))
-                    .append("xp", guildDocument.getInteger("xp"))
+                    .append("xp", Utilities.getBsonLong(guildDocument, "xp"))
                     .append("messages", guildDocument.getInteger("messages"))
-                    .append("voiceCallTime", guildDocument.getLong("voiceCallTime"))
+                    .append("voiceCallTime", Utilities.getBsonLong(guildDocument, "voiceCallTime"))
                     .append("balance", guildDocument.getInteger("balance"))
                     .append("dailyStreak", guildDocument.getInteger("dailyStreak"))
                     .append("lastClaim", guildDocument.getLong("lastClaim"))
