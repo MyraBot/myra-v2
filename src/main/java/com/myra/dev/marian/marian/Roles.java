@@ -22,17 +22,15 @@ public class Roles {
         // Get exclusive role
         final Role exclusiveRole = server.getRoleById("775646920646983690");
 
-        List<User> guildOwners = new ArrayList<>();
+        List<String> guildOwners = new ArrayList<>();
         for (Guild guild : event.getJDA().getGuilds()) {
-            guild.retrieveOwner().queue(owner -> {
-                guildOwners.add(owner.getUser());
-            });
+            guildOwners.add(guild.retrieveOwner().complete().getId());
         }
 
         server.loadMembers().onSuccess(members -> {
             for (Member member : members) {
                 // Member is owner of a server
-                if (guildOwners.contains(member.getUser())) {
+                if (guildOwners.contains(member.getId())) {
                     server.addRoleToMember(member, exclusiveRole).queue(); // Add exclusive role to member
                 }
                 // Member isn't owner of a server
