@@ -1,6 +1,7 @@
 package com.myra.dev.marian.database;
 
 import com.myra.dev.marian.Config;
+import com.myra.dev.marian.utilities.CustomEmoji;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,7 +22,7 @@ public class MongoDocuments {
 
         // Economy
         Document economy = new Document()
-                .append("currency", Utilities.findEmote("coin").getAsMention())
+                .append("currency", CustomEmoji.COIN.getAsEmoji())
                 .append("shop", new Document());
         // Leveling
         Document levelingDocument = new Document()

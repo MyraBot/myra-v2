@@ -1,9 +1,10 @@
 package com.myra.dev.marian.commands.general.information;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.utilities.CustomEmoji;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,11 +16,11 @@ import java.time.format.DateTimeFormatter;
 
 public class InformationMember implements CommandHandler {
 
-@CommandEvent(
-        name = "information member",
-        aliases = {"info member"},
-        channel = Channel.GUILD
-)
+    @CommandEvent(
+            name = "information member",
+            aliases = {"info member"},
+            channel = Channel.GUILD
+    )
     public void execute(CommandContext ctx) throws Exception {
         final Utilities utilities = Utilities.getUtils(); // Get utilities
         Member member = ctx.getMember(); // Get author as member
@@ -44,34 +45,14 @@ public class InformationMember implements CommandHandler {
         }
 
         // Online status
-        String emoji;
+        CustomEmoji emoji = CustomEmoji.search(member.getOnlineStatus().toString());
         String onlineStatus;
         switch (member.getOnlineStatus().toString()) {
-            case "OFFLINE": {
-                emoji = Utilities.findEmote("offline").getAsEmote().getAsMention();
-                onlineStatus = "Offline";
-                break;
-            }
-            case "IDLE": {
-                emoji = Utilities.findEmote("idle").getAsEmote().getAsMention();
-                onlineStatus = "Idle";
-                break;
-            }
-            case "DO_NOT_DISTURB": {
-                emoji = Utilities.findEmote("doNotDisturb").getAsEmote().getAsMention();
-                onlineStatus = "Do not disturb";
-                break;
-            }
-            case "ONLINE": {
-                emoji = Utilities.findEmote("online").getAsEmote().getAsMention();
-                onlineStatus = "Online";
-                break;
-            }
-            default: {
-                emoji = "\\\uD83D\uDC7E";
-                onlineStatus = "Unknown";
-                break;
-            }
+            case "OFFLINE" -> onlineStatus = "Offline";
+            case "IDLE" -> onlineStatus = "Idle";
+            case "DO_NOT_DISTURB" -> onlineStatus = "Do not disturb";
+            case "ONLINE" -> onlineStatus = "Online";
+            default -> onlineStatus = "Unknown";
         }
         memberInfo.addField(emoji + " │ status", onlineStatus, true);
 
@@ -94,7 +75,7 @@ public class InformationMember implements CommandHandler {
 
         if (ctx.getGuild().getBoosters().contains(member)) {
             final String boostingSince = member.getTimeBoosted().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm"));
-            memberInfo.addField(Utilities.findEmote("nitroBoost").getAsMention() + " │ Is boosting", "since: " + boostingSince, true);
+            memberInfo.addField(CustomEmoji.NITRO.getAsEmoji() + " │ Is boosting", "since: " + boostingSince, true);
         }
 
         // Roles

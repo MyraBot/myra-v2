@@ -5,6 +5,7 @@ import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
+import com.myra.dev.marian.utilities.CustomEmoji;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Member;
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MusicVoteListener {
     public void onMusicCommand(Message message) {
-        final Emote emote = Utilities.findEmote("greenTick").getAsEmote();
+        final Emote emote = CustomEmoji.GREEN_TICK.getAsEmote();
         message.addReaction(emote).queue();
     }
 
@@ -26,7 +27,7 @@ public class MusicVoteListener {
 
     public void onVoteAdd(GuildMessageReactionAddEvent event) {
         if (!event.getReaction().getReactionEmote().isEmote()) return;
-        final Emote emote = Utilities.findEmote("greenTick").getAsEmote(); // Get vote reaction emote
+        final Emote emote = CustomEmoji.GREEN_TICK.getAsEmote(); // Get vote reaction emote
         if (!event.getReaction().getReactionEmote().getEmote().equals(emote)) return;
 
         event.retrieveMessage().queue(message -> { // Retrieve message

@@ -1,10 +1,16 @@
 package com.myra.dev.marian.utilities;
 
+import com.myra.dev.marian.Config;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public enum UserBadge {
-    // CUSTOM
+    // Myra badges
     MYRA_STAFF("Myra Staff"),
     MYRA_PARTNER("Myra Partner"),
     // HypeSquad
@@ -13,8 +19,8 @@ public enum UserBadge {
     HYPESQUAD_BRILLIANCE("HypeSquad Brilliance"),
     HYPESQUAD_BALANCE("HypeSquad Balance"),
     // Other
-    STAFF( "Discord Employee"),
-    PARTNER( "Partnered Server Owner"),
+    STAFF("Discord Employee"),
+    PARTNER("Partnered Server Owner"),
     BUG_HUNTER_LEVEL_1("Bug Hunter Level 1"),
     EARLY_SUPPORTER("Early Supporter"),
     TEAM_USER("Team User"),
@@ -51,5 +57,30 @@ public enum UserBadge {
                 .filter(badge -> badge.getName().equalsIgnoreCase(search))
                 .findAny()
                 .get();
+    }
+
+    /**
+     * @param user The user to get the badges from.
+     * @return Returns a {@link List<UserBadge>} with all badges of a user.
+     */
+    public static List<UserBadge> getUserBadges(User user) {
+        final List<UserBadge> badges = new ArrayList<>();
+
+        // Add all discord badges to list
+        for (User.UserFlag flag : user.getFlags()) {
+            badges.add(UserBadge.find(flag.getName()));
+        }
+
+        // User isn't member of my server
+        if (!user.getJDA().getGuildById(Config.marianServer).isMember(user)) return badges;
+
+        final Member member = user.getJDA().getGuildById(Config.marianServer).retrieveMemberById(user.getId()).complete();
+        // User is myra staff
+        if (member.getRoles().stream().anyMatch(role -> Config.MYRA_STAFF_ROLE.equals(role.getId())))
+            badges.add(UserBadge.MYRA_STAFF);
+        // User is myra partner
+        if (member.getRoles().stream().anyMatch(role -> Config.MYRA_PARTNER_ROLE.equals(role.getId())))
+            badges.add(UserBadge.MYRA_PARTNER);
+        return badges;
     }
 }

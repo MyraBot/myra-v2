@@ -1,6 +1,7 @@
 package com.myra.dev.marian.listeners;
 
 import com.myra.dev.marian.database.MongoUser;
+import com.myra.dev.marian.utilities.UserBadge;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
@@ -22,6 +23,6 @@ public class UserUpdates {
     }
 
     public void onBadgesChange(User user) {
-        new MongoUser(user).setBadges(Utilities.getUserBadges(user)); // Update user badges
+        new MongoUser(user).setBadges(UserBadge.getUserBadges(user)); // Update user badges
     }
 }

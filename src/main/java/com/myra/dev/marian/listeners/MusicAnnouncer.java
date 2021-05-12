@@ -1,6 +1,7 @@
 package com.myra.dev.marian.listeners;
 
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.RequestData;
+import com.myra.dev.marian.utilities.CustomEmoji;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -21,7 +22,7 @@ public class MusicAnnouncer extends AudioEventAdapter {
 
         requestData.getGuild().retrieveMemberById(requestData.getMemberId()).queue(member -> {
             final AudioTrackInfo trackInfo = track.getInfo(); // Get track information
-            String announcement = String.format("%s Now playing %s [%s]", Utilities.findEmote("Voice"), Utilities.getUtils().hyperlink(String.format("`%s - %s`", trackInfo.title, trackInfo.author), trackInfo.uri), member.getAsMention());
+            String announcement = String.format("%s Now playing %s [%s]", CustomEmoji.VOICE.getAsEmoji(), Utilities.getUtils().hyperlink(String.format("`%s - %s`", trackInfo.title, trackInfo.author), trackInfo.uri), member.getAsMention());
 
             final EmbedBuilder nowPlaying = new Success(null)
                     .setCommand("Now playing")

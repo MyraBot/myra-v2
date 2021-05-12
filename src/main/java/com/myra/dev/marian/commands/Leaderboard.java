@@ -6,6 +6,7 @@ import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.LeaderboardType;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.LeaderboardMember;
+import com.myra.dev.marian.utilities.CustomEmoji;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -25,7 +26,7 @@ public class Leaderboard implements CommandHandler {
     // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
     final String[] emojis = {
             "RE:U+1F3C6", // Leveling (🏆)
-            Utilities.findEmote("coin").getAsReactionEmote(), // Balance
+            CustomEmoji.COIN.getAsReactionEmote(), // Balance
             "RE:U+1F4DE" // Voice call
     };
 
@@ -45,14 +46,14 @@ public class Leaderboard implements CommandHandler {
             getLeaderboard(message, type.LEVEL);
             // Add reactions
             message.addReaction("\uD83C\uDFC6").queue(); // Add level emoji
-            message.addReaction(Utilities.findEmote("coin").getAsEmote()).queue(); // Add balance emote
+            message.addReaction(CustomEmoji.COIN.getAsEmote()).queue(); // Add balance emote
             message.addReaction("\uD83D\uDCDE").queue(); // Voice call emoji
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e -> !e.getUser().isBot()
                             && e.getUserIdLong() == ctx.getMember().getIdLong()
                             && e.getMessageIdLong() == message.getIdLong()
-                            && Arrays.asList(emojis).contains(e.getReactionEmote().toString().toUpperCase()))
+                            && Arrays.asList(emojis).stream().anyMatch(emoji -> emoji.equalsIgnoreCase(e.getReactionEmote().toString())))
                     .setAction(e -> {
                         message.editMessage(loading.build()).queue(); // Edit to loading message
 
