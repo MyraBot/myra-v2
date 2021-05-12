@@ -8,6 +8,9 @@ public class Config {
     public final static String marianServer = "642809436515074053";
     public final static String myraServer = "774269364244971571";
 
+    public static final String TEAM_ROLE = "715545225057140736";
+    public static final String PARTNER_ROLE = "785170745797246987";
+
     public static Long startUp;
     public final static Integer ECONOMY_MAX = 1000000000;
 

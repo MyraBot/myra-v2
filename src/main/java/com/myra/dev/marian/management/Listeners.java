@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
@@ -167,21 +168,25 @@ public class Listeners extends ListenerAdapter {
             e.printStackTrace();
         }
     }
+
     //public void onUserUpdateOnlineStatus(@Nonnull UserUpdateOnlineStatusEvent event) {}
     //public void onUserUpdateActivityOrder(@Nonnull UserUpdateActivityOrderEvent event) {}
+
     public void onUserUpdateFlags(@Nonnull UserUpdateFlagsEvent event) {
         try {
             if (event.getUser().isBot()) return;
 
-            userUpdates.onBadgesChange(event);
+            userUpdates.onBadgesChange(event.getUser());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     //public void onUserTyping(@Nonnull UserTypingEvent event) {}
     //public void onUserActivityStart(@Nonnull UserActivityStartEvent event) {}
     //public void onUserActivityEnd(@Nonnull UserActivityEndEvent event) {}
     //public void onUserUpdateActivities(@Nonnull UserUpdateActivitiesEvent event) {}
+
 
     //Message Events
     //Guild (TextChannel) Message Events
@@ -306,7 +311,17 @@ public class Listeners extends ListenerAdapter {
         try {
             if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
+            userUpdates.onBadgesChange(event.getUser()); // Update badges
             //new Roles().categories(event);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onGuildMemberRoleRemove(@Nonnull GuildMemberRoleRemoveEvent event) {
+        try {
+            userUpdates.onBadgesChange(event.getUser());
         } catch (Exception e) {
             e.printStackTrace();
         }

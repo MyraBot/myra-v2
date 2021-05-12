@@ -1,5 +1,6 @@
 package com.myra.dev.marian.database;
 
+import com.myra.dev.marian.utilities.UserBadge;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
@@ -100,14 +101,14 @@ public class MongoUser {
      *
      * @return Returns all flags of the user.
      */
-    public List<User.UserFlag> getBadges() {
+    public List<UserBadge> getBadges() {
         if (bot) return null;
 
-        final List<User.UserFlag> badges = new ArrayList<>(); // List for all badges
+        final List<UserBadge> badges = new ArrayList<>(); // List for all badges
         final List<String> badgesRaw = document.getList("badges", String.class); // Get badges
 
         for (String badgeRaw : badgesRaw) {
-            final User.UserFlag badge = User.UserFlag.valueOf(badgeRaw); // Get badge as UserFlag
+            final UserBadge badge = UserBadge.find(badgeRaw); // Get badge as UserBadge
             badges.add(badge); // Add badge to list
         }
         return badges;
@@ -118,14 +119,13 @@ public class MongoUser {
      *
      * @param badges All badges of {@link MongoUser#user}.
      */
-    public void setBadges(List<User.UserFlag> badges) {
+    public void setBadges(List<UserBadge> badges) {
         if (bot) return;
 
-        final List<String> badgesString = new ArrayList<>(); // Create list for badges as strings
-        for (User.UserFlag badge : badges) {
-            badgesString.add(badge.getName().toLowerCase()); // Add badge as lower case
+        final List<String> badgesString = new ArrayList<>(); // Create list for all badges as string
+        for (UserBadge badge : badges) {
+            badgesString.add(badge.getName()); // Add badge
         }
-
         document.replace("badges", badgesString); // Set badges
         mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
     }
