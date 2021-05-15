@@ -31,6 +31,7 @@ public class PlayerManager {
     public PlayerManager() {
         this.musicManagers = new HashMap<>();
         this.audioPlayerManager = new DefaultAudioPlayerManager();
+        this.audioPlayerManager.getConfiguration().setFilterHotSwapEnabled(true); // Enable instant filter changes
         // Register sources
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
         AudioSourceManagers.registerRemoteSources(this.audioPlayerManager);
