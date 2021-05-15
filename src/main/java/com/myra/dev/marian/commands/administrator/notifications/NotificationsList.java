@@ -4,15 +4,12 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.managers.NotificationsTwitchManager;
 import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
-import com.myra.dev.marian.utilities.APIs.youTube.YouTube;
+import com.myra.dev.marian.utilities.APIs.youtube.Youtube;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.Arrays;
@@ -97,7 +94,7 @@ public class NotificationsList implements CommandHandler {
 
                                 StringBuilder youtubers = new StringBuilder();
                                 for (String youtuberId : NotificationsYoutubeManager.getInstance().getYoutubers(e.getGuild())) {
-                                    final String channelName = YouTube.getApi().getChannel(youtuberId).getChannelName(); // Get youtube channel name
+                                    final String channelName = Youtube.getChannel(youtuberId).getName(); // Get youtube channel name
                                     youtubers.append("• ").append(channelName).append("\n"); // Append youtuber
                                 }
                                 list.addField("\\\uD83D\uDCFA │ YouTubers:", youtubers.toString(), false);

@@ -1,177 +1,113 @@
-package com.myra.dev.marian.utilities.APIs.youTube;
+package com.myra.dev.marian.utilities.APIs.youtube;
 
+import com.myra.dev.marian.Config;
+import com.myra.dev.marian.exceptions.OkhttpExecuteException;
+import com.myra.dev.marian.utilities.APIs.youtube.data.YoutubeChannel;
+import com.myra.dev.marian.utilities.Utilities;
+import okhttp3.MultipartBody;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-public class YouTube {
-    private final static YouTube INSTANCE = new YouTube();
+public class Youtube {
+    private static final String CALLBACK_URL = Config.SERVER_ADDRESS + ":" + Config.WEB_SERVER_PORT + "/youtube";
+    private static final String TOPIC_URL = "https://www.youtube.com/xml/feeds/videos.xml?channel_id=";
+    private static final String SUBSCRIBE_URL = "https://pubsubhubbub.appspot.com/subscribe";
 
-    public static YouTube getApi() {
-        return INSTANCE;
+    private static final String LIST_URL = "https://www.googleapis.com/youtube/v3/search";
+
+    public static void subscribe(String channelId) {
+        final RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("hub.callback", CALLBACK_URL)
+                .addFormDataPart("hub.topic", TOPIC_URL + channelId)
+                .addFormDataPart("hub.verify", "async")
+                .addFormDataPart("hub.mode", "subscribe")
+                .build();
+
+        final Request request = new Request.Builder()
+                .url(SUBSCRIBE_URL)
+                .post(requestBody)
+                .build();
+
+        try (Response response = Utilities.HTTP_CLIENT.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                // TODO Return something so you know if the request was successful or not
+            } else {
+                // TODO Return something so you know if the request was successful or not
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public List<Channel> searchChannelByName(String query) throws IOException {
-        final String baseUrl = "https://www.youtube.com/results?search_query={query}&sp=EgIQAg%253D%253D";
+    public static void unsubscribe(String channelId) {
+        final RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("hub.callback", CALLBACK_URL)
+                .addFormDataPart("hub.topic", TOPIC_URL + channelId)
+                .addFormDataPart("hub.verify", "async")
+                .addFormDataPart("hub.mode", "unsubscribe")
+                .build();
 
-        Document jsoup = Jsoup
-                .connect(baseUrl.replace("{query}", query))
-                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                .get();
-        // Run until data is provided (When data is not provided it asks for cookies)
-        while (!jsoup.html().contains("var ytInitialData =")) {
-            jsoup = Jsoup
-                    .connect(baseUrl.replace("{query}", query))
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .get();
+        final Request request = new Request.Builder()
+                .url(SUBSCRIBE_URL)
+                .post(requestBody)
+                .build();
+
+        try (Response response = Utilities.HTTP_CLIENT.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                // TODO Return something so you know if the request was successful or not
+            } else {
+                // TODO Return something so you know if the request was successful or not
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
 
-        JSONObject infoJson = null;
-        final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
-        while (scripts.hasNext()) {
-            final Element script = scripts.next(); // Get next script
+    public static YoutubeChannel getChannel(String id) {
 
-            if (!script.html().startsWith("var ytInitialData =")) continue;
+        return null;
+    }
 
-            final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
-            final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
-            infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
-            break;
-        }
+    public static List<YoutubeChannel> searchChannel(String query) throws OkhttpExecuteException {
+        final List<YoutubeChannel> channels = new ArrayList<>(); // Create list for videos
 
-        final int results = Integer.parseInt(infoJson.getString("estimatedResults"));
+        final Request request = new Request.Builder()
+                .url(LIST_URL + "?" +
+                        "&part=snippet" +
+                        "&type=channel" + // Only search for channels
+                        "&q=" + URLEncoder.encode(query, StandardCharsets.UTF_8) + // Search for the given keyword
+                        "&key=" + Config.YOUTUBE_KEY)
+                .addHeader("client_id", Config.YOUTUBE_KEY)
+                .get()
+                .build();
 
-        final List<Channel> channels = new ArrayList<>(); // Create list for all channel objects
-        final JSONArray jsonChannels = infoJson.getJSONObject("contents").getJSONObject("twoColumnSearchResultsRenderer").getJSONObject("primaryContents").getJSONObject("sectionListRenderer").getJSONArray("contents").getJSONObject(0).getJSONObject("itemSectionRenderer").getJSONArray("contents"); // Get JSONArray with all channels
-        for (int i = 0; i < jsonChannels.length(); i++) {
-            final JSONObject channelInfo = jsonChannels.getJSONObject(i).getJSONObject("channelRenderer"); // Get information about current channel
+        try (Response response = Utilities.HTTP_CLIENT.newCall(request).execute()) {
+            final JSONObject json = new JSONObject(response.body().string());
 
-            final String channelAvatar = channelInfo.getJSONObject("thumbnail").getJSONArray("thumbnails").getJSONObject(1).getString("url"); // Get avatar url
-            final String channelName = channelInfo.getJSONObject("title").getString("simpleText"); // Get channel name
-            final String channelId = channelInfo.getString("channelId"); // Get channel id
+            final JSONArray items = json.getJSONArray("items"); // Get the found results
+            for (int i = 0; i < items.length(); i++) {
+                final JSONObject video = items.getJSONObject(i); // Get next item
 
-            channels.add(new Channel(channelId, channelName, channelAvatar)); // Add channel
+                final String channelId = video.getJSONObject("snippet").getString("channelId"); // Get channel id
+                final String channelName = video.getJSONObject("snippet").getString("title"); // Get channel name
+                channels.add(new YoutubeChannel(channelId, channelName));
+            }
+        } catch (Exception e) {
+            throw new OkhttpExecuteException(e);
         }
 
         return channels;
     }
 
-    public Channel getChannel(String channelId) {
-        final String baseUrl = "https://www.youtube.com/channel/{channelId}/about";
-
-        JSONObject infoJson = null;
-        // Run as long as infoJson is not null
-        while (infoJson == null) {
-            try {
-
-                final Document jsoup = Jsoup
-                        .connect(baseUrl.replace("{channelId}", channelId))
-                        .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                        .get();
-
-                final Iterator<Element> scripts = jsoup.getElementsByTag("script").iterator();
-                while (scripts.hasNext()) {
-                    final Element script = scripts.next(); // Get next script
-
-                    if (!script.html().startsWith("var ytInitialData =")) continue;
-
-                    final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
-                    final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
-                    infoJson = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
-                }
-
-            } catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-
-
-        final JSONObject channelInfo = infoJson.getJSONObject("metadata").getJSONObject("channelMetadataRenderer");
-        final String channelName = channelInfo.getString("title"); // Get channel name
-        final String channelDescription = channelInfo.getString("description"); // Get channel description
-        final String channelKeywordsRaw = channelInfo.getString("keywords"); // Get raw keywords
-        final List<String> channelKeywords = new ArrayList<>(); // Create a list for all keywords
-        for (String s : channelKeywordsRaw.split("\"")) { // Loop through keywords raw list
-            if (s.equals("  ")) continue; // s isn't a keyword
-            channelKeywords.add(s); // Add keyword to list
-        }
-        final String channelAvatar = channelInfo.getJSONObject("avatar").getJSONArray("thumbnails").getJSONObject(0).getString("url"); // Get avatar url
-        final boolean isFamilySafe = channelInfo.getBoolean("isFamilySafe"); // Is the channel family save?
-        final String channelVanityUrl = channelInfo.getString("vanityChannelUrl");
-
-        return new Channel(channelId, channelName, channelAvatar);
-    }
-
-    public Videos getLatestVideos(String channelId) throws IOException {
-        final String baseUrlXml = "https://www.youtube.com/feeds/videos.xml?channel_id="; // Base request url
-
-        final Document xml = Jsoup
-                .connect(baseUrlXml + channelId)
-                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                .get();
-
-        final Element content = xml.getElementsByTag("feed").get(0); // Get content
-
-        final String name = content.getElementsByTag("author").get(0).getElementsByTag("name").get(0).text(); // Get channel name
-        final Channel channel = new Channel(channelId, name, null); // Create channel object
-
-        List<Video> videos = new ArrayList<>();
-        final Elements videosInfo = content.getElementsByTag("entry"); // Get videos information
-
-        videosInfo.forEach(videoInfo -> {
-            final String id = videoInfo.getElementsByTag("yt:videoId").get(0).text(); // Get video id
-            final String title = videoInfo.getElementsByTag("title").get(0).text(); // Get video title
-            final String publishedAtRaw = videoInfo.getElementsByTag("published").get(0).text(); // Get upload time
-            final ZonedDateTime publishedAt = ZonedDateTime.parse(publishedAtRaw); // Parse upload time to ZoneDateTime
-
-            final Element mediaGroup = videoInfo.getElementsByTag("media:group").get(0); // Get tag where more detailed information is stored
-            final String thumbnail = mediaGroup.getElementsByTag("media:thumbnail").get(0).attr("url"); // Get video thumbnail url
-            final String description = mediaGroup.getElementsByTag("media:description").get(0).text(); // Get description
-            final String views = mediaGroup.getElementsByTag("media:community").get(0).getElementsByTag("media:statistics").get(0).attr("views"); // Get video view count
-
-            final Video video = new Video(id, title, publishedAt, description, views); //  Create video object
-            videos.add(video); // Add video
-        });
-
-        return new Videos(channel, videos);
-    }
-
-    public void getVideo(String videoId) throws IOException {
-        final String baseUrl = "https://www.youtube.com/watch?v=";
-
-        final Document web = Jsoup
-                .connect(baseUrl + videoId)
-                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                .get();
-
-        // Create iterator for all script tags
-        final Iterator<Element> scripts = web.getElementsByTag("script").iterator();
-        JSONObject info = null;
-
-        while (scripts.hasNext()) {
-            final Element script = scripts.next(); // Get next script
-
-            if (!script.html().startsWith("var ytInitialData =")) continue;
-
-            final String initializeVariable = "var ytInitialData = "; // Define initialize keywords
-            final String jsonString = script.html().substring(initializeVariable.length()); // Remove initialization
-            info = new JSONObject(jsonString.substring(0, jsonString.length() - 1)); // Remove ';' at the end and parse it into a JsonObject
-        }
-
-        final JSONObject videoInfo = info.getJSONObject("contents").getJSONObject("twoColumnWatchNextResults").getJSONObject("results").getJSONObject("results").getJSONArray("contents").getJSONObject(1).getJSONObject("videoSecondaryInfoRenderer"); // Get info about video
-
-        final JSONObject ownerInfo = videoInfo.getJSONObject("owner").getJSONObject("videoOwnerRenderer"); // Get info for owner
-        final String ownerName = ownerInfo.getJSONObject("title").getJSONArray("runs").getJSONObject(0).getString("text"); // Get name of owner
-        final String ownerId = ownerInfo.getJSONObject("title").getJSONArray("runs").getJSONObject(0).getJSONObject("navigationEndpoint").getJSONObject("browseEndpoint").getString("browseId"); // Get id of owner
-        final String ownerAvatar = ownerInfo.getJSONObject("thumbnail").getJSONArray("thumbnails").getJSONObject(2).getString("url"); // Get avatar of owner
-    }
 }

@@ -32,10 +32,9 @@ public class Utilities {
     public final int blue = 0x7AC8F2;
     public final int gray = 0x282c34;
     //keys
-    public final String youTubeKey = "AIzaSyAOJVth0U1loodJ9ShNjocc1eKMZr-Xxsg";
+    public final static String URL_PATTERN = "/^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?/";
     public final String twitchClientId = "2ns4hcj4kkd6vj3armlievqsw8znd3";
     public final String twitchClientSecret = "kbvqhnosdqrezqhy8zuly9hapzeapn";
-    public final String twitchRedirect_uri = "http://localhost";
     public final String giphyKey = "nV9Hhe5WbaVli6jg8Nlo2VcIB1kq5Ekq";
     public final String HypixelKey = "6cb5b7e7-66ab-477d-9d18-4f029e676d37";
     public final String spotifyClientId = "f19bf0a7cb204c098dbdaaeedf47f842";
