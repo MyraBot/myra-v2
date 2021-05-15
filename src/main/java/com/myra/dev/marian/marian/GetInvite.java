@@ -13,7 +13,7 @@ public class GetInvite implements CommandHandler {
 )
     public void execute(CommandContext ctx) throws Exception {
         // Check for marian
-        if (!ctx.getAuthor().getId().equals(Config.marian)) return;
+        if (!ctx.getAuthor().getId().equals(Config.MARIAN_SERVER_ID)) return;
         // Get invite link to default channel
         String invite = ctx.getEvent().getJDA().getGuildById(ctx.getArguments()[0]).getDefaultChannel().createInvite().setMaxUses(1).complete().getUrl();
         // Send link

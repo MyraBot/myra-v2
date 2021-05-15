@@ -89,7 +89,7 @@ public class MongoDocuments {
         // Create document
         Document guildDoc = new Document("guildId", guild.getId())
                 .append("guildName", guild.getName())
-                .append("prefix", Config.prefix)
+                .append("prefix", Config.DEFAULT_PREFIX)
                 .append("premium", false)
                 .append("unicorn", null)
 
