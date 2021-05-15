@@ -1,12 +1,11 @@
 package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
 import com.myra.dev.marian.utilities.CustomEmoji;
-import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -62,9 +61,9 @@ public class MusicVoteListener {
                                     final String prefix = new MongoGuild(event.getGuild()).getString("prefix"); // Get prefix
                                     final TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(event.getGuild()).scheduler;  // Get track scheduler
 
-                                    final List<String> skipExecutors = Myra.COMMAND_SERVICE.getCommandExecutors(MusicSkip.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicSkip} class*/
+                                    final List<String> skipExecutors = DiscordBot.COMMAND_SERVICE.getCommandExecutors(MusicSkip.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicSkip} class*/
                                     final List<String> clearQueueExecutors;
-                                    clearQueueExecutors = Myra.COMMAND_SERVICE.getCommandExecutors(MusicClearQueue.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicClearQueue} class*/
+                                    clearQueueExecutors = DiscordBot.COMMAND_SERVICE.getCommandExecutors(MusicClearQueue.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicClearQueue} class*/
 
                                     // Skip song
                                     if (skipExecutors.stream().anyMatch(executor -> message.getContentRaw().equalsIgnoreCase(prefix + executor))) {

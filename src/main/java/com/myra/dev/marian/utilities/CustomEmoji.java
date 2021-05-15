@@ -1,7 +1,7 @@
 package com.myra.dev.marian.utilities;
 
 import com.myra.dev.marian.Config;
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import net.dv8tion.jda.api.entities.Emote;
 
 import java.util.Arrays;
@@ -37,19 +37,19 @@ public enum CustomEmoji {
     }
 
     public Emote getAsEmote() {
-        return Myra.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
     }
 
     public String getAsEmoji() {
-        return Myra.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getAsMention();
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getAsMention();
     }
 
     public String getImage() {
-        return Myra.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getImageUrl();
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getImageUrl();
     }
 
     public String getAsReactionEmote() {
-        return "R" + Myra.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
+        return "R" + DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
     }
 
     public static CustomEmoji search(String query) {

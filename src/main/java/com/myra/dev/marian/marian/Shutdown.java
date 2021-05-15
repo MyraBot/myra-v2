@@ -4,13 +4,12 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Config;
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Marian;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +39,7 @@ public class Shutdown implements CommandHandler {
                                     && e.getMessageId().equals(message.getId()))
                     .setAction(e -> {
                         message.clearReactions().queue(); // Clear reactions
-                        Myra.shardManager.setStatus(OnlineStatus.OFFLINE); // Set status to offline
+                        DiscordBot.shardManager.setStatus(OnlineStatus.OFFLINE); // Set status to offline
                         e.getJDA().shutdown(); // Shutdown JDA
                         System.exit(0);  // Shutdown whole program
                     })

@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners;
 
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,7 +13,7 @@ public class Someone {
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.getMessage().getContentRaw().contains("@someone")) return;
 
-        List<Permission> permissions = Myra.COMMAND_SERVICE.getPermission(Administrator.class).getPermissions(); // Get administrator permissions
+        List<Permission> permissions = DiscordBot.COMMAND_SERVICE.getPermission(Administrator.class).getPermissions(); // Get administrator permissions
         if (!event.getMember().getPermissions().containsAll(permissions)) return;
 
         // Get random number

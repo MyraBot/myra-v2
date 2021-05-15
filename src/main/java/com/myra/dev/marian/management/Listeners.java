@@ -1,7 +1,7 @@
 package com.myra.dev.marian.management;
 
 import com.myra.dev.marian.Config;
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.commands.general.Reminder;
 import com.myra.dev.marian.commands.help.InviteThanks;
 import com.myra.dev.marian.commands.moderation.ban.Tempban;
@@ -13,7 +13,7 @@ import com.myra.dev.marian.listeners.*;
 import com.myra.dev.marian.listeners.leveling.LevelingListener;
 import com.myra.dev.marian.listeners.leveling.VoiceCall;
 import com.myra.dev.marian.listeners.notifications.TwitchNotification;
-import com.myra.dev.marian.listeners.notifications.YouTubeNotification;
+import com.myra.dev.marian.listeners.notifications.YoutubeNotification;
 import com.myra.dev.marian.listeners.premium.UnicornChange;
 import com.myra.dev.marian.listeners.welcome.WelcomeListener;
 import com.myra.dev.marian.marian.Roles;
@@ -84,8 +84,8 @@ public class Listeners extends ListenerAdapter {
         final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picture
 
         // Update status
-        final int guilds = Myra.shardManager.getGuilds().size(); // Get amount of guilds
-        Myra.shardManager.setActivity(Activity.listening(String.format("~help │  %s servers", guilds))); // Update server count
+        final int guilds = DiscordBot.shardManager.getGuilds().size(); // Get amount of guilds
+        DiscordBot.shardManager.setActivity(Activity.listening(String.format("~help │  %s servers", guilds))); // Update server count
 
         // Loop
         Utilities.TIMER.scheduleAtFixedRate(this::updateBot, start, 60, TimeUnit.MINUTES);
@@ -93,13 +93,13 @@ public class Listeners extends ListenerAdapter {
 
     private void updateBot() {
         try {
-            final int guilds = Myra.shardManager.getGuilds().size(); // Get amount of guilds
+            final int guilds = DiscordBot.shardManager.getGuilds().size(); // Get amount of guilds
 
             final int random = new Random().nextInt(37 - 1) + 1; // Get random number [min number = 0; max number = 37]
             final String baseUrl = "https://raw.githubusercontent.com/MyraBot/resources/main/profile/"; // Get base url
             final InputStream inputStream = new URL(baseUrl + random + ".png").openStream(); // Get url as input stream
 
-            Myra.shardManager.getShards().forEach(shard -> {
+            DiscordBot.shardManager.getShards().forEach(shard -> {
                 try {
                     shard.getPresence().setActivity(Activity.listening(String.format("~help │  %s servers", guilds))); // Change status|
                     shard.getSelfUser().getManager().setAvatar(Icon.from(inputStream)).queue(); // Change profile picture
@@ -124,10 +124,10 @@ public class Listeners extends ListenerAdapter {
             new Tempmute().onReady(event); // Load mutes
 
             new Twitch().jdaReady(); // Get access token for twitch
-            Spotify.getApi().generateAuthToken();
-            // Start notifications
-            new YouTubeNotification().start(event);// Start twitch notifications
-            new TwitchNotification().jdaReady(event); // Start youtube notifications
+            Spotify.getApi().generateAuthToken(); // Generate Spotify auth token
+
+            YoutubeNotification.renewSubscriptions(); // Renew all subscriptions
+            new TwitchNotification().jdaReady(event); // Start twitch notifications
 
             online(); // Change profile picture and activity
             new UnicornChange().change();

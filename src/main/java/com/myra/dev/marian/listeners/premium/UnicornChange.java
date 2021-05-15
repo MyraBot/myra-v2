@@ -1,6 +1,6 @@
 package com.myra.dev.marian.listeners.premium;
 
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class UnicornChange {
     public void change() {
         Utilities.TIMER.scheduleAtFixedRate(() -> {
-            final Iterator<Guild> iterator = Myra.shardManager.getGuilds().iterator();
+            final Iterator<Guild> iterator = DiscordBot.shardManager.getGuilds().iterator();
             while (iterator.hasNext()) {
                 final Guild guild = iterator.next(); // Get next guild
 

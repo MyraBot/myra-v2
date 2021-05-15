@@ -1,10 +1,13 @@
 package com.myra.dev.marian.management;
 
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.commands.Leaderboard;
 import com.myra.dev.marian.commands.administrator.*;
-import com.myra.dev.marian.commands.administrator.Prefix;
+import com.myra.dev.marian.commands.administrator.leveling.LevelingChannel;
+import com.myra.dev.marian.commands.administrator.leveling.LevelingHelp;
+import com.myra.dev.marian.commands.administrator.leveling.LevelingSet;
 import com.myra.dev.marian.commands.administrator.leveling.LevelingToggle;
+import com.myra.dev.marian.commands.administrator.leveling.levelingRoles.*;
 import com.myra.dev.marian.commands.administrator.notifications.*;
 import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesAdd;
 import com.myra.dev.marian.commands.administrator.reactionRoles.ReactionRolesHelp;
@@ -27,10 +30,6 @@ import com.myra.dev.marian.commands.help.*;
 import com.myra.dev.marian.commands.leveling.Background;
 import com.myra.dev.marian.commands.leveling.Rank;
 import com.myra.dev.marian.commands.leveling.Time;
-import com.myra.dev.marian.commands.administrator.leveling.LevelingChannel;
-import com.myra.dev.marian.commands.administrator.leveling.LevelingHelp;
-import com.myra.dev.marian.commands.administrator.leveling.LevelingSet;
-import com.myra.dev.marian.commands.administrator.leveling.levelingRoles.*;
 import com.myra.dev.marian.commands.moderation.Clear;
 import com.myra.dev.marian.commands.moderation.Kick;
 import com.myra.dev.marian.commands.moderation.ModerationHelp;
@@ -62,13 +61,15 @@ import com.myra.dev.marian.listeners.welcome.welcomeDirectMessage.WelcomeDirectM
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedHelp;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedMessage;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedToggle;
+import com.myra.dev.marian.marian.GetInvite;
+import com.myra.dev.marian.marian.MariansDiscordEmbeds;
+import com.myra.dev.marian.marian.SetGuildPremium;
 import com.myra.dev.marian.marian.Shutdown;
-import com.myra.dev.marian.marian.*;
 
 public class Registration {
     public static void register() {
         // Register commands
-        Myra.COMMAND_SERVICE.registerCommandClasses(
+        DiscordBot.COMMAND_SERVICE.registerCommandClasses(
                 // Marian
                 new SetGuildPremium(),
                 new MariansDiscordEmbeds(),
@@ -78,6 +79,7 @@ public class Registration {
                 new Unicorn(),
                 // Administrator
                 new Prefix(),
+                new Config(),
                 new Say(),
                 new Toggle(),
                 new GlobalChatChannel(),
@@ -177,6 +179,7 @@ public class Registration {
                 new MusicQueue(),
                 new MusicSkip(),
                 new MusicClearQueue(),
+                new MusicFilters(),
                 // Autorole
                 new AutoRole(),
                 // Notification

@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.administrator;
 
 import com.github.m5rian.jdaCommandHandler.*;
-import com.myra.dev.marian.Myra;
+import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.commands.help.Help;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.Nested;
@@ -89,7 +89,7 @@ public class Toggle implements CommandHandler {
         } else command = ctx.getArguments()[0];
 
         // Go throw every command
-        for (Map.Entry<MethodInfo, CommandEvent> entry : Myra.COMMAND_SERVICE.getCommands().entrySet()) {
+        for (Map.Entry<MethodInfo, CommandEvent> entry : DiscordBot.COMMAND_SERVICE.getCommands().entrySet()) {
             // If a alias or name matches the given command
             if (Arrays.stream(entry.getValue().aliases()).anyMatch(command::equalsIgnoreCase) || command.equalsIgnoreCase(entry.getValue().name())) {
                 // Command is a help command
