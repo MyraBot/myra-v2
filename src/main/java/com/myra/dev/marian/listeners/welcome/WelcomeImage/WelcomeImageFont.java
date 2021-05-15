@@ -20,11 +20,10 @@ public class WelcomeImageFont implements CommandHandler {
             "3\uFE0F\u20E3" // 3️⃣
     };
 
-
-@CommandEvent(
-        name = "welcome image font",
-        requires = Administrator.class
-)
+    @CommandEvent(
+            name = "welcome image font",
+            requires = Administrator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
         Utilities utilities = Utilities.getUtils(); // Get utilities
         //change font

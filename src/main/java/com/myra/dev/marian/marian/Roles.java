@@ -4,7 +4,6 @@ import com.myra.dev.marian.Config;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class Roles {
      * @param event The GuildMemberJoinEvent event.
      */
     public void exclusive(GuildMemberJoinEvent event) {
-        final Guild server = event.getJDA().getGuildById(Config.marianServer);
+        final Guild server = event.getJDA().getGuildById(Config.MARIAN_SERVER_ID);
         if (event.getGuild() != server) return;
         // Get exclusive role
         final Role exclusiveRole = server.getRoleById("775646920646983690");

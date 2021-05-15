@@ -21,13 +21,13 @@ public class ServerTracking {
                     server.addField("\uD83D\uDC51 │ owner ", owner.getUser().getAsTag(), true)
                             .addField("\uD83C\uDF9F │ guild id ", event.getGuild().getId(), true)
                             .addField("\uD83E\uDDEE │ member count", Integer.toString(event.getGuild().getMemberCount()), true);
-                    event.getJDA().getGuildById(Config.marianServer).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
+                    event.getJDA().getGuildById(Config.MARIAN_SERVER_ID).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
                 }, error -> {
                     server.addField("\uD83D\uDC51 │ owner ", "unknown", true)
                             .addField("\uD83C\uDF9F │ guild id ", event.getGuild().getId(), true)
                             .addField("\uD83E\uDDEE │ member count", Integer.toString(event.getGuild().getMemberCount()), true);
 
-                    event.getJDA().getGuildById(Config.marianServer).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
+                    event.getJDA().getGuildById(Config.MARIAN_SERVER_ID).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
                 });
     }
 
@@ -43,12 +43,12 @@ public class ServerTracking {
                     server.addField("\uD83D\uDC51 │ owner ", owner.getUser().getAsTag(), true)
                             .addField("\uD83C\uDF9F │ guild id ", event.getGuild().getId(), true)
                             .addField("\uD83E\uDDEE │ member count", Integer.toString(event.getGuild().getMemberCount()), true);
-                    event.getJDA().getGuildById(Config.marianServer).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
+                    event.getJDA().getGuildById(Config.MARIAN_SERVER_ID).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
                 }, error -> {
                     server.addField("\uD83D\uDC51 │ owner ", "unknown", true)
                             .addField("\uD83C\uDF9F │ guild id ", event.getGuild().getId(), true)
                             .addField("\uD83E\uDDEE │ member count", Integer.toString(event.getGuild().getMemberCount()), true);
-                    event.getJDA().getGuildById(Config.marianServer).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
+                    event.getJDA().getGuildById(Config.MARIAN_SERVER_ID).getTextChannelById("788448343927160852").sendMessage(server.build()).queue();
                 });
     }
 }

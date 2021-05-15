@@ -3,7 +3,6 @@ package com.myra.dev.marian.marian;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.myra.dev.marian.Config;
 import com.myra.dev.marian.DiscordBot;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Marian;
@@ -22,8 +21,6 @@ public class Shutdown implements CommandHandler {
             requires = Marian.class
     )
     public void execute(CommandContext ctx) throws Exception {
-        // Access only for Marian
-        if (!ctx.getAuthor().getId().equals(Config.marian)) return;
         EmbedBuilder shutdown = new EmbedBuilder()
                 .setAuthor("shutdown", null, ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.getUtils().blue)

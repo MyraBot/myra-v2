@@ -32,7 +32,7 @@ public class DiscordBot {
     private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
 
     public static final DefaultCommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
-            .setDefaultPrefix(Config.prefix)
+            .setDefaultPrefix(Config.DEFAULT_PREFIX)
             .setVariablePrefix(guild -> new MongoGuild(guild).getString("prefix"))
             .allowMention()
             .build();
@@ -76,7 +76,7 @@ public class DiscordBot {
             try {
                 shardManager = jda.build(); // Start Bot
                 consoleListener(); // Add console listener
-            } catch (LoginException e){
+            } catch (LoginException e) {
                 e.printStackTrace();
             }
         });
@@ -102,7 +102,7 @@ public class DiscordBot {
                     System.out.println("Use " + ConsoleColours.RED + "shutdown" + ConsoleColours.RESET + " to shutdown the program");
                 }
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

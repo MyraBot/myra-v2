@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.help;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
@@ -13,10 +13,10 @@ public class Feature implements CommandHandler {
     private final String webhookUrl = "https://discord.com/api/v6/webhooks/788769270384558120/A_6jJ1gstVcqih6lD8pTIAereQBhTJRn9vtbljqevVQ4uiOXAEXPTWZBh6n99ZJJrwPd";
 
 
-@CommandEvent(
-        name = "feature",
-        aliases = {"submit"}
-)
+    @CommandEvent(
+            name = "feature",
+            aliases = {"submit"}
+    )
     public void execute(final CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length == 0) {
@@ -45,7 +45,7 @@ public class Feature implements CommandHandler {
         report.addEmbed(bug); // Add the JSON embed to webhook
         report.send(); // Send feature submit as a webhook
 
-        ctx.getEvent().getJDA().getGuildById(Config.marianServer).retrieveWebhooks().queue(webhooks -> webhooks.forEach(webhook -> { // Go through every webhook
+        ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).retrieveWebhooks().queue(webhooks -> webhooks.forEach(webhook -> { // Go through every webhook
 
             if (webhook.getUrl().equals(webhookUrl)) { // Webhook is the feature submit webhook
                 final String messageId = webhook.getChannel().getLatestMessageId(); // Get latest message id

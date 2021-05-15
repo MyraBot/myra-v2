@@ -9,23 +9,23 @@ import java.util.Optional;
 
 public enum CustomEmoji {
     // Badges
-    HYPESQUAD_BRAVERY("HypeSquad Bravery", Config.myraServer),
-    HYPESQUAD_BRILLIANCE("HypeSquad Brilliance", Config.myraServer),
-    HYPESQUAD_BALANCE("HypeSquad Balance", Config.myraServer),
-    PARTNER("Partner", Config.myraServer),
-    STAFF("Discord Employee", Config.myraServer),
-    BUG_HUNTER_LEVEL_1("Bug Hunter Level 1", Config.myraServer),
-    BUG_HUNTER_LEVEL_2("Bug Hunter Level 2", Config.myraServer),
+    HYPESQUAD_BRAVERY("HypeSquad Bravery", Config.MYRA_SERVER_ID),
+    HYPESQUAD_BRILLIANCE("HypeSquad Brilliance", Config.MYRA_SERVER_ID),
+    HYPESQUAD_BALANCE("HypeSquad Balance", Config.MYRA_SERVER_ID),
+    PARTNER("Partner", Config.MYRA_SERVER_ID),
+    STAFF("Discord Employee", Config.MYRA_SERVER_ID),
+    BUG_HUNTER_LEVEL_1("Bug Hunter Level 1", Config.MYRA_SERVER_ID),
+    BUG_HUNTER_LEVEL_2("Bug Hunter Level 2", Config.MYRA_SERVER_ID),
 
-    MYRA_STAFF("Myra Staff", Config.myraServer),
-    MYRA_PARTNER("Myra Partner", Config.myraServer),
+    MYRA_STAFF("Myra Staff", Config.MYRA_SERVER_ID),
+    MYRA_PARTNER("Myra Partner", Config.MYRA_SERVER_ID),
     // Ticks
-    GREEN_TICK("Green Tick", Config.myraServer),
-    RED_TICK("Red Tick", Config.myraServer),
+    GREEN_TICK("Green Tick", Config.MYRA_SERVER_ID),
+    RED_TICK("Red Tick", Config.MYRA_SERVER_ID),
     // Other
-    COIN("Coin", Config.myraServer),
-    VOICE("Voice", Config.myraServer),
-    NITRO("Nitro", Config.myraServer),
+    COIN("Coin", Config.MYRA_SERVER_ID),
+    VOICE("Voice", Config.MYRA_SERVER_ID),
+    NITRO("Nitro", Config.MYRA_SERVER_ID),
     UNKNOWN("unknown", "0");
 
     private final String name;

@@ -13,7 +13,7 @@ import java.util.List;
 public class EasterEggs {
     private final String jtxId = "266226790458982412"; // User id from jtx
     private final List<String> sysMembers = new ArrayList<>() {{
-        add(Config.marian); // Marian
+        add(Config.MARIAN_ID); // Marian
         add("317236712440856576"); // Astri
         add("697951389707665418"); // Pokesci
     }};
@@ -41,7 +41,7 @@ public class EasterEggs {
                                 .setContent("np").send(); // Send webhook
                         webhook.delete().queue(); // Delete webhook
                         event.getMessage().delete().queue(); // Delete message
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 });

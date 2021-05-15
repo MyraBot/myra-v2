@@ -19,7 +19,7 @@ public class DiscordBoats {
     public boolean hasVoted(User user) throws IOException {
         // Create request
         final Request request = new Request.Builder()
-                .url("https://discord.boats/api/bot/" + Config.myra + "/voted?id=" + user.getId() + "/")
+                .url("https://discord.boats/api/bot/" + Config.MYRA_ID + "/voted?id=" + user.getId() + "/")
                 .build();
 
         final Response execute = Utilities.HTTP_CLIENT.newCall(request).execute();

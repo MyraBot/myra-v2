@@ -11,6 +11,6 @@ public class Marian implements Permission {
 
     @Override
     public String getUserId() {
-        return Config.marian;
+        return Config.MARIAN_ID;
     }
 }

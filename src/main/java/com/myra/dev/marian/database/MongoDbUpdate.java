@@ -22,7 +22,7 @@ public class MongoDbUpdate {
     public static void update(Runnable runnable) {
         final MongoDb mongoDb = MongoDb.getInstance();
 
-        if (Config.updateGuilds) {
+        if (Config.UPDATE_GUILDS) {
             for (Document guildDocument : mongoDb.getCollection("guilds").find()) {
                 final Document updatedGuildDocument = updateGuild(guildDocument);
                 mongoDb.getCollection("guilds").replaceOne(guildDocument, updatedGuildDocument);
@@ -30,7 +30,7 @@ public class MongoDbUpdate {
         }
 
 
-        if (Config.updateUsers) {
+        if (Config.UPDATE_USERS) {
             final MongoCursor<Document> iterator = mongoDb.getCollection("users").find().iterator();
             final long totalUserDocuments = mongoDb.getCollection("users").countDocuments(); // Get total amount of documents
             int currentUserDocument = 0;

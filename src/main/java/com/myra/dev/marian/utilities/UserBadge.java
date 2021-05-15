@@ -72,9 +72,9 @@ public enum UserBadge {
         }
 
         // User isn't member of my server
-        if (!user.getJDA().getGuildById(Config.marianServer).isMember(user)) return badges;
+        if (!user.getJDA().getGuildById(Config.MARIAN_SERVER_ID).isMember(user)) return badges;
 
-        final Member member = user.getJDA().getGuildById(Config.marianServer).retrieveMemberById(user.getId()).complete();
+        final Member member = user.getJDA().getGuildById(Config.MARIAN_SERVER_ID).retrieveMemberById(user.getId()).complete();
         // User is myra staff
         if (member.getRoles().stream().anyMatch(role -> Config.MYRA_STAFF_ROLE.equals(role.getId())))
             badges.add(UserBadge.MYRA_STAFF);
