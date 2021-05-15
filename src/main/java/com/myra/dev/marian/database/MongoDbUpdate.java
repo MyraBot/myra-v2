@@ -41,7 +41,7 @@ public class MongoDbUpdate {
                 final Document updatedUserDocument = updateUser(userDocument); // Get updates user document
                 mongoDb.getCollection("users").replaceOne(userDocument, updatedUserDocument); // Update document
 
-                long percentage = currentUserDocument * 100 / totalUserDocuments;
+                long percentage = currentUserDocument * 100L / totalUserDocuments;
                 LOGGER.info(percentage + "%     (" + currentUserDocument + "/" + totalUserDocuments + ")");
             }
         }
