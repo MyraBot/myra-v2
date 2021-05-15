@@ -1,7 +1,5 @@
 package com.myra.dev.marian.utilities;
 
-import com.myra.dev.marian.Config;
-import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.MongoDb;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -43,37 +41,6 @@ public class Utilities {
     public final String spotifyClientId = "f19bf0a7cb204c098dbdaaeedf47f842";
     public final String spotifyClientSecret = "d4d48b2e4b474d098fa440a6d01ece42";
     public final String topGgKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcxODQ0NDcwOTQ0NTYzMjEyMiIsImJvdCI6dHJ1ZSwiaWF0IjoxNjA0MzMwMTg3fQ.-zX8YHLdiH9w6pmDceN0fHDjTAJd9FbDiNXM2sftoA4";
-
-    /**
-     * @param name The name of the emote.
-     * @return Returns an emote from Myra's Server.
-     */
-    public static Emote findEmote(String name) {
-        final Guild guild = Myra.shardManager.getGuildById(Config.myraServer);
-
-        if (guild.getEmotesByName(name, true).isEmpty()) return null;
-        return new Emote(guild.getEmotesByName(name, true).get(0));
-    }
-
-    public static class Emote {
-        public final net.dv8tion.jda.api.entities.Emote emote;
-
-        public Emote(net.dv8tion.jda.api.entities.Emote emote) {
-            this.emote = emote;
-        }
-
-        public net.dv8tion.jda.api.entities.Emote getAsEmote() {
-            return this.emote;
-        }
-
-        public String getAsMention() {
-            return this.emote.getAsMention();
-        }
-
-        public String getAsReactionEmote() {
-            return "R" + this.emote;
-        }
-    }
 
     /**
      * Get a clickable message, which redirects you to a link.
@@ -238,8 +205,7 @@ public class Utilities {
         // Member given by id or mention
         if (providedMember.startsWith("<@") || providedMember.matches("\\d+")) {
             member = event.getGuild().retrieveMemberById(providedMember.replaceAll("[<@!>]", "")).complete();
-        }
-        else if (!event.getGuild().getMembersByEffectiveName(providedMember, true).isEmpty()) {
+        } else if (!event.getGuild().getMembersByEffectiveName(providedMember, true).isEmpty()) {
             member = event.getGuild().getMembersByEffectiveName(providedMember, true).get(0);
         }
 
@@ -399,7 +365,7 @@ public class Utilities {
             return document.getLong(key);
         }
         // If voice call time is an integer
-        catch (ClassCastException e){
+        catch (ClassCastException e) {
             return Long.valueOf(document.getInteger(key)); // Parse to long
         }
     }
