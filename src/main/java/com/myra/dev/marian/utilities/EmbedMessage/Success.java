@@ -149,7 +149,9 @@ public class Success {
         channel.sendMessage(embed.build()).queue(msg -> {
             if (!delete) return;
             Utilities.TIMER.schedule(() -> {
-                if (msg != null) msg.delete().queue(); // Delete message if message isn't deleted yet
+                msg.delete().queue(null, (exception) -> {// Delete message
+                    exception.printStackTrace();
+                });
             }, 5, TimeUnit.SECONDS);
         });
     }

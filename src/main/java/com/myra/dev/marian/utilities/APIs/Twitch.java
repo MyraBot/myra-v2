@@ -76,6 +76,7 @@ public class Twitch {
 
         // Error
         if (jsonChannel.has("errors") || !jsonChannel.has("data")) {
+            System.out.println(name);
             System.out.println("Error accrued!!!");
             System.out.println(jsonChannel);
             return null;
