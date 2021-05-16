@@ -9,11 +9,9 @@ public class WebServer {
     public WebServer() {
         port(Config.WEB_SERVER_PORT); // Set port
 
-        /* NOT ACTIVE YET
         // Youtube feed notifications
         post("/youtube", YoutubeHttpHandler::onYoutubePost); // Youtube feed listener
         get("/youtube", YoutubeHttpHandler::onYoutubeGet); // Youtube subscribe verification
-         */
-    }
+        }
 
 }
