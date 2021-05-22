@@ -13,6 +13,6 @@ public class Administrator implements com.github.m5rian.jdaCommandHandler.Permis
 
     @Override
     public List<Permission> getPermissions() {
-        return Collections.singletonList(Permission.ADMINISTRATOR);
+        return Collections.singletonList(Permission.MANAGE_SERVER);
     }
 }
