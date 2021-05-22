@@ -1,5 +1,6 @@
 package com.myra.dev.marian.utilities;
 
+import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -93,5 +94,15 @@ public class Format {
         public void subtract(long amount) {
             this.duration -= amount;
         }
+    }
+
+    /**
+     * Add '.' separators to show the number more nicely.
+     *
+     * @param number The number to format.
+     * @return Returns the formatted number as a String.
+     */
+    public static String number(int number) {
+        return NumberFormat.getInstance().format(number);
     }
 }

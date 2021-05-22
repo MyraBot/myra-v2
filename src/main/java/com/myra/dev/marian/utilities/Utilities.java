@@ -1,6 +1,8 @@
 package com.myra.dev.marian.utilities;
 
+import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.myra.dev.marian.database.MongoDb;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -11,35 +13,32 @@ import okhttp3.OkHttpClient;
 import org.bson.Document;
 import org.json.JSONObject;
 
-import java.text.NumberFormat;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Utilities {
-    public final static ScheduledExecutorService TIMER = Executors.newScheduledThreadPool(5);
-    public final static OkHttpClient HTTP_CLIENT = new OkHttpClient();
-    private final static Utilities getUtils = new Utilities();
-
-    public static Utilities getUtils() {
-        return getUtils;
-    }
+    public static final ScheduledExecutorService TIMER = Executors.newScheduledThreadPool(5);
+    public static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
 
     //colours
-    public final int red = 0xC16B65;
-    public final int blue = 0x7AC8F2;
-    public final int gray = 0x282c34;
+    public static final int red = 0xC16B65;
+    public static final int blue = 0x7AC8F2;
+    public static final int gray = 0x282c34;
     //keys
-    public final static String URL_PATTERN = "/^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?/";
-    public final String twitchClientId = "2ns4hcj4kkd6vj3armlievqsw8znd3";
-    public final String twitchClientSecret = "kbvqhnosdqrezqhy8zuly9hapzeapn";
-    public final String giphyKey = "nV9Hhe5WbaVli6jg8Nlo2VcIB1kq5Ekq";
-    public final String HypixelKey = "6cb5b7e7-66ab-477d-9d18-4f029e676d37";
-    public final String spotifyClientId = "f19bf0a7cb204c098dbdaaeedf47f842";
-    public final String spotifyClientSecret = "d4d48b2e4b474d098fa440a6d01ece42";
-    public final String topGgKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcxODQ0NDcwOTQ0NTYzMjEyMiIsImJvdCI6dHJ1ZSwiaWF0IjoxNjA0MzMwMTg3fQ.-zX8YHLdiH9w6pmDceN0fHDjTAJd9FbDiNXM2sftoA4";
+    public static final String URL_PATTERN = "/^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?/";
+    public static final String twitchClientId = "2ns4hcj4kkd6vj3armlievqsw8znd3";
+    public static final String twitchClientSecret = "kbvqhnosdqrezqhy8zuly9hapzeapn";
+    public static final String giphyKey = "nV9Hhe5WbaVli6jg8Nlo2VcIB1kq5Ekq";
+    public static final String HypixelKey = "6cb5b7e7-66ab-477d-9d18-4f029e676d37";
+    public static final String spotifyClientId = "f19bf0a7cb204c098dbdaaeedf47f842";
+    public static final String spotifyClientSecret = "d4d48b2e4b474d098fa440a6d01ece42";
+    public static final String topGgKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcxODQ0NDcwOTQ0NTYzMjEyMiIsImJvdCI6dHJ1ZSwiaWF0IjoxNjA0MzMwMTg3fQ.-zX8YHLdiH9w6pmDceN0fHDjTAJd9FbDiNXM2sftoA4";
 
     /**
      * Get a clickable message, which redirects you to a link.
@@ -48,7 +47,7 @@ public class Utilities {
      * @param link    The link if you click on the message.
      * @return Returns a hyperlink as a String.
      */
-    public String hyperlink(String message, String link) {
+    public static String hyperlink(String message, String link) {
         return "[" + message + "](" + link + ")";
     }
 
@@ -58,7 +57,7 @@ public class Utilities {
      * @param array The array, which should be put together.
      * @return Returns the Strings of the array as one String.
      */
-    public String getString(String[] array) {
+    public static String getString(String[] array) {
         StringBuilder string = new StringBuilder();
         for (String s : array) {
             string.append(s).append(" ");
@@ -74,7 +73,7 @@ public class Utilities {
      * @param providedInformation The String with all information.
      * @return Returns a String List, which contains the given duration, the duration in milliseconds and the Time Unit.
      */
-    public JSONObject getDuration(String providedInformation) {
+    public static JSONObject getDuration(String providedInformation) {
         //get time unit
         TimeUnit timeUnit = null;
         switch (providedInformation.replaceAll("\\d+", "")) {
@@ -113,22 +112,12 @@ public class Utilities {
     }
 
     /**
-     * Add '.' separators to show the number more nicely.
-     *
-     * @param number The number to format.
-     * @return Returns the formatted number as a String.
-     */
-    public String formatNumber(int number) {
-        return NumberFormat.getInstance().format(number);
-    }
-
-    /**
      * Generate a new invite link for the bot.
      *
      * @param jda The bot.
      * @return Returns a bot invite.
      */
-    public String inviteJda(JDA jda) {
+    public static String inviteJda(JDA jda) {
         return jda.getInviteUrl(
                 Permission.CREATE_INSTANT_INVITE,
                 Permission.KICK_MEMBERS,
@@ -175,15 +164,15 @@ public class Utilities {
         );
     }
 
-    public String marianUrl() {
+    public static String marianUrl() {
         return "https://discord.com/users/639544573114187797";
     }
 
     //error message
-    public void error(MessageChannel textChannel, String command, String commandEmoji, String errorHeader, String error, String authorAvatar) {
+    public static void error(MessageChannel textChannel, String command, String commandEmoji, String errorHeader, String error, String authorAvatar) {
         textChannel.sendMessage(new EmbedBuilder()
                 .setAuthor(command, null, authorAvatar)
-                .setColor(Utilities.getUtils().red)
+                .setColor(Utilities.red)
                 .addField("\uD83D\uDEA7 │ " + errorHeader, error, false)
                 .build())
                 .queue();
@@ -198,7 +187,7 @@ public class Utilities {
      * @param commandEmoji   The emoji of the command
      * @return
      */
-    public Member getMember(MessageReceivedEvent event, String providedMember, String command, String commandEmoji) {
+    public static Member getMember(MessageReceivedEvent event, String providedMember, String command, String commandEmoji) {
         Member member = null;
 
         // Member given by id or mention
@@ -225,7 +214,7 @@ public class Utilities {
      * @param commandEmoji The Emoji of the command.
      * @return Returns the user as a User object.
      */
-    public User getUser(MessageReceivedEvent event, String providedUser, String command, String commandEmoji) {
+    public static User getUser(MessageReceivedEvent event, String providedUser, String command, String commandEmoji) {
         User user;
         final JDA jda = event.getJDA();
 
@@ -254,7 +243,7 @@ public class Utilities {
      * @param commandEmoji The Emoji of the command.
      * @return Returns the user as a User object.
      */
-    public Member getModifiedMember(MessageReceivedEvent event, String providedUser, String command, String commandEmoji) {
+    public static Member getModifiedMember(MessageReceivedEvent event, String providedUser, String command, String commandEmoji) {
         Member member;
 
         // Role given by id or mention
@@ -300,7 +289,7 @@ public class Utilities {
      * @param commandEmoji    The command emoji.
      * @return Returns a channel as a TextChannel Object.
      */
-    public TextChannel getTextChannel(MessageReceivedEvent event, String providedChannel, String command, String commandEmoji) {
+    public static TextChannel getTextChannel(MessageReceivedEvent event, String providedChannel, String command, String commandEmoji) {
         TextChannel channel;
 
         // Role given by id or mention
@@ -334,7 +323,7 @@ public class Utilities {
      * @param commandEmoji The command Emoji.
      * @return Returns a role as a Role Object.
      */
-    public Role getRole(MessageReceivedEvent event, String providedRole, String command, String commandEmoji) {
+    public static Role getRole(MessageReceivedEvent event, String providedRole, String command, String commandEmoji) {
         Role role = null;
 
         // Role given by id or mention
@@ -386,6 +375,45 @@ public class Utilities {
     public static long getUserCount(JDA jda) {
         final Document stats = new MongoDb().getCollection("config").find(eq("document", "stats")).first(); // Get stats document
         return getBsonLong(stats, "users"); // Returns user count as long
+    }
+
+    public static boolean isValidURL(String url) {
+        try {
+            new URL(url);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasMusicError(CommandContext ctx) {
+        // Prepare error message
+        final Error error = new Error(ctx.getEvent())
+                .setCommand("leave")
+                .setEmoji("\uD83D\uDCE4");
+
+        // Author isn't in a voice channel yet
+        if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
+            error.setMessage(lang(ctx).get("command.music.error.memberNotInVoiceChannel")).send();
+            return true;
+        }
+        // Bot not connected to a voice channel
+        if (!ctx.getGuild().getAudioManager().isConnected()) {
+            error.setMessage(lang(ctx).get("command.music.error.notConnected")).send();
+            return true;
+        }
+        // Author isn't in the same voice channel as bot
+        if (!ctx.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(ctx.getEvent().getMember())) {
+            ctx.getGuild().getAudioManager().getConnectedChannel().createInvite().timeout(15, TimeUnit.MINUTES).queue(invite -> {
+                error.setMessage(lang(ctx).get("command.music.error.alreadyConnected")
+                        .replace("{$channel}", invite.getChannel().getName()) // Channel name
+                        .replace("{$invite}", invite.getUrl())) // Invite url
+                        .send();
+            });
+            return true;
+        }
+
+        return false; // No errors
     }
 
 }
