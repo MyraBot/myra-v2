@@ -12,13 +12,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class Graphic {
-    private static final Graphic GRAPHIC = new Graphic();
-
-    public static Graphic getInstance() {
-        return GRAPHIC;
-    }
-
-
     /**
      * Enable anti aliasing.
      *
