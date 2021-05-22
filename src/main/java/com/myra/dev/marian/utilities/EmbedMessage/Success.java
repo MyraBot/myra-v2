@@ -3,9 +3,12 @@ package com.myra.dev.marian.utilities.EmbedMessage;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Success {
@@ -21,9 +24,11 @@ public class Success {
     private String hyperLink = null;
     private int colour;
     private String message;
+    private final List<MessageEmbed.Field> fields = new ArrayList<>();
     private String thumbnail;
     private String image;
     private String footer;
+    private String footerImage;
     private boolean timestamp;
     private MessageChannel channel;
     private boolean delete;
@@ -53,6 +58,16 @@ public class Success {
         return this;
     }
 
+    public Success addInlineField(String field1, String field2) {
+        fields.add(new MessageEmbed.Field(field1, field2, true));
+        return this;
+    }
+
+    public Success addField(String field1, String field2) {
+        fields.add(new MessageEmbed.Field(field1, field2, false));
+        return this;
+    }
+
     public Success setMessage(String message) {
         this.message = message;
         return this;
@@ -78,6 +93,12 @@ public class Success {
         return this;
     }
 
+    public Success setFooter(String footer, String image) {
+        this.footer = footer;
+        this.footerImage = image;
+        return this;
+    }
+
     public Success addTimestamp() {
         this.timestamp = true;
         return this;
@@ -99,7 +120,7 @@ public class Success {
         if (this.message == null) throw new IllegalArgumentException("You need to set a message");
 
         int colour;
-        if (this.colour == 0) colour = Utilities.getUtils().blue;
+        if (this.colour == 0) colour = Utilities.blue;
         else colour = this.colour;
 
         String avatar;
@@ -113,7 +134,8 @@ public class Success {
 
         if (this.thumbnail != null) embed.setThumbnail(this.thumbnail);
         if (this.image != null) embed.setImage(this.image);
-        if (this.footer != null) embed.setFooter(this.footer);
+        if (!this.fields.isEmpty()) fields.forEach(embed::addField);
+        if (this.footer != null) embed.setFooter(this.footer, this.footerImage);
         if (this.timestamp) embed.setTimestamp(Instant.now());
 
         return embed;
@@ -122,10 +144,9 @@ public class Success {
     public void send() {
         // Exceptions
         if (this.command == null) throw new IllegalArgumentException("You need to set a command");
-        if (this.message == null) throw new IllegalArgumentException("You need to set a message");
 
         int colour;
-        if (this.colour == 0) colour = Utilities.getUtils().blue;
+        if (this.colour == 0) colour = Utilities.blue;
         else colour = this.colour;
 
         String avatar;
@@ -139,7 +160,8 @@ public class Success {
 
         if (this.thumbnail != null) embed.setThumbnail(this.thumbnail);
         if (this.image != null) embed.setImage(this.image);
-        if (this.footer != null) embed.setFooter(this.footer);
+        if (!this.fields.isEmpty()) fields.forEach(embed::addField);
+        if (this.footer != null) embed.setFooter(this.footer, this.footerImage);
         if (this.timestamp) embed.setTimestamp(Instant.now());
 
         MessageChannel channel;
