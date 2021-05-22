@@ -81,7 +81,7 @@ public class MongoDocuments {
         //welcome
         Document welcome = new Document()
                 .append("welcomeChannel", "not set")
-                .append("welcomeColour", String.format("0x%06X", (0xFFFFFF & Utilities.getUtils().blue)))
+                .append("welcomeColour", Utilities.blue)
                 .append("welcomeImageBackground", "not set")
                 .append("welcomeImageFont", "default")
                 .append("welcomeEmbedMessage", "Welcome {user} to {server}! Enjoy your stay")
