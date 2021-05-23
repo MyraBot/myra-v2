@@ -7,6 +7,7 @@ import com.myra.dev.marian.utilities.APIs.Twitch;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -99,7 +100,11 @@ public class TwitchNotification {
                                 .setThumbnail(thumbnail)
                                 .setImage(preview)
                                 .setTimestamp(date.toInstant());
-                        channel.sendMessage(notification.build()).queue(); // Send stream notification
+                        // Bot has access to channel
+                        if (guild.getSelfMember().hasPermission(channel, Permission.VIEW_CHANNEL)) {
+                            channel.sendMessage(notification.build()).queue(); // Send notification
+                        }
+
                     }
                 }
 
