@@ -13,7 +13,6 @@ import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
-import static com.myra.dev.marian.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -21,6 +20,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Buy implements CommandHandler {
 
@@ -43,15 +44,15 @@ public class Buy implements CommandHandler {
                 // Role is invalid
                 if (ctx.getGuild().getRoleById(role.getId()) == null) {
                     ShopRolesManager.getInstance().removeRole(ctx.getGuild(), role.getId()); // Remove role
-                    continue;
                 }
                 // Role is valid
                 else {
                     shop.appendMessage("• " + ctx.getGuild().getRoleById(role.getId()).getAsMention() + " - " + Format.number(role.getPrice()) + "\n"); // Add role to shop message
                 }
             }
-            shop.appendMessage("\n").appendMessage(lang(ctx).get("command.economy.buy.usage")); // Add buy usage
-            shop.send(); // Send shop overview
+            shop.appendMessage("\n").appendMessage(lang(ctx).get("command.economy.buy.usage") // Add buy usage
+                    .replace("{$prefix}", ctx.getPrefix()))
+                    .send(); // Send shop overview
             return;
         }
 
@@ -169,7 +170,8 @@ public class Buy implements CommandHandler {
             EmbedBuilder success = new EmbedBuilder()
                     .setAuthor("buy", null, ctx.getAuthor().getEffectiveAvatarUrl())
                     .setColor(Utilities.blue)
-                    .setDescription(lang(ctx).get("command.economy.buy.message.bought"));
+                    .setDescription(lang(ctx).get("command.economy.buy.message.bought")
+                            .replace("{$role}", role.getAsMention()));
             ctx.getChannel().sendMessage(success.build()).queue();
         }
     }
