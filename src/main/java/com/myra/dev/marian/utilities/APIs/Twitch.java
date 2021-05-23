@@ -21,8 +21,8 @@ public class Twitch {
         //form parameters
         RequestBody body = new FormBody.Builder()
                 .add("scope", "channel_read")
-                .add("client_id", Utilities.getUtils().twitchClientId)
-                .add("client_secret", Utilities.getUtils().twitchClientSecret)
+                .add("client_id", Utilities.twitchClientId)
+                .add("client_secret", Utilities.twitchClientSecret)
                 .add("grant_type", "client_credentials")
                 .build();
         //build request
@@ -44,7 +44,7 @@ public class Twitch {
     public String getGame(String gameId) throws IOException {
         //search channel request
         Request game = new Request.Builder()
-                .addHeader("client-id", Utilities.getUtils().twitchClientId)
+                .addHeader("client-id", Utilities.twitchClientId)
                 .addHeader("Authorization", "Bearer " + Twitch.accessToken)
                 .url("https://api.twitch.tv/helix/games?id=" + gameId)
                 .build();
@@ -62,7 +62,7 @@ public class Twitch {
     public JSONObject getChannel(String name) throws Exception {
         //search channel request
         Request channel = new Request.Builder()
-                .addHeader("client-id", Utilities.getUtils().twitchClientId)
+                .addHeader("client-id", Utilities.twitchClientId)
                 .addHeader("Authorization", "Bearer " + Twitch.accessToken)
                 .url("https://api.twitch.tv/helix/users?login=" + name.toLowerCase())
                 .build();
@@ -96,7 +96,7 @@ public class Twitch {
     public JSONObject getStream(String channelName) throws IOException {
         // Create channel http get request
         Request channel = new Request.Builder()
-                .addHeader("client-id", Utilities.getUtils().twitchClientId)
+                .addHeader("client-id", Utilities.twitchClientId)
                 .addHeader("Authorization", "Bearer " + accessToken)
                 .url(String.format("https://api.twitch.tv/helix/streams?user_login=%s&first=1", channelName))
                 .build();

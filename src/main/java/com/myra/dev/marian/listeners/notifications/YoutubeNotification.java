@@ -20,8 +20,8 @@ public class YoutubeNotification {
     public static void onVideoUpload(YoutubeChannel channel, YoutubeVideo video) {
         final EmbedBuilder notification = new EmbedBuilder()
                 .setAuthor(channel.getName(), "https://www.youtube.com/channel/" + channel.getId())
-                .setColor(Utilities.getUtils().blue)
-                .setDescription(Utilities.getUtils().hyperlink(video.getTitle(), "https://www.youtube.com/watch?v=" + video.getId()))
+                .setColor(Utilities.blue)
+                .setDescription(Utilities.hyperlink(video.getTitle(), "https://www.youtube.com/watch?v=" + video.getId()))
                 .setImage(video.getThumbnail())
                 .setTimestamp(video.getUploadTime());
 

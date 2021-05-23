@@ -10,7 +10,7 @@ import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
-import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -38,7 +38,8 @@ public class BlackJack implements CommandHandler {
                     .addUsages(new Usage()
                             .setUsage("blackjack <bet>")
                             .setEmoji("\uD83C\uDCCF")
-                            .setDescription("Play blackjack against " + ctx.getEvent().getJDA().getSelfUser().getName()))
+                            .setDescription(lang(ctx).get("description.economy.blackjack")
+                                    .replace("{$myra}", ctx.getEvent().getJDA().getSelfUser().getName())))
                     .send();
             return;
         }
@@ -57,7 +58,8 @@ public class BlackJack implements CommandHandler {
                                                 .setCommand("blackjack")
                                                 .setEmoji("\uD83C\uDCCF")
                                                 .setLink(success.getJumpUrl())
-                                                .setMessage(String.format("Finish the %s you started first", Utilities.getUtils().hyperlink("game", success.getJumpUrl())))
+                                                .setMessage(lang(ctx).get("command.economy.blackjack.error.gameIsRunning")
+                                                        .replace("{$gameJumpUrl}", success.getJumpUrl())) // Current game
                                                 .send();
                                     },
                                     error -> {
@@ -65,7 +67,7 @@ public class BlackJack implements CommandHandler {
                                         new Error(ctx.getEvent())
                                                 .setCommand("blackjack")
                                                 .setEmoji("\uD83C\uDCCF")
-                                                .setMessage("Ur cheaty... You kinda hacked the system, but all fine. I'll cancel your current running game")
+                                                .setMessage(lang(ctx).get("command.economy.blackjack.error.messageRetrieveFailed"))
                                                 .send();
                                     }
                             );
@@ -81,7 +83,7 @@ public class BlackJack implements CommandHandler {
             new Error(ctx.getEvent())
                     .setCommand("blackjack")
                     .setEmoji("\uD83C\uDCCF")
-                    .setMessage("Invalid number")
+                    .setMessage(lang(ctx).get("error.invalid"))
                     .send();
             return;
         }
@@ -103,7 +105,7 @@ public class BlackJack implements CommandHandler {
             new Error(ctx.getEvent())
                     .setCommand("blackjack")
                     .setEmoji("\uD83C\uDCCF")
-                    .setMessage("You don't have enough money")
+                    .setMessage(lang(ctx).get("error.lessMoney"))
                     .send();
             return;
         }
@@ -129,7 +131,7 @@ public class BlackJack implements CommandHandler {
             final MessageEmbed embed = message.getEmbeds().get(0); // Get send embed
 
             // Game continues
-            if (embed.getFooter().getText().equals("Hit or stay?")) {
+            if (embed.getFooter().getText().equals(lang(ctx).get("command.economy.blackjack.message.actionQuestion"))) {
                 // Add reactions
                 message.addReaction("\u23CF").queue(); // Hit
                 message.addReaction("\u23F8").queue(); // Stay
@@ -180,7 +182,7 @@ public class BlackJack implements CommandHandler {
                                 final MessageEmbed embed = updateMessage.getEmbeds().get(0); // Get embed
 
                                 // gamed continues
-                                if (embed.getFooter().getText().equals("Hit or stay?")) {
+                                if (embed.getFooter().getText().equals(lang(ctx).get("command.economy.blackjack.message.actionQuestion"))) {
                                     e.getReaction().removeReaction(e.getUser()).queue(); // Remove reaction
                                     waitForReaction(message, ctx);
                                 }
@@ -206,33 +208,36 @@ public class BlackJack implements CommandHandler {
                             // Return credits
                             // Player and dealer have the same value and they aren't over 21
                             if (playerValue == dealerValue && playerValue <= 21) {
-                                footer = "Returned " + game.getBetMoney(); // Set footer
+                                footer = lang(ctx).get("command.economy.blackjack.message.tie") // Set footer
+                                        .replace("{$amount}", String.valueOf(game.getBetMoney()));
                             }
                             // Won
                             // Player has higher value than dealer and player's value is not more than 21
                             else if (playerValue > dealerValue && playerValue <= 21) {
-                                footer = "You won +" + game.getBetMoney() * 2 + "!"; // Set footer
+                                footer = lang(ctx).get("command.economy.blackjack.message.win") // Set footer
+                                        .replace("{$amount}", String.valueOf(game.getBetMoney() * 2)); // Amount of won money
                                 dbMember.setBalance(dbMember.getBalance() + game.getBetMoney()); // Add money
                             }
                             // Dealer's value is more than 21
                             else if (dealerValue > 21) {
-                                footer = "You won +" + game.getBetMoney() * 2 + "!"; // Set footer
+                                footer = lang(ctx).get("command.economy.blackjack.message.win") // Set footer
+                                        .replace("{$amount}", String.valueOf(game.getBetMoney() * 2)); // Amount of won money
                                 dbMember.setBalance(dbMember.getBalance() + game.getBetMoney()); // Add money
                             }
                             // Lost
                             // Dealer has higher value than player and dealer's value is not more than 21
                             else if (dealerValue > player.getValue() && dealerValue <= 21) {
-                                footer = "The dealer won!"; // Set footer
+                                footer = lang(ctx).get("command.economy.blackjack.message.loose"); // Set footer
                                 dbMember.setBalance(dbMember.getBalance() - game.getBetMoney()); // Remove money
                             }
                             // If dealer and player have the same value
                             else if (playerValue == dealerValue) {
-                                footer = "The dealer won!"; // Set footer
+                                footer = lang(ctx).get("command.economy.blackjack.message.loose"); // Set footer
                                 dbMember.setBalance(dbMember.getBalance() - game.getBetMoney()); // Remove money
                             }
                             // Player's value is more than 21
                             else if (playerValue > 21 && dealerValue <= 21) {
-                                footer = "The dealer won!"; // Set footer
+                                footer = lang(ctx).get("command.economy.blackjack.message.loose"); // Set footer
                                 dbMember.setBalance(dbMember.getBalance() - game.getBetMoney()); // Remove money
                             }
                             // Create match message
@@ -240,9 +245,15 @@ public class BlackJack implements CommandHandler {
                                     .setAuthor("blackjack", null, player.getPlayer().getUser().getEffectiveAvatarUrl())
                                     .setColor(e.getMember().getColor())
                                     // Player cards
-                                    .addField("Your cards: " + playerValue, getPlayerCards(player, e.getJDA()), false)
+                                    .addField(lang(ctx).get("command.economy.blackjack.message.player")
+                                                    .replace("{$cardsValue}", String.valueOf(playerValue)), // Player cards value
+                                            getPlayerCards(player, e.getJDA()), // Display player cards as custom emojis
+                                            false)
                                     // Dealer cards
-                                    .addField("Dealer cards: " + dealerValue, getDealerCards(dealer, e.getJDA(), true), false)
+                                    .addField(lang(ctx).get("command.economy.blackjack.message.dealer")
+                                                    .replace("{$cardsValue}", String.valueOf(dealerValue)), // Dealer cards value
+                                            getPlayerCards(dealer, e.getJDA()), // Display dealer cards as custom emojis
+                                            false)
                                     .setFooter(footer);
                             // Update message
                             e.getChannel().editMessageById(e.getMessageId(), match.build()).queue();
@@ -342,8 +353,7 @@ public class BlackJack implements CommandHandler {
         for (Card dealerCard : dealer.getCards()) {
             if (dealer.getCards().get(0).equals(dealerCard) && !showsAll) {
                 dealerCards += jda.getGuildById("776389239293607956").getEmotesByName("CardBlank", true).get(0).getAsMention() + " ";
-            }
-            else
+            } else
                 dealerCards += dealerCard.getEmote(jda) + " ";
 
         }

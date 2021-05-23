@@ -4,16 +4,87 @@ package com.myra.dev.marian.commands.fun;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.concurrent.TimeUnit;
 
 public class TextFormatter implements CommandHandler {
-    //old german
+    private final String[] emojis = {
+            "\uD83C\uDDE9\uD83C\uDDEA", // 🇩🇪
+            "\uD83D\uDD8B", // 🖋
+            "\uD83C\uDF39" // 🌹
+    };
+
+    @CommandEvent(
+            name = "format",
+            aliases = {"font"}
+    )
+    public void execute(CommandContext ctx) throws Exception {
+        // Command usage
+        if (ctx.getArguments().length == 0) {
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("format")
+                    .addUsages(new Usage()
+                            .setUsage("format <text>")
+                            .setEmoji("\uD83D\uDDDA")
+                            .setDescription(lang(ctx).get("description.fun.format")))
+                    .send();
+        }
+
+        // Format options
+        EmbedBuilder selection = new EmbedBuilder()
+                .setAuthor("format", null, ctx.getAuthor().getEffectiveAvatarUrl())
+                .setColor(Utilities.blue)
+                .addField("\uD83D\uDDDA │ " + lang(ctx).get("command.fun.format.message.options"),
+                        oldGerman(emojis[0] + " │ Lorem ipsum dolor sit amet.") +
+                                "\n" + handwritten(emojis[1] + " │ Lorem ipsum dolor sit amet.") +
+                                "\n" + aesthetic(emojis[2] + " │ Lorem ipsum dolor sit amet."),
+                        false);
+        ctx.getChannel().sendMessage(selection.build()).queue(message -> { // Send selection message
+            // Add reactions
+            message.addReaction(emojis[0]).queue();
+            message.addReaction(emojis[1]).queue();
+            message.addReaction(emojis[2]).queue();
+
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e -> !e.getUser().isBot()
+                            && e.getUser().getIdLong() == ctx.getAuthor().getIdLong()
+                            && e.getMessageId().equals(message.getId()))
+                    .setAction(e -> {
+                        final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
+                        final String rawText = ctx.getArgumentsRaw(); // Get text to format
+                        // Format message embed
+                        EmbedBuilder formatted = new EmbedBuilder()
+                                .setAuthor("format", null, e.getUser().getEffectiveAvatarUrl())
+                                .setColor(Utilities.blue);
+
+                        // Format old german font
+                        if (reaction.equals(emojis[0]))
+                            formatted.setDescription(oldGerman(rawText.replace("\\", "\\\\")));
+                        // Format handwritten font
+                        if (reaction.equals(emojis[1]))
+                            formatted.setDescription(handwritten(rawText.replace("\\", "\\\\")));
+                        // Format aesthetic font
+                        if (reaction.equals(emojis[2]))
+                            formatted.setDescription(aesthetic(rawText.replace("\\", "\\\\")));
+
+                        message.editMessage(formatted.build()).queue(); // Edit message
+                        message.clearReactions().queue(); // Clear reactions
+                    })
+                    .setTimeout(30L, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> message.clearReactions().queue())
+                    .load();
+        });
+    }
+
+    // Old german
     private String oldGerman(String text) {
-        text = text
+        return text
                 .replace("A", "\uD835\uDD04").replace("a", "\uD835\uDD1E")
                 .replace("B", "\uD835\uDD05").replace("b", "\uD835\uDD1F")
                 .replace("C", "\u212D").replace("c", "\uD835\uDD20")
@@ -22,7 +93,7 @@ public class TextFormatter implements CommandHandler {
                 .replace("F", "\uD835\uDD09").replace("f", "\uD835\uDD23")
                 .replace("G", "\uD835\uDD0A").replace("g", "\uD835\uDD24")
                 .replace("H", "\u210C").replace("h", "\uD835\uDD8D")
-                .replace("I", "ℑ").replace("i", "\uD835\uDD8E")
+                .replace("I", "\u2111").replace("i", "\uD835\uDD8E")
                 .replace("J", "\uD835\uDD0D").replace("j", "\uD835\uDD8F")
                 .replace("K", "\uD835\uDD0E").replace("k", "\uD835\uDD28")
                 .replace("L", "\uD835\uDD0F").replace("l", "\uD835\uDD29")
@@ -31,7 +102,7 @@ public class TextFormatter implements CommandHandler {
                 .replace("O", "\uD835\uDD12").replace("o", "\uD835\uDD2C")
                 .replace("P", "\uD835\uDD13").replace("p", "\uD835\uDD2D")
                 .replace("Q", "\uD835\uDD14").replace("q", "\uD835\uDD2E")
-                .replace("R", "ℜ").replace("r", "\uD835\uDD2F")
+                .replace("R", "\u211C").replace("r", "\uD835\uDD2F")
                 .replace("S", "\uD835\uDD16").replace("s", "\uD835\uDD30")
                 .replace("T", "\uD835\uDD17").replace("t", "\uD835\uDD31")
                 .replace("U", "\uD835\uDD18").replace("u", "\uD835\uDD32")
@@ -39,13 +110,12 @@ public class TextFormatter implements CommandHandler {
                 .replace("W", "\uD835\uDD1A").replace("w", "\uD835\uDD34")
                 .replace("X", "\uD835\uDD1B").replace("x", "\uD835\uDD35")
                 .replace("Y", "\uD835\uDD1C").replace("y", "\uD835\uDD36")
-                .replace("Z", "ℨ").replace("z", "\uD835\uDD37");
-        return text;
+                .replace("Z", "\u2128").replace("z", "\uD835\uDD37");
     }
 
-    //handwritten
+    // Handwritten
     private String handwritten(String text) {
-        text = text
+        return text
                 .replace("A", "\uD835\uDC9C").replace("a", "\uD835\uDCB6")
                 .replace("B", "\uD835\uDC35").replace("b", "\uD835\uDCB7")
                 .replace("C", "\uD835\uDC9E").replace("c", "\uD835\uDCB8")
@@ -72,12 +142,11 @@ public class TextFormatter implements CommandHandler {
                 .replace("X", "\uD835\uDCB3").replace("x", "\uD835\uDCCD")
                 .replace("Y", "\uD835\uDCB4").replace("y", "\uD835\uDCCE")
                 .replace("Z", "\uD835\uDCB5").replace("z", "\uD835\uDCCF");
-        return text;
     }
 
-    //aesthetic
+    // Aesthetic
     private String aesthetic(String text) {
-        text = text
+        return text
                 .replace("A", "\uD835\uDD38").replace("a", "\uD835\uDD52")
                 .replace("B", "\uD835\uDD39").replace("b", "\uD835\uDD53")
                 .replace("C", "\u2102").replace("c", "\uD835\uDD54")
@@ -91,11 +160,11 @@ public class TextFormatter implements CommandHandler {
                 .replace("K", "\uD835\uDD42").replace("k", "\uD835\uDD5C")
                 .replace("L", "\uD835\uDD43").replace("l", "\uD835\uDD5D")
                 .replace("M", "\uD835\uDD44").replace("m", "\uD835\uDD5E")
-                .replace("N", "ℕ").replace("n", "\uD835\uDD5F")
+                .replace("N", "\u2115").replace("n", "\uD835\uDD5F")
                 .replace("O", "\uD835\uDD46").replace("o", "\uD835\uDD60")
-                .replace("P", "ℙ").replace("p", "\uD835\uDD61")
-                .replace("Q", "ℚ").replace("q", "\uD835\uDD62")
-                .replace("R", "ℝ").replace("r", "\uD835\uDD63")
+                .replace("P", "\u2119").replace("p", "\uD835\uDD61")
+                .replace("Q", "\u211A").replace("q", "\uD835\uDD62")
+                .replace("R", "\u211D").replace("r", "\uD835\uDD63")
                 .replace("S", "\uD835\uDD4A").replace("s", "\uD835\uDD64")
                 .replace("T", "\uD835\uDD4B").replace("t", "\uD835\uDD65")
                 .replace("U", "\uD835\uDD4C").replace("u", "\uD835\uDD66")
@@ -103,89 +172,18 @@ public class TextFormatter implements CommandHandler {
                 .replace("W", "\uD835\uDD4E").replace("w", "\uD835\uDD68")
                 .replace("X", "\uD835\uDD4F").replace("x", "\uD835\uDD69")
                 .replace("Y", "\uD835\uDD50").replace("y", "\uD835\uDD6A")
-                .replace("Z", "ℤ").replace("z", "\uD835\uDD6B");
-        return text;
+                .replace("Z", "\u2124").replace("z", "\uD835\uDD6B");
     }
 
-    private final String[] emojis = {
-            "\uD83C\uDDE9\uD83C\uDDEA", // 🇩🇪
-            "\uD83D\uDD8B", // 🖋
-            "\uD83C\uDF39" // 🌹
-    };
-
-
-    @CommandEvent(
-            name = "format",
-            aliases = {"font"}
-    )
-    public void execute(CommandContext ctx) throws Exception {
-        // Command usage
-        if (ctx.getArguments().length == 0) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("format", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().gray)
-                    .addField("`" + ctx.getPrefix() + "format <text>`", "\uD83D\uDDDA │ Change the font of your text", false);
-            ctx.getChannel().sendMessage(usage.build()).queue();
-            return;
-        }
-
-        // Format options
-        EmbedBuilder selection = new EmbedBuilder()
-                .setAuthor("format", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
-                .addField("\uD83D\uDDDA │ format options",
-                        oldGerman(emojis[0] + " │ Lorem ipsum dolor sit amet.") +
-                                "\n" + handwritten(emojis[1] + " │ Lorem ipsum dolor sit amet.") +
-                                "\n" + aesthetic(emojis[2] + " │ Lorem ipsum dolor sit amet."),
-                        false
-                );
-        ctx.getChannel().sendMessage(selection.build()).queue(message -> { // Send selection message
-            // Add reactions
-            message.addReaction(emojis[0]).queue();
-            message.addReaction(emojis[1]).queue();
-            message.addReaction(emojis[2]).queue();
-
-            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
-                    .setCondition(e -> !e.getUser().isBot()
-                            && e.getUser().getIdLong() == ctx.getAuthor().getIdLong()
-                            && e.getMessageId().equals(message.getId()))
-                    .setAction(e -> {
-                        final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
-                        final String rawText = ctx.getArgumentsRaw(); // Get text to format
-                        // Format message embed
-                        EmbedBuilder formatted = new EmbedBuilder()
-                                .setAuthor("format", null, e.getUser().getEffectiveAvatarUrl())
-                                .setColor(Utilities.getUtils().blue);
-
-                        // Format old german font
-                        if (reaction.equals(emojis[0]))
-                            formatted.setDescription(oldGerman(rawText.replace("\\", "\\\\")));
-                        // Format handwritten font
-                        if (reaction.equals(emojis[1]))
-                            formatted.setDescription(handwritten(rawText.replace("\\", "\\\\")));
-                        // Format aesthetic font
-                        if (reaction.equals(emojis[2]))
-                            formatted.setDescription(aesthetic(rawText.replace("\\", "\\\\")));
-
-                        message.editMessage(formatted.build()).queue(); // Edit message
-                        message.clearReactions().queue(); // Clear reactions
-                    })
-                    .setTimeout(30L, TimeUnit.SECONDS)
-                    .setTimeoutAction(() -> message.clearReactions().queue())
-                    .load();
-        });
-    }
 
     private String codepointToString(int cp) {
         StringBuilder sb = new StringBuilder();
         if (Character.isBmpCodePoint(cp)) {
             sb.append((char) cp);
-        }
-        else if (Character.isValidCodePoint(cp)) {
+        } else if (Character.isValidCodePoint(cp)) {
             sb.append(Character.highSurrogate(cp));
             sb.append(Character.lowSurrogate(cp));
-        }
-        else {
+        } else {
             sb.append('?');
         }
         return sb.toString();

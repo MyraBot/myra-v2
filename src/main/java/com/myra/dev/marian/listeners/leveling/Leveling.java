@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.*;
 
+import static com.myra.dev.marian.utilities.language.Lang.lang;
+
 public class Leveling {
 
     public void levelUp(Member member, MessageChannel channel, GuildMember db, int xp) {
@@ -30,52 +32,47 @@ public class Leveling {
             // Level up
             db.setLevel(newLevel); // Update level in database
             final Guild guild = member.getGuild(); // Get guild
-            final Graphic graphic = Graphic.getInstance(); // Get graphics
             // Level up message
             final String levelingChannel = new MongoGuild(guild).getNested("leveling").getString("channel"); // Get leveling channel
+            final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
 
-            if (!levelingChannel.equals("not set")) { // Custom level up channel
-                final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
-
-                if (guild.getTextChannelById(levelingChannel) == null) { // Channel is invalid
-                    if (channel != null) {
-                        new Error(null)
-                                .setCommand("rank up")
-                                .setEmoji("\uD83C\uDF96")
-                                .setAvatar(guild.getIconUrl())
-                                .setMessage("The leveling channel is invalid")
-                                .send();
-                    }
+            // There is a custom level-up channel
+            if (!levelingChannel.equals("not set")) {
+                // Custom leveling channel is invalid
+                if (guild.getTextChannelById(levelingChannel) == null) {
+                    new MongoGuild(guild).getNested("leveling").setString("channel", "not set"); // Remove leveling channel
+                    return;
                 }
-                guild.getTextChannelById(levelingChannel).sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
-                        .addFile(graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
+
+                guild.getTextChannelById(levelingChannel).sendMessage(lang(member.getGuild()).get("listener.leveling.levelUp")
+                        .replace("{$member.mention}", member.getAsMention())) // Member who leveled up
+                        .addFile(Graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
                         .queue();
             }
-            else if (channel != null) {
-                final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
-                channel
-                        .sendMessage("> **" + member.getUser().getAsMention() + " reached a new level!**")
-                        .addFile(graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
+            // Send in current channel
+            else if (channel != null) { // If channel is not null
+                channel.sendMessage(lang(member.getGuild()).get("listener.leveling.levelUp")
+                        .replace("{$member.mention}", member.getAsMention())) // Member who leveled up
+                        .addFile(Graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
                         .queue();
             }
-            // Leveling role
-            updateLevelingRoles(guild, member, db); // Check for leveling roles
-        } catch (FontFormatException | IOException e){
+
+            updateLevelingRoles(guild, member, db); // Update leveling roles
+        } catch (FontFormatException | IOException e) {
             e.printStackTrace();
         }
     }
 
     private BufferedImage getLevelUpImage(Member member, int level) throws IOException, FontFormatException {
-        Graphic graphic = Graphic.getInstance(); // Get graphics
         final BufferedImage background = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("levelUp.png")); // Get level up image background
-        BufferedImage avatar = graphic.getAvatar(member.getUser().getEffectiveAvatarUrl()); // Get avatar as a BufferedImage
+        BufferedImage avatar = Graphic.getAvatar(member.getUser().getEffectiveAvatarUrl()); // Get avatar as a BufferedImage
 
-        avatar = graphic.resizeImage(avatar, 85, 85); // Resize avatar
+        avatar = Graphic.resizeImage(avatar, 85, 85); // Resize avatar
         // Graphics
         Graphics graphics = background.getGraphics(); // Create graphics object from background
         Graphics2D graphics2D = (Graphics2D) graphics; // Create graphics2D object from background
 
-        graphic.enableAntiAliasing(graphics); //Enable anti aliasing
+        Graphic.enableAntiAliasing(graphics); //Enable anti aliasing
         // Load font
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("default.ttf"); // Get font as InputStream
         Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream); // Create font
@@ -85,8 +82,8 @@ public class Leveling {
         // Draw avatar
         graphics2D.drawImage(
                 avatar,
-                graphic.imageCenter('X', avatar, background) - 200,
-                graphic.imageCenter('Y', avatar, background),
+                Graphic.imageCenter('X', avatar, background) - 200,
+                Graphic.imageCenter('Y', avatar, background),
                 null);
 
         // Draw circle around avatar
@@ -97,21 +94,21 @@ public class Leveling {
                 BasicStroke.JOIN_ROUND
         ));
         graphics2D.drawOval(
-                graphic.imageCenter('X', avatar, background) - 200,
-                graphic.imageCenter('Y', avatar, background),
+                Graphic.imageCenter('X', avatar, background) - 200,
+                Graphic.imageCenter('Y', avatar, background),
                 avatar.getWidth(), avatar.getHeight()
         );
 
         // Draw 'level'
         graphics.drawString("level " + level,
-                graphic.textCenter('X', "level " + level, font, background) - 55,
-                graphic.textCenter('Y', "level " + level, font, background) + 40
+                Graphic.textCenter('X', "level " + level, font, background) - 55,
+                Graphic.textCenter('Y', "level " + level, font, background) + 40
         );
 
         return background;
     }
 
-    public void updateLevelingRoles(Guild guild, Member member, GuildMember dbMember) {
+    public static void updateLevelingRoles(Guild guild, Member member, GuildMember dbMember) {
         final Nested guildLeveling = new MongoGuild(guild).getNested("leveling"); // Get leveling document
         final Document levelingRolesDocument = guildLeveling.get("roles", Document.class); // Get leveling roles
 
@@ -182,7 +179,7 @@ public class Leveling {
      * @param xp The experience, which should get converted to a level.
      * @return Returns the level calculated by the experience.
      */
-    public int getLevelFromXp(long xp) {
+    public static int getLevelFromXp(long xp) {
         // Parabola
         long dividedNumber = xp / 5;
         double exactLevel = Math.sqrt(dividedNumber);
@@ -193,7 +190,7 @@ public class Leveling {
      * @param level The level, which should get converted to experience points.
      * @return Returns the experience needed to reach the given level.
      */
-    public long getXpFromLevel(int level) {
+    public static long getXpFromLevel(int level) {
         // Parabola
         double squaredNumber = Math.pow(level, 2);
         double exactXp = squaredNumber * 5;
@@ -201,7 +198,7 @@ public class Leveling {
     }
 
     //return missing xp
-    public int requiredXpForNextLevel(Guild guild, Member member) {
+    public static Integer requiredXpForNextLevel(Guild guild, Member member) {
         int currentLevel = new MongoGuild(guild).getMembers().getMember(member).getLevel();
         //define variable
         double xp;

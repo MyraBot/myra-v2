@@ -1,81 +1,65 @@
 package com.myra.dev.marian.commands.moderation.ban;
 
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Moderator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
-
-import java.time.Instant;
 
 public class Ban implements CommandHandler {
 
-@CommandEvent(
-        name = "ban",
-        aliases = {"bean"},
-        requires = Moderator.class
-)
+    @CommandEvent(
+            name = "ban",
+            aliases = {"bean"},
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        Utilities utilities = Utilities.getUtils(); // Get utilities
         // Command usage
         if (ctx.getArguments().length == 0) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("ban", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "ban <user> <reason>`", "\uD83D\uDD12 │ Ban a specific member", false)
-                    .setFooter("You don't have to give a reason.");
-            ctx.getChannel().sendMessage(usage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("ban")
+                    .addUsages(new Usage()
+                            .setUsage("ban <user> (reason)")
+                            .setEmoji("\uD83D\uDD12")
+                            .setDescription(lang(ctx).get("description.mod.ban")))
+                    .send();
             return;
         }
-// Ban user
-        final Member member = utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "ban", "\uD83D\uDD12"); // Get member
+
+        // Get provided member
+        final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "ban", "\uD83D\uDD12"); // Get member
         if (member == null) return;
 
-        final User user = member.getUser(); // Get member as user
-        // Guild message
-        EmbedBuilder guildMessageBan = new EmbedBuilder()
-                .setAuthor(user.getAsTag() + " got banned", null, user.getEffectiveAvatarUrl())
-                .setColor(utilities.red)
-                .setDescription("\uD83D\uDD12 │ " + user.getAsMention() + " got banned on `" + ctx.getGuild().getName() + "`")
-                .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
-        // Direct message
-        EmbedBuilder directMessageBan = new EmbedBuilder()
-                .setAuthor("You got banned", null, ctx.getGuild().getIconUrl())
-                .setColor(utilities.red)
-                .setDescription("\uD83D\uDD12 │ You got banned from `" + ctx.getGuild().getName() + "`")
-                .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
-        
-        // No reason is given
-        if (ctx.getArguments().length == 1) {
-            guildMessageBan.addField("\uD83D\uDCC4 │ no reason", "there was no reason given", false); // Set reason to none
-            directMessageBan.addField("\uD83D\uDCC4 │ no reason", "there was no reason given", false); // Set reason to none
-            // Send messages
-            ctx.getChannel().sendMessage(guildMessageBan.build()).queue(); // Guild message
-            user.openPrivateChannel().queue((channel) -> { // Direct message
-                channel.sendMessage(directMessageBan.build()).queue();
-            });
-            // ban
-            member.ban(7).queue(); // Without reason
-        }
-        //with reason
-        else {
-            final String reason = ctx.getArgumentsRaw().split("\\s+", 2)[1]; // Get reason
+        final String reason = ctx.getArguments().length == 1 ? "none" : ctx.getArgumentsRaw().split("\\s+", 2)[1]; // Get reason
+        // Prepare message
+        final Success success = new Success(ctx.getEvent())
+                .setCommand("ban")
+                // Member who executed the ban
+                .setFooter(lang(ctx).get("command.mod.info.requestBy")
+                                .replace("{$member}", ctx.getAuthor().getAsTag()),
+                        ctx.getAuthor().getEffectiveAvatarUrl())
+                // Add reason
+                .addField("\uD83D\uDCC4 │ " + lang(ctx).get("word.reason"), reason)
+                .addTimestamp();
 
-            guildMessageBan.addField("\uD83D\uDCC4 │ reason:", reason, false); // Add reason
-            directMessageBan.addField("\uD83D\uDCC4 │ reason:", reason, false); // Add reason
-            // Send messages
-            ctx.getChannel().sendMessage(guildMessageBan.build()).queue(); // Guild message
-            user.openPrivateChannel().queue((channel) -> { // Direct message
-                channel.sendMessage(directMessageBan.build()).queue();
-            });
-            // ban
-            ctx.getGuild().getMember(user).ban(7, reason).queue(); // Add reason
-        }
+        // Send guild message
+        success.setMessage(lang(ctx).get("command.mod.ban.success.guild")
+                .replace("{$member}", member.getAsMention())) // Member who got banned
+                .send(); // Send in current channel
+        // Send direct message
+        member.getUser().openPrivateChannel().queue(channel -> {
+            success.setMessage(lang(ctx).get("command.mod.ban.success.dm")
+                    .replace("{$guild}", ctx.getGuild().getName())) // Member who got banned
+                    .setChannel(channel) // Set channel to direct message
+                    .send();
+        });
+
+        member.ban(7, reason).queue(); // Ban member
     }
 }

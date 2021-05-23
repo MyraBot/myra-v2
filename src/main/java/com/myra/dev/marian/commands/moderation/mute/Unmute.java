@@ -1,37 +1,41 @@
 package com.myra.dev.marian.commands.moderation.mute;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 
-import java.time.Instant;
+import static com.myra.dev.marian.utilities.language.Lang.defaultLang;
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Unmute implements CommandHandler {
 
-@CommandEvent(
-        name = "unmute",
-        requires = Moderator.class
-)
+    @CommandEvent(
+            name = "unmute",
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        final Utilities utilities = Utilities.getUtils(); // Get utilities
         // Command usage
         if (ctx.getArguments().length != 1) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("unmute", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "unmute <user>`", "\uD83D\uDD08 │ Unmute a specific user", false);
-            ctx.getChannel().sendMessage(usage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("unmute")
+                    .addUsages(new Usage()
+                            .setUsage("unmute <member>")
+                            .setEmoji("\uD83D\uDD08")
+                            .setDescription(lang(ctx).get("description.mod.unmute")))
+                    .send();
             return;
         }
-// Unmute
-        final Member member = utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "Unmute", "\uD83D\uDD08"); // Get member
+
+        // Get provided member
+        final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "Unmute", "\uD83D\uDD08"); // Get member
         if (member == null) return;
 
         final String muteRoleId = new MongoGuild(ctx.getGuild()).getString("muteRole"); // Get mute role id
@@ -40,7 +44,7 @@ public class Unmute implements CommandHandler {
             new Error(ctx.getEvent())
                     .setCommand("unmute")
                     .setEmoji("\uD83D\uDD08")
-                    .setMessage("You didn't specify a mute role")
+                    .setMessage(lang(ctx).get("command.mod.mute.error.muteRole"))
                     .send();
             return;
         }
@@ -49,31 +53,30 @@ public class Unmute implements CommandHandler {
             new Error(ctx.getEvent())
                     .setCommand("unmute")
                     .setEmoji("\uD83D\uDD08")
-                    .setMessage("This user isn't muted")
+                    .setMessage(lang(ctx).get("command.mod.unmute.error.notMuted"))
                     .send();
             return;
         }
 
-        final User user = member.getUser(); // Get member as user
-        // Guild message
-        EmbedBuilder guildMessage = new EmbedBuilder()
-                .setColor(utilities.blue)
-                .setAuthor(user.getAsTag() + " got unmuted", null, user.getEffectiveAvatarUrl())
-                .setDescription("\uD83D\uDD08 │ " + user.getAsMention() + " got unmuted on " + ctx.getGuild().getName())
-                .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
-        //direct message
-        EmbedBuilder directMessage = new EmbedBuilder()
-                .setAuthor("You got unmuted", null, user.getEffectiveAvatarUrl())
-                .setColor(utilities.blue)
-                .setDescription("\uD83D\uDD08 │ You got unmuted on " + ctx.getGuild().getName())
-                .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
+        // Prepare success message
+        final Success success = new Success(null)
+                .setCommand("unmute")
+                .setEmoji("\uD83D\uDD08")
+                .setFooter(defaultLang().get("command.mod.tempmute.info.requesterInfo")
+                        .replace("{$guild}", ctx.getGuild().getName())) // Guild name
+                .addTimestamp();
 
-        // Send messages
-        ctx.getChannel().sendMessage(guildMessage.build()).queue(); // Guild message
-        user.openPrivateChannel().queue((channel) -> { // Direct message
-            channel.sendMessage(directMessage.build()).queue();
+        // Guild message
+        success.setMessage(lang(ctx).get("command.mod.unmute.info.guild")
+                .replace("{$user}", ctx.getMember().getAsMention()))
+                .send();
+        // Direct message
+        member.getUser().openPrivateChannel().queue(channel -> {
+            success.setMessage(lang(ctx).get("command.mod.unmute.info.dm")
+                    .replace("{$guild}", ctx.getGuild().getName()))
+                    .setAvatar(ctx.getGuild().getIconUrl())
+                    .setChannel(channel)
+                    .send();
         });
 
         ctx.getGuild().removeRoleFromMember(member, ctx.getGuild().getRoleById(muteRoleId)).queue(); // Unmute

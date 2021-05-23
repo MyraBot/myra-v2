@@ -1,59 +1,59 @@
 package com.myra.dev.marian.commands.moderation.mute;
 
-import com.myra.dev.marian.database.guild.MongoGuild;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Moderator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
 public class MuteRole implements CommandHandler {
-
-@CommandEvent(
-        name = "mute role",
-        aliases = {"muted role"},
-        requires = Moderator.class
-)
+    @CommandEvent(
+            name = "mute role",
+            aliases = {"muted role"},
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        //command usage
+        // Command usage
         if (ctx.getArguments().length != 1) {
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setAuthor("mute role", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().gray)
-                    .addField("`" + ctx.getPrefix() + "mute role <role>`", "\uD83D\uDD07 │ Change the mute role", true);
-            ctx.getChannel().sendMessage(embed.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("mute role")
+                    .addUsages(new Usage()
+                            .setUsage("mute role <role>")
+                            .setEmoji("\uD83D\uDD07")
+                            .setDescription(lang(ctx).get("description.mod.muteRole")))
+                    .send();
             return;
         }
-        /**
-         * Change mute role
-         */
-        // Get database
-        MongoGuild db = new MongoGuild(ctx.getGuild());
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Get role
-        Role role = utilities.getRole(ctx.getEvent(), ctx.getArguments()[0], "mute role", "\uD83D\uDD07");
-        if (role == null) return;
-        //get mute role id
-        String muteRoleId = db.getString("muteRole");
 
-        Success success = new Success(ctx.getEvent())
+
+        // Get provided role
+        final Role role = Utilities.getRole(ctx.getEvent(), ctx.getArguments()[0], "mute role", "\uD83D\uDD07");
+        if (role == null) return;
+
+        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final String currentRole = db.getString("muteRole"); // Get current mute role id
+
+        final Success success = new Success(ctx.getEvent())
                 .setCommand("mute role")
-                .setEmoji("\uD83D\uDD07")
-                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
-        //remove mute role
-        if (role.getId().equals(muteRoleId)) {
-            //success
-            success.setMessage("The mute role will no longer be " + ctx.getGuild().getRoleById(muteRoleId).getAsMention()).send();
-            //database
-            db.setString("muteRole", role.getId());
-            return;
+                .setEmoji("\uD83D\uDD07");
+
+        // Remove mute role
+        if (currentRole.equals(role.getId())) {
+            success.setMessage(lang(ctx).get("command.mod.muteRole.info.removed")).send(); // Success
+            db.setString("muteRole", role.getId()); // Update database
         }
-        //change mute role
-        db.setString("muteRole", role.getId());
-        //role changed
-        success.setMessage("Mute role set to " + role.getAsMention()).send();
+        // Mute role changed
+        else {
+            success.setMessage(lang(ctx).get("command.mod.muteRole.info.success")
+                    .replace("{role}", role.getAsMention())) // New mute role
+                    .send();
+            db.setString("muteRole", role.getId()); // Update database
+        }
     }
 }

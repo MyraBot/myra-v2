@@ -7,6 +7,7 @@ import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.LoadingBar;
 import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -21,6 +22,7 @@ import net.dv8tion.jda.api.entities.User;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class PlayerManager {
     private static PlayerManager INSTANCE;
@@ -48,6 +50,18 @@ public class PlayerManager {
 
             return guildMusicManager;
         });
+    }
+
+    /**
+     * @param player A {@link AudioPlayer} of an unknown guild.
+     * @return Returns the matching guild id of the provided {@link AudioPlayer}.
+     */
+    public static Long getGuildIdFromPlayer(AudioPlayer player) {
+        final AtomicLong guildId = new AtomicLong();
+        PlayerManager.getInstance().musicManagers.forEach((key, value) -> {
+            if (value.audioPlayer == player) guildId.set(key);
+        });
+        return guildId.get();
     }
 
     public void loadAndPlay(Message message, String query, boolean isUrl, Playlist playlist) {
@@ -85,7 +99,7 @@ public class PlayerManager {
                         .setCommand("play")
                         .setAvatar(author.getEffectiveAvatarUrl())
                         .setHyperLink(track.getInfo().title)
-                        .setMessage("Adding to queue: " + Utilities.getUtils().hyperlink("`" + track.getInfo().title + "`", track.getInfo().uri))
+                        .setMessage("Adding to queue: " + Utilities.hyperlink("`" + track.getInfo().title + "`", track.getInfo().uri))
                         .setChannel(message.getChannel())
                         .send();
             }
@@ -107,7 +121,7 @@ public class PlayerManager {
                             .setChannel(message.getChannel());
                     // Playlist is given by url
                     if (isUrl) { // Add in message url to playlist
-                        success.setMessage("Adding playlist to queue: " + Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", query));
+                        success.setMessage("Adding playlist to queue: " + Utilities.hyperlink("`" + playlist.getName() + "`", query));
                     } else {
                         success.setMessage(String.format("Adding playlist to queue: `%s`", playlist.getName()));
                     }
@@ -231,7 +245,7 @@ public class PlayerManager {
                     .setAvatar(author.getEffectiveAvatarUrl())
                     .setHyperLink(playlist.getUrl())
                     .setThumbnail(playlist.getThumbnail())
-                    .setMessage(String.format("Added **%s** songs to the queue from the playlist %s", loaded, Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", playlist.getUrl())))
+                    .setMessage(String.format("Added **%s** songs to the queue from the playlist %s", loaded, Utilities.hyperlink("`" + playlist.getName() + "`", playlist.getUrl())))
                     .setFooter("by " + playlist.getOwner().getName());
             if (failed > 0) success.appendMessage(String.format("%n⚠ │ `%s` songs failed to load", failed));
 
@@ -256,7 +270,7 @@ public class PlayerManager {
                 .setCommand("play")
                 .setAvatar(author.getEffectiveAvatarUrl())
                 .setHyperLink(playlist.getUrl())
-                .setMessage("Decoding " + Utilities.getUtils().hyperlink("`" + playlist.getName() + "`", playlist.getUrl()))
+                .setMessage("Decoding " + Utilities.hyperlink("`" + playlist.getName() + "`", playlist.getUrl()))
                 .setFooter("□□□□□□□□□□")
                 .getEmbed();
     }

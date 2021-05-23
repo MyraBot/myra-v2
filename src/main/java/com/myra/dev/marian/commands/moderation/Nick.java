@@ -1,50 +1,57 @@
 package com.myra.dev.marian.commands.moderation;
 
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 
-import java.time.Instant;
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Nick implements CommandHandler {
 
-@CommandEvent(
-        name = "nick",
-        aliases = {"nickname", "change nickname"},
-        requires = Moderator.class
-)
+    @CommandEvent(
+            name = "nick",
+            aliases = {"nickname", "change nickname"},
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        Utilities utilities = Utilities.getUtils(); // Get utilities
-        //command usage
-        if (ctx.getArguments().length == 0) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("nick", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "nick @user <nickname>`", "\uD83D\uDD75 │ Change a users nickname", true);
-            ctx.getChannel().sendMessage(usage.build()).queue();
+        // Command usage
+        if (ctx.getArguments().length < 2) {
+
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("nick")
+                    .addUsages(new Usage()
+                            .setUsage("nick <member> <nickname>")
+                            .setEmoji("\uD83D\uDD75")
+                            .setDescription(lang(ctx).get("description.mod.nick")))
+                    .send();
             return;
         }
-// Change nickname
-        final Member member = utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "nick", "\uD83D\uDD75"); // Get member
+
+        // Get provided member
+        final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "nick", "\uD83D\uDD75"); // Get member
         if (member == null) return;
 
-        final String nickname = ctx.getArgumentsRaw().split("\\s+", 2)[1]; // Get new nickname
+        final String nickname = ctx.getArgumentsRaw().split("\\s+", 2)[2]; // Get nickname
+        // Send success message
+        new Success(ctx.getEvent())
+                .setCommand("ban")
+                // Member who executed the ban
+                .setFooter(lang(ctx).get("command.mod.info.requestBy")
+                                .replace("{$member}", ctx.getAuthor().getAsTag()),
+                        ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage(lang(ctx).get("command.mod.nick.info.done")
+                        .replace("{$member}", member.getAsMention()) // Member whose nicknames changes
+                        .replace("{$nickname}", nickname)) // New nickname
+                .addTimestamp()
+                .send();
 
-        final User user = member.getUser(); // Get member as user
-        // Success
-        EmbedBuilder success = new EmbedBuilder()
-                .setAuthor("nickname changed", null, user.getEffectiveAvatarUrl())
-                .setColor(utilities.blue)
-                .addField("\uD83D\uDCC4 │ nickname changed of " + user.getName(), "`" + ctx.getGuild().getMember(user).getEffectiveName() + "` **→** `" + nickname + "`", true)
-                .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
-        ctx.getChannel().sendMessage(success.build()).queue(); // Send success message
         member.modifyNickname(nickname).queue(); // Change nickname
     }
 }

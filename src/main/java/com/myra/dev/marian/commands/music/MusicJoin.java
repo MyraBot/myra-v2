@@ -1,49 +1,38 @@
 package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Error;
-import com.myra.dev.marian.utilities.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.myra.dev.marian.utilities.language.Lang.lang;
+
 public class MusicJoin implements CommandHandler {
 
-@CommandEvent(
-        aliases = {"connect"},
-        name = "join",
-        channel = Channel.GUILD
-)
+    @CommandEvent(
+            aliases = {"connect"},
+            name = "join",
+            channel = Channel.GUILD
+    )
     public void execute(CommandContext ctx) throws Exception {
-        // Check for no arguments
-        if (ctx.getArguments().length != 0) return;
-// ERRORS
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Already connected to a voice channel
+        if (ctx.getArguments().length != 0) return; // Check for no arguments
+
+        // Bot is already in a voice call
         if (ctx.getGuild().getAudioManager().isConnected()) {
-            final VoiceChannel vc = ctx.getGuild().getAudioManager().getConnectedChannel(); // Get current voice call
-            // Create invite
-            vc.createInvite().timeout(10, TimeUnit.MINUTES).queue(invite -> {
+            ctx.getGuild().getAudioManager().getConnectedChannel().createInvite().timeout(15, TimeUnit.MINUTES).queue(invite -> {
                 new Error(ctx.getEvent())
                         .setCommand("join")
                         .setEmoji("\uD83D\uDCE5")
-                        .setMessage(String.format("I can only be in one channel at a time, right now I'm in `%s`", Utilities.getUtils().hyperlink(vc.getName(), invite.getUrl())))
+                        .setMessage(lang(ctx).get("command.music.error.alreadyConnected")
+                                .replace("{$channel}", invite.getChannel().getName()) // Channel name
+                                .replace("{$invite}", invite.getUrl())) // Channel url
                         .send();
             });
-            return;
-        }
-        // Member didn't joined voice call yet
-        if (!ctx.getMember().getVoiceState().inVoiceChannel()) {
-            new Error(ctx.getEvent())
-                    .setCommand("join")
-                    .setEmoji("\uD83D\uDCE5")
-                    .setMessage("Please join a voice channel first")
-                    .send();
             return;
         }
         // Missing permissions to connect
@@ -51,19 +40,23 @@ public class MusicJoin implements CommandHandler {
             new Error(ctx.getEvent())
                     .setCommand("join")
                     .setEmoji("\uD83D\uDCE5")
-                    .setMessage("I'm missing permissions to join your voice channel")
-                    .setFooter("I need the permission `Connect` under the `VOICE PERMISSIONS` category")
+                    .setMessage(lang(ctx).get("command.music.join.error.missingPermission"))
                     .send();
             return;
         }
-// JOIN VOICE CHANNEL
-        // Open audio connection
-        ctx.getGuild().getAudioManager().openAudioConnection(ctx.getMember().getVoiceState().getChannel());
+
+
+        ctx.getGuild().getAudioManager().openAudioConnection(ctx.getMember().getVoiceState().getChannel()); // Open audio connection
         // Send success message
-        EmbedBuilder success = new EmbedBuilder()
-                .setAuthor("join", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(utilities.blue)
-                .setDescription("Joined voice channel: **" + ctx.getMember().getVoiceState().getChannel().getName() + "**");
-        ctx.getChannel().sendMessage(success.build()).queue();
+        ctx.getMember().getVoiceState().getChannel().createInvite().timeout(15, TimeUnit.MINUTES).queue(invite -> {
+            new Success(ctx.getEvent())
+                    .setCommand("join")
+                    .setEmoji("\uD83D\uDCE5")
+                    .setHyperLink(invite.getUrl())
+                    .setMessage(lang(ctx).get("command.music.join.info.done")
+                            .replace("{$channel}", invite.getChannel().getName()) // Channel name
+                            .replace("{$invite}", invite.getUrl())) // Invite url
+                    .send();
+        });
     }
 }

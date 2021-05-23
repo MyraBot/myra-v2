@@ -1,36 +1,39 @@
 package com.myra.dev.marian.listeners.welcome;
 
-import com.myra.dev.marian.database.guild.MongoGuild;
-
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.permissions.Administrator;
-import com.myra.dev.marian.utilities.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 
+import static com.myra.dev.marian.utilities.language.Lang.lang;
+
 public class WelcomeColour implements CommandHandler {
 
-@CommandEvent(
-        name = "welcome colour",
-        aliases = {"welcome color"},
-        requires = Administrator.class
-)
+    @CommandEvent(
+            name = "welcome colour",
+            aliases = {"welcome color"},
+            requires = Administrator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Usage
+        // Command usage
         if (ctx.getArguments().length != 1) {
-            EmbedBuilder welcomeChannelUsage = new EmbedBuilder()
-                    .setAuthor("welcome colour", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "welcome colour <hex colour>`", "\uD83C\uDFA8 │ Set the colour of the embeds", false);
-            ctx.getChannel().sendMessage(welcomeChannelUsage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("welcome colour")
+                    .addUsages(new Usage()
+                            .setUsage("welcome colour <hex colour>")
+                            .setEmoji("\uD83C\uDFA8")
+                            .setDescription(lang(ctx).get("description.welcome.colour")))
+                    .send();
             return;
         }
+
         String hex;
         //remove #
         if (ctx.getArguments()[0].startsWith("#")) {
@@ -48,20 +51,20 @@ public class WelcomeColour implements CommandHandler {
             hex = Integer.toHexString(color.getRGB()).substring(2);
         } catch (Exception e) {
             new Error(ctx.getEvent())
-                    .setCommand("welcome embed colour")
+                    .setCommand("welcome colour")
                     .setEmoji("\uD83C\uDFA8")
-                    .setMessage("Invalid colour")
+                    .setMessage(lang(ctx).get("error.invalidColour"))
                     .send();
             return;
         }
-        //save in database
-        new MongoGuild(ctx.getGuild()).getNested("welcome").setInteger("welcomeColour", Integer.parseInt(hex));
+
+        new MongoGuild(ctx.getGuild()).getNested("welcome").setInteger("welcomeColour", Integer.parseInt(hex)); // Save in database
         //success
-        Success success = new Success(ctx.getEvent())
-                .setCommand("welcome embed colour")
+        new Success(ctx.getEvent())
+                .setCommand("welcome colour")
                 .setEmoji("\uD83C\uDFA8")
-                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                .setMessage("Colour changed to `" + hex.replace("0x", "#") + "`");
-        success.send();
+                .setMessage(lang(ctx).get("command.welcome.colour.done")
+                        .replace("{$colour}", hex.replace("0x", "#"))) // New colour
+                .send();
     }
 }

@@ -1,52 +1,47 @@
 package com.myra.dev.marian.listeners.welcome.welcomeDirectMessage;
 
-import com.myra.dev.marian.database.guild.MongoGuild;
-
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.permissions.Administrator;
-import net.dv8tion.jda.api.EmbedBuilder;
+
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class WelcomeDirectMessageMessage implements CommandHandler {
 
-@CommandEvent(
-        name = "welcome direct message message",
-        aliases = {"welcome dm message"},
-        requires = Administrator.class
-)
+    @CommandEvent(
+            name = "welcome direct message message",
+            aliases = {"welcome dm message"},
+            requires = Administrator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        // Usage
+        // Command usage
         if (ctx.getArguments().length == 0) {
-            EmbedBuilder welcomeDirectMessageMessage = new EmbedBuilder()
-                    .setAuthor("welcome direct message", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .addField("`" + ctx.getPrefix() + "welcome direct message message <message>`", "\uD83D\uDCAC │ change the text of the direct messages", false)
-                    .setFooter("{user} = mention the user │ {server} = server name │ {count} = user count");
-            ctx.getChannel().sendMessage(welcomeDirectMessageMessage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("welcome direct message message")
+                    .addUsages(new Usage()
+                            .setUsage("welcome direct message message <message>")
+                            .setEmoji("\uD83D\uDCAC")
+                            .setDescription(lang(ctx).get("description.welcome.dm.message")))
+                    .addInformation(lang(ctx).get("info.variables") + "\n" +
+                            "\n{member} - " + lang(ctx).get("command.welcome.info.variables.member") +
+                            "\n{server} - " + lang(ctx).get("command.welcome.info.variables.server") +
+                            "\n{count} - " + lang(ctx).get("command.welcome.info.variables.count"))
+                    .send();
             return;
         }
-        MongoGuild db = new MongoGuild(ctx.getGuild());
-        // Get message
-        String message = "";
-        for (int i = 0; i < ctx.getArguments().length; i++) {
-            message += ctx.getArguments()[i] + " ";
-        }
-        //remove last space
-        message = message.substring(0, message.length() - 1);
-        //change value in database
-        db.getNested("welcome").setString("welcomeDirectMessage", message);
-        //success
-        String welcomeMessage = db.getNested("welcome").getString("welcomeDirectMessage");
+
+        new MongoGuild(ctx.getGuild()).getNested("welcome").setString("welcomeDirectMessage", ctx.getArgumentsRaw()); // Update database
+
         Success success = new Success(ctx.getEvent())
                 .setCommand("welcome direct message")
-                .setEmoji("\u2709\uFE0F")
-                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                .setMessage("Welcome message changed to" +
-                        "\n" + welcomeMessage
-                        .replace("{user}", ctx.getAuthor().getAsMention())
-                        .replace("{server}", ctx.getGuild().getName())
-                        .replace("{count}", Integer.toString(ctx.getGuild().getMemberCount()))
-                );
+                .setEmoji("\uD83D\uDCAC")
+                .setMessage(lang(ctx).get("command.welcome.dm.info.done")
+                        .replace("{$message}", ctx.getArgumentsRaw()));
         success.send();
     }
 }

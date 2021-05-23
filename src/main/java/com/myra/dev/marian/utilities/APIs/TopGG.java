@@ -27,7 +27,7 @@ public class TopGG {
         //make get request
         Request channel = new Request.Builder()
                 .url("https://top.gg/api/bots/718444709445632122")
-                .header("Authorization", Utilities.getUtils().topGgKey)
+                .header("Authorization", Utilities.topGgKey)
                 .build();
         //execute call
         String channelOutput;
@@ -51,7 +51,7 @@ public class TopGG {
         //make get request
         Request channel = new Request.Builder()
                 .url("https://top.gg/api/bots/718444709445632122/check?userId=" + user.getId())
-                .header("Authorization", Utilities.getUtils().topGgKey)
+                .header("Authorization", Utilities.topGgKey)
                 .build();
         //execute call
         String channelOutput;

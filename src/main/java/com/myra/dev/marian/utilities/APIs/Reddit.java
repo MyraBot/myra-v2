@@ -42,7 +42,7 @@ public class Reddit {
         //embed
         EmbedBuilder embed = new EmbedBuilder()
                 .setAuthor(meme.getString("title"), "https://www.reddit.com" + meme.getString("permalink"), author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
+                .setColor(Utilities.blue)
                 .setImage(meme.getString("url_overridden_by_dest"))
                 .setFooter("\uD83D\uDC4D " + meme.getInt("ups") + " │ \uD83D\uDCAC " + meme.getInt("num_comments"));
         return embed;

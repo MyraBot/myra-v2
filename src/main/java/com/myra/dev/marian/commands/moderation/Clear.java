@@ -1,84 +1,61 @@
 package com.myra.dev.marian.commands.moderation;
 
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
-import com.myra.dev.marian.utilities.Utilities;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Moderator;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 public class Clear implements CommandHandler {
 
-@CommandEvent(
-        name = "clear",
-        aliases = {"purge", "delete"},
-        requires = Moderator.class
-)
+    @CommandEvent(
+            name = "clear",
+            aliases = {"purge", "delete"},
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        Utilities utilities = Utilities.getUtils(); // Get utilities
+        if (ctx.getArgumentsRaw().equalsIgnoreCase("queue")) return; // "Clear queue" is meant
+
         // Command usage
         if (ctx.getArguments().length != 1) {
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setAuthor("clear", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "clear <amount>`", "\uD83D\uDDD1 │ clear", true);
-            ctx.getChannel().sendMessage(embed.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("clear")
+                    .addUsages(new Usage()
+                            .setUsage("clear <amount>")
+                            .setEmoji("\uD83D\uDDD1")
+                            .setDescription(lang(ctx).get("description.mod.clear")))
+                    .send();
             return;
         }
 
-        // Clear queue command is meant
-        if (ctx.getArgumentsRaw().equalsIgnoreCase("queue")) return;
-
-        // If amount isn't a number
+        // Amount isn't a number
         if (!ctx.getArguments()[0].matches("\\d+")) {
             new Error(ctx.getEvent())
                     .setCommand("clear")
                     .setEmoji("\uD83D\uDDD1")
-                    .setMessage("Dude, this isn't a number")
+                    .setMessage(lang(ctx).get("error.invalid"))
                     .send();
         }
+
+        final int amount = Integer.parseInt(ctx.getArguments()[0]); // Get amount of messages to delete
         // Delete messages
-        try {
-            // Retrieve messages
-            final int amount = Integer.parseInt(ctx.getArguments()[0]); // Get amount of messages to delete
+        ctx.getChannel().getIterableHistory()
+                .takeAsync(amount)
+                .thenAccept(messages -> ctx.getChannel().purgeMessages(messages));
 
-            // Delete messages
-            ctx.getChannel().getIterableHistory()
-                    .takeAsync(amount)
-                    .thenAccept(messages -> ctx.getChannel().purgeMessages(messages));
-
-            // Success information
-            new Success(ctx.getEvent())
-                    .setCommand("clear")
-                    .setEmoji("\uD83D\uDDD1")
-                    .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setMessage("`" + ctx.getArguments()[0] + "` messages have been deleted")
-                    .delete()
-                    .send();
-        }
-        // Errors
-        catch (Exception exception) {
-            //to many messages
-            if (ctx.getArguments()[0].equals("0") || exception.toString().startsWith("java.lang.IllegalArgumentException: Message retrieval")) {
-                new Error(ctx.getEvent())
-                        .setCommand("clear")
-                        .setEmoji("\uD83D\uDDD1")
-                        .setMessage("Invalid amount of messages")
-                        .setFooter("You can only delete an amount between 1 and 100 messages")
-                        .send();
-            }
-            //message too late
-            else {
-                new Error(ctx.getEvent())
-                        .setCommand("clear")
-                        .setEmoji("\uD83D\uDDD1")
-                        .setMessage("You selected too old messages")
-                        .setFooter("I can't delete messages older than 2 weeks")
-                        .send();
-            }
-        }
+        // Success information
+        new Success(ctx.getEvent())
+                .setCommand("clear")
+                .setEmoji("\uD83D\uDDD1")
+                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
+                .setMessage(lang(ctx).get("command.mod.clear.info.success")
+                        .replace("{$amount}", String.valueOf(amount))) // Messages amount which got deleted
+                .delete()
+                .send();
     }
 }

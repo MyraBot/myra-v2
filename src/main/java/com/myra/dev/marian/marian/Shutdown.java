@@ -23,7 +23,7 @@ public class Shutdown implements CommandHandler {
     public void execute(CommandContext ctx) throws Exception {
         EmbedBuilder shutdown = new EmbedBuilder()
                 .setAuthor("shutdown", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
+                .setColor(Utilities.blue)
                 .setDescription("Wait what!? You want me to take a break? Are you sure?");
         ctx.getChannel().sendMessage(shutdown.build()).queue(message -> { // Send shutdown request
             message.addReaction(emoji).queue(); // Add reaction

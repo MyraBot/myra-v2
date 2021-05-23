@@ -13,17 +13,17 @@ public class WelcomeDirectMessageRender {
     public MessageEmbed render(Guild guild, User user) {
         MongoGuild db = new MongoGuild(guild); // Get database
         // Get variables
-        String welcomeColour = db.getNested("welcome").getString("welcomeColour");
-        String welcomeDirectMessage = db.getNested("welcome").getString("welcomeDirectMessage");
+        final String welcomeColour = db.getNested("welcome").getString("welcomeColour");
+        final String welcomeDirectMessage = db.getNested("welcome").getString("welcomeDirectMessage");
         // Return message embed
         return new EmbedBuilder()
                 .setAuthor("welcome", null, guild.getIconUrl())
                 .setColor(Color.decode(welcomeColour))
                 .setThumbnail(user.getEffectiveAvatarUrl())
                 .setDescription(welcomeDirectMessage
-                        .replace("{user}", user.getAsMention())
-                        .replace("{server}", guild.getName())
-                        .replace("{count}", Integer.toString(guild.getMemberCount())))
+                        .replace("{member}", user.getAsMention()) // Member mention
+                        .replace("{server}", guild.getName()) // Guild name
+                        .replace("{count}", Integer.toString(guild.getMemberCount()))) // Guild member count
                 .build();
     }
 }

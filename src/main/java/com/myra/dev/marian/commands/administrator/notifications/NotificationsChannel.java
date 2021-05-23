@@ -1,44 +1,45 @@
 package com.myra.dev.marian.commands.administrator.notifications;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class NotificationsChannel implements CommandHandler {
 
-@CommandEvent(
-        name = "notifications channel",
-        aliases = {"notification channel"},
-        requires = Administrator.class,
-        channel = Channel.GUILD
-)
+    @CommandEvent(
+            name = "notifications channel",
+            aliases = {"notification channel"},
+            requires = Administrator.class,
+            channel = Channel.GUILD
+    )
     public void execute(CommandContext ctx) throws Exception {
-        // Usage
+        // Command usage
         if (ctx.getArguments().length != 1) {
             new CommandUsage(ctx.getEvent())
                     .setCommand("notifications channel")
                     .addUsages(new Usage()
                             .setUsage("notification channel <channel>")
                             .setEmoji("\uD83D\uDCC1")
-                            .setDescription("Set the channel the notifications will go"))
+                            .setDescription(lang(ctx).get("description.notificationsChannel")))
                     .send();
             return;
         }
 
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); //Get database
-        // Get mentioned text channel
-        final TextChannel channel = Utilities.getUtils().getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "notification channel", "\uD83D\uDD14");
+        // Get provided text channel
+        final TextChannel channel = Utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "notification channel", "\uD83D\uDD14");
         if (channel == null) return;
 
+        final MongoGuild db = new MongoGuild(ctx.getGuild()); //Get database
         final String currentChannelId = db.getNested("notifications").getString("channel"); // Get current notification channel
         // Remove notification channel
         if (currentChannelId.equals(channel.getId())) {
@@ -48,7 +49,8 @@ public class NotificationsChannel implements CommandHandler {
                     .setCommand("notification channel")
                     .setEmoji("\uD83D\uDD14")
                     .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setMessage("Notifications are no longer send in " + channel.getAsMention())
+                    .setMessage(lang(ctx).get("command.notifications.channel.removed")
+                            .replace("{$channel}", channel.getAsMention())) // Old channel
                     .send();
         }
         // Chane notification channel
@@ -60,8 +62,12 @@ public class NotificationsChannel implements CommandHandler {
                     .setEmoji("\uD83D\uDD14")
                     .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl());
 
-            success.setMessage("Notifications are now send in " + channel.getAsMention()).send();
-            success.setMessage("Media notifications are now send in here").setChannel(channel).send();
+            success.setMessage(lang(ctx).get("command.notifications.channel.added")
+                    .replace("{$channel}", channel.getAsMention())) // New channel
+                    .send(); // Send success message in current channel
+            success.setMessage(lang(ctx).get("command.notifications.channel.addedActive"))
+                    .setChannel(channel)
+                    .send(); // Send message in new notification channel
         }
 
     }

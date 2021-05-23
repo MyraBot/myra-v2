@@ -1,69 +1,71 @@
 package com.myra.dev.marian.commands.administrator;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Administrator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class LogChannel implements CommandHandler {
 
-@CommandEvent(
-        name = "log channel",
-        aliases = {"logging channel", "logs channel"},
-        requires = Administrator.class,
-        channel = Channel.GUILD
-)
+    @CommandEvent(
+            name = "log channel",
+            aliases = {"logging channel", "logs channel"},
+            requires = Administrator.class,
+            channel = Channel.GUILD
+    )
     public void execute(CommandContext ctx) throws Exception {
-        Utilities utilities = Utilities.getUtils(); // Get utilities
-        // Usage
+        // Command usage
         if (ctx.getArguments().length != 1) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("log channel", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "log channel <channel>`", "\uD83E\uDDFE │ Set the channel where logging messages go", false);
-            ctx.getChannel().sendMessage(usage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("log channel")
+                    .addUsages(new Usage()
+                            .setUsage("log channel <channel>")
+                            .setEmoji("\uD83E\uDDFE")
+                            .setDescription(lang(ctx).get("description.logChannel")))
+                    .send();
             return;
         }
 
-        // Change log channel
-        TextChannel channel = utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "log channel", "\uD83E\uDDFE"); // Get channel
+        // Get provided text channel
+        final TextChannel channel = Utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "log channel", "\uD83E\uDDFE"); // Get channel
         if (channel == null) return;
 
-        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         // Remove log channel
         if (channel.getId().equals(db.getString("logChannel"))) {
-            // Update database
-            db.setString("logChannel", "not set");
+            db.setString("logChannel", "not set"); // Update database
             // Send success message
-            Success success = new Success(ctx.getEvent())
+            new Success(ctx.getEvent())
                     .setCommand("log channel")
                     .setEmoji("\uD83E\uDDFE")
-                    .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setMessage("Logs are no longer send in " + channel.getAsMention());
-            success.send();
+                    .setMessage(lang(ctx).get("command.logChannel.info.removed")
+                            .replace("{$channel}", channel.getAsMention())) // Old log channel
+                    .send();
         }
         // Change log channel
         else {
-            // Update database
-            db.setString("logChannel", channel.getId());
+            db.setString("logChannel", channel.getId()); // Update database
             // Success message
-            EmbedBuilder logChannel = new EmbedBuilder()
-                    .setAuthor("log channel", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.blue)
-                    .addField("\uD83E\uDDFE │ Log channel changed", "Log channel changed to **" + channel.getName() + "**", false);
-            ctx.getChannel().sendMessage(logChannel.build()).queue();
+            final Success success = new Success(ctx.getEvent())
+                    .setCommand("log channel")
+                    .setEmoji("\uD83E\uDDFE");
+
+            success.setMessage(lang(ctx).get("command.logChannel.info.changed")
+                    .replace("{$channel}", channel.getAsMention())) // New log channel
+                    .send(); // Send success in current channel
             // Success message in the new log channel
-            EmbedBuilder logChannelInfo = new EmbedBuilder()
-                    .setAuthor("log channel", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.blue)
-                    .addField("\uD83E\uDDFE │ Log channel changed", "Logging actions are now send in here", false);
-            channel.sendMessage(logChannelInfo.build()).queue();
+            success.setMessage(lang(ctx).get("command.logChannel.info.changedActive")
+                    .replace("{$channel}", channel.getAsMention())) // New log channel
+                    .setChannel(channel)
+                    .send(); // Send success in new log channel
         }
     }
 }

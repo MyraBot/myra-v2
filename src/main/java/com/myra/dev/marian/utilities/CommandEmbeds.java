@@ -1,54 +1,57 @@
 package com.myra.dev.marian.utilities;
 
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 
+import static com.myra.dev.marian.utilities.language.Lang.lang;
+
 public class CommandEmbeds {
     // Variables
-    private Guild guild;
-    private User author;
-    private JDA jda;
-    private String prefix;
+    private final JDA jda;
+    private final Guild guild;
+    private final User author;
+    private final String prefix;
 
     // Constructor
-    public CommandEmbeds(Guild guild, JDA jda, User author, String prefix) {
+    public CommandEmbeds(Guild guild, User author) {
+        this.jda = guild.getJDA();
         this.guild = guild;
-        this.jda = jda;
         this.author = author;
-        this.prefix = prefix;
+        this.prefix = new MongoGuild(guild).getString("prefix");
     }
 
     //commands list
     public EmbedBuilder commands() {
         return new EmbedBuilder()
                 .setAuthor("commands", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`help`", "\uD83D\uDCD6 │ Helpful commands", false)
-                .addField("`general`", "\uD83C\uDF88 │ The main commands of the bot", false)
-                .addField("`fun`", "\uD83D\uDD79 │ Commands to play around with", false)
-                .addField("`leveling`", "\uD83C\uDFC6 │ Leveling", false)
-                .addField("`economy`", "\uD83D\uDCB0 │ Economy", false)
-                .addField("`music`", "\uD83D\uDCFB │ Music related commands", false)
-                .addField("`moderation`", "\uD83D\uDD28 │ Commands for security", false)
-                .addField("`administrator`", "\uD83D\uDD29 │ Server commands", false);
+                .setColor(Utilities.gray)
+                .addField("`help`", "\uD83D\uDCD6 │ " + lang(this.guild).get("category.help"), false)
+                .addField("`general`", "\uD83C\uDF88 │ " + lang(this.guild).get("category.general"), false)
+                .addField("`fun`", "\uD83D\uDD79 │ " + lang(this.guild).get("category.fun"), false)
+                .addField("`leveling`", "\uD83C\uDFC6 │ " + lang(this.guild).get("category.leveling"), false)
+                .addField("`economy`", "\uD83D\uDCB0 │ " + lang(this.guild).get("category.economy"), false)
+                .addField("`music`", "\uD83D\uDCFB │ " + lang(this.guild).get("category.music"), false)
+                .addField("`moderation`", "\uD83D\uDD28 │ " + lang(this.guild).get("category.moderation"), false)
+                .addField("`administrator`", "\uD83D\uDD29 │ " + lang(this.guild).get("category.administration"), false);
     }
 
     // Help
     public EmbedBuilder help() {
         return new EmbedBuilder()
                 .setAuthor("help", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "help`", "\uD83E\uDDF0 │ Opens a menu with several helpful links and lists", false)
-                .addField("`" + prefix + "commands`", "\uD83D\uDCC3 │ Shows this", false)
-                .addField("`" + prefix + "invite`", "\u2709\uFE0F │ Invite me to your server", false)
-                .addField("`" + prefix + "support`", "\u26A0\uFE0F │ Join the support server to get help and report bugs", false)
-                .addField("`" + prefix + "ping`", "\uD83C\uDFD3 │ Check my latency", false)
-                .addField("`" + prefix + "report <bug>`", "\uD83D\uDC1B │ Report a bug you found", false)
-                .addField("`" + prefix + "feature <feature description>`", "\uD83D\uDCCC │ Submit a feature", false)
-                .addField("`" + prefix + "vote`", "\uD83D\uDDF3 │ Vote for me on " + Utilities.getUtils().hyperlink("top.gg", "https://top.gg/bot/718444709445632122"), false);
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "help`", "\uD83E\uDDF0 │ " + lang(this.guild).get("description.help.help"), false)
+                .addField("`" + prefix + "commands`", "\uD83D\uDCC3 │ " + lang(this.guild).get("description.help.commands"), false)
+                .addField("`" + prefix + "invite`", "\u2709\uFE0F │ " + lang(this.guild).get("description.help.invite"), false)
+                .addField("`" + prefix + "support`", "\u26A0\uFE0F │ " + lang(this.guild).get("description.help.support"), false)
+                .addField("`" + prefix + "ping`", "\uD83C\uDFD3 │ " + lang(this.guild).get("description.help.ping"), false)
+                .addField("`" + prefix + "report <bug>`", "\uD83D\uDC1B │ " + lang(this.guild).get("description.help.report"), false)
+                .addField("`" + prefix + "feature <feature description>`", "\uD83D\uDCCC │ " + lang(this.guild).get("description.help.feature"), false)
+                .addField("`" + prefix + "vote`", "\uD83D\uDDF3 │ " + lang(this.guild).get("description.help.vote"), false);
     }
 
 
@@ -56,122 +59,126 @@ public class CommandEmbeds {
     public EmbedBuilder general() {
         return new EmbedBuilder()
                 .setAuthor("general", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "calculate <number 1 <operator> <number 2>`", "\uD83E\uDDEE │ Let me calculate something for you", false)
-                .addField("`" + prefix + "avatar @user`", "\uD83D\uDDBC │ Gives you profile pictures of other people", false)
-                .addField("`" + prefix + "information`", "\uD83D\uDDD2 │ Gives you information", false)
-                .addField("`" + prefix + "reminder <duration><time unit> <description>`", "\u23F0 │ Let " + jda.getSelfUser().getName() + " remind you of something", false)
-                .addField("`" + prefix + "suggest`", "\uD83D\uDDF3 │ Suggest something", false)
-                .addField("`" + prefix + "character`", "\u2049 │ Get the Unicode of a character or emoji", false);
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "calculate <number 1 <operator> <number 2>`", "\uD83E\uDDEE │ " + lang(this.guild).get("description.general.calculate"), false)
+                .addField("`" + prefix + "avatar @user`", "\uD83D\uDDBC │ " + lang(this.guild).get("description.general.avatar"), false)
+                .addField("`" + prefix + "information`", "\uD83D\uDDD2 │ " + lang(this.guild).get("description.general.info"), false)
+                .addField("`" + prefix + "reminder <duration><time unit> <description>`", "\u23F0 │ " + lang(this.guild).get("description.general.reminder"), false)
+                .addField("`" + prefix + "suggest`", "\uD83D\uDDF3 │ " + lang(this.guild).get("description.suggest"), false)
+                .addField("`" + prefix + "character`", "\u2049 │ " + lang(this.guild).get("description.general.emoji"), false);
     }
 
     //fun
     public EmbedBuilder fun() {
         return new EmbedBuilder()
                 .setAuthor("fun", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "meme`", "\uD83E\uDD2A │ Shows a random meme", false)
-                .addField("`" + prefix + "format <text>`", "\uD83D\uDDDA │ Change the font of your text", false);
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "meme`", "\uD83E\uDD2A │ " + lang(this.guild).get("description.fun.meme"), false)
+                .addField("`" + prefix + "format <text>`", "\uD83D\uDDDA │ " + lang(this.guild).get("description.fun.format"), false);
     }
 
     //leveling
     public EmbedBuilder leveling() {
         return new EmbedBuilder()
                 .setAuthor("leveling", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "rank <user>`", "\uD83C\uDFC5 │ Shows the rank of a user", false)
-                .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ Shows the leaderboard", false)
-                .addField("`" + prefix + "time <user>`", "\u231A │ Check the time a user spend in a voice call", false)
-                .addField("`" + prefix + "edit rank <url>`", "\uD83D\uDDBC │ Set a custom rank background", false);
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "rank <user>`", "\uD83C\uDFC5 │ " + lang(this.guild).get("description.leveling.rank"), false)
+                .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ " + lang(this.guild).get("description.leaderboard"), false)
+                .addField("`" + prefix + "time <user>`", "\u231A │ " + lang(this.guild).get("description.leveling.time"), false)
+                .addField("`" + prefix + "edit rank <url>`", "\uD83D\uDDBC " + lang(this.guild).get("description.leveling.edit.rank"), false);
     }
 
     //leveling
     public EmbedBuilder economy() {
+        final String currency = new MongoGuild(guild).getNested("economy").getString("currency"); // Get server currency
+        final String myraName = this.guild.getSelfMember().getEffectiveName(); // Get Myra's current name
+
         return new EmbedBuilder()
                 .setAuthor("economy", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ Shows the leaderboard", false)
-                .addField("`" + prefix + "balance <user>`", new MongoGuild(guild).getNested("economy").getString("currency") + " │ Shows how many " + new MongoGuild(guild).getNested("economy").getString("currency") + " you have.", false)
-                .addField("`" + prefix + "daily`", "\uD83E\uDD47 │ Claim your daily reward", false)
-                .addField("`" + prefix + "streak`", "\uD83D\uDCCA │ Shows your current daily streak", false)
-                .addField("`" + prefix + "fish`", "\uD83C\uDFA3 │ Try to catch a fish", false)
-                .addField("`" + prefix + "blackjack <bet>`", "\uD83C\uDCCF │ Play blackjack against " + jda.getSelfUser().getName(), false)
-                .addField("`" + prefix + "give <user> <balance>`", "\uD83D\uDCB8 │ Give credits to other users", false)
-                .addField("`" + prefix + "buy <role>`", "\uD83D\uDED2 │ Buy a role from the role shop", false);
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ " + lang(this.guild).get("description.leaderboard"), false)
+                .addField("`" + prefix + "balance <user>`", currency + " │ " + lang(this.guild).get("description.economy.balance").replace("{$currency}", currency), false)
+                .addField("`" + prefix + "daily`", "\uD83E\uDD47 │ " + lang(this.guild).get("description.economy.daily"), false)
+                .addField("`" + prefix + "streak`", "\uD83D\uDCCA │ " + lang(this.guild).get("description.economy.streak"), false)
+                .addField("`" + prefix + "fish`", "\uD83C\uDFA3 │ " + lang(this.guild).get("description.economy.fish"), false)
+                .addField("`" + prefix + "blackjack <bet>`", "\uD83C\uDCCF │ " + lang(this.guild).get("description.economy.blackjack").replace("{$myra}", myraName), false)
+                .addField("`" + prefix + "give <user> <balance>`", "\uD83D\uDCB8 │ " + lang(this.guild).get("description.economy.give"), false)
+                .addField("`" + prefix + "buy <role>`", "\uD83D\uDED2 │ " + lang(this.guild).get("description.economy.buy"), false);
     }
 
     //music
     public EmbedBuilder music() {
         return new EmbedBuilder()
                 .setAuthor("music", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "join`", "\uD83D\uDCE5 │ Let the bot join your voice channel", false)
-                .addField("`" + prefix + "disconnect`", "\uD83D\uDCE4 │ Kick the bot from your voice channel", false)
-                .addField("`" + prefix + "play <song>`", "\uD83D\uDCBF │ Add a song to the queue*", false)
-                .addField("`" + prefix + "stop`", "\u23F9 │ Stop the player", false)
-                .addField("`" + prefix + "skip`", "\u23ED\uFE0F │ Skip the current song", false)
-                .addField("`" + prefix + "clear queue`", "\uD83D\uDDD1 │ Clear the queue", false)
-                .addField("`" + prefix + "shuffle`", "\uD83C\uDFB2 │ Jumble the current queue", false)
-                .addField("`" + prefix + "track information`", "\uD83D\uDDD2 │ Get information about the current song", false)
-                .addField("`" + prefix + "queue`", "\uD83D\uDCC3 │ Shows the queue", false)
-                .setFooter("supported platforms: YoutTube, SoundCloud, Bandcamp, Vimeo, Twitch streams");
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "join`", "\uD83D\uDCE5 │ " + lang(this.guild).get("description.music.join"), false)
+                .addField("`" + prefix + "disconnect`", "\uD83D\uDCE4 │ " + lang(this.guild).get("description.music.disconnect"), false)
+                .addField("`" + prefix + "play <song>`", "\uD83D\uDCBF │ " + lang(this.guild).get("description.music.play"), false)
+                .addField("`" + prefix + "stop`", "\u23F9 │ " + lang(this.guild).get("description.music.stop"), false)
+                .addField("`" + prefix + "skip`", "\u23ED\uFE0F │ " + lang(this.guild).get("description.music.skip"), false)
+                .addField("`" + prefix + "clear queue`", "\uD83D\uDDD1 │ " + lang(this.guild).get("description.music.clearQueue"), false)
+                .addField("`" + prefix + "shuffle`", "\uD83C\uDFB2 │ " + lang(this.guild).get("description.music.shuffle"), false)
+                .addField("`" + prefix + "track information`", "\uD83D\uDDD2 │ " + lang(this.guild).get("description.music.trackInformation"), false)
+                .addField("`" + prefix + "queue`", "\uD83D\uDCC3 │ " + lang(this.guild).get("description.music.queue"), false)
+                .setFooter(lang(this.guild).get("command.music.info.platforms"));
     }
 
     //moderation
     public EmbedBuilder moderation() {
         return new EmbedBuilder()
                 .setAuthor("moderation", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "moderation`", "\uD83D\uDD28 │ Display all moderation commands", false)
-                .addField("`" + prefix + "clear <amount>`", "\uD83D\uDDD1 │ Clear a certain amount of messages", false)
-                .addField("`" + prefix + "kick <user>`", "\uD83D\uDCE4 │ Kick a user", false)
-                .addField("`" + prefix + "nick <user>`", "\uD83D\uDD75 │ Change a users nickname", false)
-                .addField("`" + prefix + "mute role <role>`", "\uD83D\uDCDD │ Change the mute role", false)
-                .addField("`" + prefix + "unmute <user>`", "\uD83D\uDD08 │ Unmute a user", false)
-                .addField("`" + prefix + "tempmute <user> <duration><time unit> <reason>`", "\u23F1\uFE0F │ Mute a user for a certain amount of time", false)
-                .addField("`" + prefix + "mute <user>`", "\uD83D\uDD07 │ Mute a user", false)
-                .addField("`" + prefix + "unban <user>`", "\uD83D\uDD13 │ Unban a user", false)
-                .addField("`" + prefix + "tempban <user> <duration><time unit> <reason>`", "\u23F1\uFE0F │ Ban a user for a certain amount of time", false)
-                .addField("`" + prefix + "ban <user> <reason>`", "\uD83D\uDD12 │ Ban a user", false);
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "moderation`", "\uD83D\uDD28 │ " + lang(this.guild).get("description.mod.mod"), false)
+                .addField("`" + prefix + "clear <amount>`", "\uD83D\uDDD1 │ " + lang(this.guild).get("description.mod.clear"), false)
+                .addField("`" + prefix + "kick <user>`", "\uD83D\uDCE4 │ " + lang(this.guild).get("description.mod.kick"), false)
+                .addField("`" + prefix + "nick <user>`", "\uD83D\uDD75 │ " + lang(this.guild).get("description.mod.nick"), false)
+                .addField("`" + prefix + "mute role <role>`", "\uD83D\uDCDD │ " + lang(this.guild).get("description.mod.mute"), false)
+                .addField("`" + prefix + "unmute <user>`", "\uD83D\uDD08 │ " + lang(this.guild).get("description.mod.unmute"), false)
+                .addField("`" + prefix + "tempmute <user> <duration><time unit> <reason>`", "\u23F1\uFE0F │ " + lang(this.guild).get("description.mod.tempmute"), false)
+                .addField("`" + prefix + "mute <user>`", "\uD83D\uDD07 │ " + lang(this.guild).get("description.mod.mute"), false)
+                .addField("`" + prefix + "unban <user>`", "\uD83D\uDD13 │ " + lang(this.guild).get("description.mod.unban"), false)
+                .addField("`" + prefix + "tempban <user> <duration><time unit> <reason>`", "\u23F1\uFE0F │ " + lang(this.guild).get("description.mod.tempban"), false)
+                .addField("`" + prefix + "ban <user> <reason>`", "\uD83D\uDD12 │ " + lang(this.guild).get("description.mod.ban"), false);
     }
 
     //administrator
     public EmbedBuilder administrator() {
         return new EmbedBuilder()
                 .setAuthor("administrator", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().gray)
-                .addField("`" + prefix + "prefix <prefix>`", "\uD83D\uDCCC │ Change the prefix of the bot", false)
-                .addField("`" + prefix + "toggle <command>`", "\uD83D\uDD11 │ Toggle commands on or off", false)
-                .addField("`" + prefix + "say <message>`", "\uD83D\uDCAC │ Let the bot say something", false)
-                .addField("`@someone`", "\uD83C\uDFB2 │ Replace in your message `@someone` with a random mention of a member", false)
-                .addField("`" + prefix + "log channel`", "\uD83E\uDDFE │ Set the channel where logging messages go", false)
-                .addField("`" + prefix + "autorole @role`", "\uD83D\uDCDD │ Give a new joined member automatic a certain role", false)
-                .addField("`" + prefix + "welcome`", "\uD83D\uDC4B │ Welcome new users", false)
-                .addField("`" + prefix + "notifications`", "\uD83D\uDD14 │ Set automatic notifications for youtube and twitch", false)
-                .addField("`" + prefix + "suggestions`", "\uD83D\uDDF3 │ Set up the suggestions", false)
-                .addField("`" + prefix + "leveling`", "\uD83C\uDFC6 │ Change some settings of leveling", false)
-                .addField("`" + prefix + "economy`", "\uD83D\uDCB0 │ Change some settings of economy", false)
-                .addField("`" + prefix + "global chat <channel>`", "\uD83C\uDF10 │ Communicate with other servers", false)
-                .addField("`" + prefix + "reaction roles`", "\uD83C\uDF80 │ Bind roles to reactions", false)
-                .addField("`" + prefix + "music voting`", "\uD83D\uDDF3 │ Enable/Disable voting on some music commands", false);
+                .setColor(Utilities.gray)
+                .addField("`" + prefix + "prefix <prefix>`", "\uD83D\uDCCC │ " + lang(this.guild).get("description.prefix"), false)
+                .addField("`" + prefix + "toggle <command>`", "\uD83D\uDD11 │ " + lang(this.guild).get("description.toggle"), false)
+                .addField("`" + prefix + "config`", "\u2699 │ " + lang(this.guild).get("description.config"), false)
+                .addField("`" + prefix + "say <message>`", "\uD83D\uDCAC │ " + lang(this.guild).get("description.say"), false)
+                .addField("`@someone`", "\uD83C\uDFB2 │ " + lang(this.guild).get("description.someone"), false)
+                .addField("`" + prefix + "log channel`", "\uD83E\uDDFE │ " + lang(this.guild).get("description.logChannel"), false)
+                .addField("`" + prefix + "autorole <role>`", "\uD83D\uDCDD │ " + lang(this.guild).get("description.autorole"), false)
+                .addField("`" + prefix + "welcome`", "\uD83D\uDC4B │ " + lang(this.guild).get("description.welcome"), false)
+                .addField("`" + prefix + "notifications`", "\uD83D\uDD14 │ " + lang(this.guild).get("description.notifications"), false)
+                .addField("`" + prefix + "suggestions`", "\uD83D\uDDF3 │ " + lang(this.guild).get("description.suggestions"), false)
+                .addField("`" + prefix + "leveling`", "\uD83C\uDFC6 │ " + lang(this.guild).get("description.leveling"), false)
+                .addField("`" + prefix + "economy`", "\uD83D\uDCB0 │ " + lang(this.guild).get("description.leveling"), false)
+                .addField("`" + prefix + "global chat <channel>`", "\uD83C\uDF10 │ " + lang(this.guild).get("description.globalChat"), false)
+                .addField("`" + prefix + "reaction roles`", "\uD83C\uDF80 │ " + lang(this.guild).get("description.reactionRoles"), false)
+                .addField("`" + prefix + "music voting`", "\uD83D\uDDF3 │ " + lang(this.guild).get("description.music.voting"), false);
     }
 
 
     //support server
     public EmbedBuilder supportServer() {
         return new EmbedBuilder()
-                .setAuthor("support", "https://discord.gg/nG4uKuB", author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
-                .setThumbnail(jda.getGuildById("642809436515074053").getIconUrl())
-                .setDescription("\u26A0\uFE0F │ " + Utilities.getUtils().hyperlink("Report", "https://discord.gg/nG4uKuB") + " bugs and get " + Utilities.getUtils().hyperlink("help", "https://discord.gg/nG4uKuB") + "!");
+                .setAuthor("support", Config.MARIANS_DISCORD_INVITE, author.getEffectiveAvatarUrl())
+                .setColor(Utilities.blue)
+                .setThumbnail(jda.getGuildById(Config.MARIAN_SERVER_ID).getIconUrl())
+                .setDescription("\u26A0\uFE0F │ " + lang(this.guild).get("command.help.help.support").replace("{$url}", Config.MARIANS_DISCORD_INVITE));
     }
 
     //invite bot
     public EmbedBuilder inviteJda() {
         return new EmbedBuilder()
-                .setAuthor("invite", Utilities.getUtils().inviteJda(jda), author.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
+                .setAuthor("invite", Utilities.inviteJda(jda), author.getEffectiveAvatarUrl())
+                .setColor(Utilities.blue)
                 .setThumbnail(jda.getSelfUser().getEffectiveAvatarUrl())
-                .setDescription("[\u2709\uFE0F │ Invite me to your server!](" + Utilities.getUtils().inviteJda(jda) + " \"bot invite link\")");
+                .setDescription("\u2709\uFE0F │ " + lang(this.guild).get("command.help.help.invite").replace("{$url}", Utilities.inviteJda(this.jda)));
     }
 }

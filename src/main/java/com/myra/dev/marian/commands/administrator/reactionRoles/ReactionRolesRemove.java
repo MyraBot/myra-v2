@@ -6,9 +6,8 @@ import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
-import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Administrator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import org.bson.Document;
 
@@ -23,12 +22,11 @@ public class ReactionRolesRemove implements CommandHandler {
             requires = Administrator.class
     )
     public void execute(CommandContext ctx) throws Exception {
-        EmbedBuilder usage = new EmbedBuilder()
-                .setAuthor("reaction roles remove", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
-                .setDescription("Remove the reaction of the reaction role");
+        final Success success = new Success(ctx.getEvent())
+                .setCommand("reaction roles remove")
+                .setMessage(lang(ctx).get("command.reactionRoles.remove.instruction.removeReaction"));
 
-        ctx.getChannel().sendMessage(usage.build()).queue(msg -> {
+        ctx.getChannel().sendMessage(success.getEmbed().build()).queue(msg -> {
             ctx.getWaiter().waitForEvent(GuildMessageReactionRemoveEvent.class)
                     .setCondition(e -> !e.getUser().isBot() && e.getUser() == ctx.getAuthor())
                     .setAction(e -> {
@@ -42,8 +40,7 @@ public class ReactionRolesRemove implements CommandHandler {
                         if (reactionRoles.stream().noneMatch(reactionRole -> reactionMessage.equals(reactionRole.getString("message")) && reactionEmoji.equals(reactionRole.getString("emoji")))) {
                             new Error(ctx.getEvent())
                                     .setCommand("reaction roles remove")
-                                    .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                                    .setMessage("This is not a reaction role")
+                                    .setMessage(lang(ctx).get("command.reactionRoles.remove.error.invalid"))
                                     .send();
                             return;
                         }
@@ -60,10 +57,7 @@ public class ReactionRolesRemove implements CommandHandler {
                                 e.retrieveMessage().queue(message -> message.removeReaction(emoji, e.getJDA().getSelfUser()).queue()); // Remove reaction from message
 
                                 // Send success message
-                                Success success = new Success(ctx.getEvent())
-                                        .setCommand("reaction roles remove")
-                                        .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                                        .setMessage("Deleted reaction role");
+                                success.setMessage(lang(ctx).get("command.reactionRoles.remove.success"));
                                 success.setChannel(e.getChannel()).send();
                                 break;
                             }
@@ -74,7 +68,7 @@ public class ReactionRolesRemove implements CommandHandler {
                         new Error(ctx.getEvent())
                                 .setCommand("reaction roles remove")
                                 .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                                .setMessage("You didn't remove a reaction")
+                                .setMessage(lang(ctx).get("error.timeout"))
                                 .send();
                     })
                     .load();

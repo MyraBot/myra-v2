@@ -10,6 +10,6 @@ public class Invite implements CommandHandler {
         name = "invite"
 )
     public void execute(CommandContext ctx) throws Exception {
-        ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(), ctx.getEvent().getJDA(), ctx.getAuthor(), ctx.getPrefix()).inviteJda().build()).queue();
+        ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(),  ctx.getAuthor()).inviteJda().build()).queue();
     }
 }

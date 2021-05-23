@@ -4,8 +4,11 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.database.MongoDb;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -26,29 +29,30 @@ public class ReactionRolesAdd implements CommandHandler {
             "\u2705"
     };
 
-
     @CommandEvent(
             name = "reaction roles add",
             aliases = {"reaction role add", "rr add"},
             requires = Administrator.class
     )
     public void execute(CommandContext ctx) throws Exception {
-        // Usage
+        // Command usage
         if (ctx.getArguments().length != 1) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("reaction roles add", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .addField("`" + ctx.getPrefix() + "reaction roles add <role>`", "\uD83D\uDD17 │ Bind a role to a reaction", false);
-            ctx.getChannel().sendMessage(usage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("reaction roles add")
+                    .addUsages(new Usage()
+                            .setUsage("reaction roles add <role>")
+                            .setEmoji("\uD83D\uDD17")
+                            .setDescription(lang(ctx).get("description.reactionRoles.add")))
+                    .send();
             return;
         }
 
         // Get role
-        final Role role = Utilities.getUtils().getRole(ctx.getEvent(), ctx.getArguments()[0], "reaction roles add", ""); // Get given role
+        final Role role = Utilities.getRole(ctx.getEvent(), ctx.getArguments()[0], "reaction roles add", "\uD83D\uDD17"); // Get given role
         if (role == null) return;
 
         // Create reaction roles document
-        Document reactionRolesInfo = new Document()
+        final Document reactionRolesInfo = new Document()
                 .append("role", role.getId()) // Store role id
                 .append("message", null) // Add message id key
                 .append("emoji", null) // Add emoji key
@@ -57,13 +61,12 @@ public class ReactionRolesAdd implements CommandHandler {
         // Create embed to choose the reaction role type
         EmbedBuilder type = new EmbedBuilder()
                 .setAuthor("reaction roles add", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
-                .setDescription("Choose a reaction role type:")
-                .addField("normal", "\uD83C\uDF81 │ Be able to get unlimited reaction roles. If you remove your reaction your role will get removed", true)
-                .addField("unique", "\uD83E\uDD84 │ You can only get 1 role from a message at the same time", true)
-                .addField("verify", "\u2705 │ Once you reacted to the message and get you're role, you're not able to remove the role", true);
+                .setColor(Utilities.blue)
+                .setDescription(lang(ctx).get("command.reactionRoles.add.instruction.type"))
+                .addField("normal", "\uD83C\uDF81 │ " + lang(ctx).get("command.reactionRoles.add.type.normal"), true)
+                .addField("unique", "\uD83E\uDD84 │ " + lang(ctx).get("command.reactionRoles.add.type.unique"), true)
+                .addField("verify", "\u2705 │ " + lang(ctx).get("command.reactionRoles.add.type.verify"), true);
         ctx.getChannel().sendMessage(type.build()).queue(msg1 -> { // Send message to select the reaction roles type
-
             // Add reactions
             msg1.addReaction(emojis[0]).queue(); // 🎁
             msg1.addReaction(emojis[1]).queue(); // 🦄
@@ -74,23 +77,23 @@ public class ReactionRolesAdd implements CommandHandler {
                     .setCondition(e1 -> !e1.getUser().isBot()
                             && e1.getUser().getIdLong() == ctx.getAuthor().getIdLong()
                             && e1.getMessageId().equals(msg1.getId())
-                            && Arrays.stream(emojis).anyMatch(e1.getReactionEmote().getEmoji()::equals))
+                            && Arrays.asList(emojis).contains(e1.getReactionEmote().getEmoji()))
                     .setAction(e1 -> {
                         final String reaction = e1.getReactionEmote().getEmoji(); // Get reacted emoji
                         // Choose reaction role type
                         if (reaction.equals(emojis[0]))
-                            reactionRolesInfo.replace("type", "normal"); // Set reaction roles type to normal
+                            reactionRolesInfo.replace(lang(ctx).get("command.reactionRoles.add.type"), "normal"); // Set reaction roles type to normal
                         if (reaction.equals(emojis[1]))
-                            reactionRolesInfo.replace("type", "unique"); // Set reaction roles type to unique
+                            reactionRolesInfo.replace(lang(ctx).get("command.reactionRoles.add.type"), "unique"); // Set reaction roles type to unique
                         if (reaction.equals(emojis[2]))
-                            reactionRolesInfo.replace("type", "verify"); // Set reaction roles type to verify
+                            reactionRolesInfo.replace(lang(ctx).get("command.reactionRoles.add.type"), "verify"); // Set reaction roles type to verify
 
                         msg1.clearReactions().queue(); // Clear reactions
                         // Create embed as a information to choose now the message and reaction emoji
                         EmbedBuilder messageAndEmojiSelection = new EmbedBuilder()
                                 .setAuthor("reaction roles add", null, e1.getUser().getEffectiveAvatarUrl())
-                                .setColor(Utilities.getUtils().blue)
-                                .setDescription("Now react to the message you want the reaction role to be");
+                                .setColor(Utilities.blue)
+                                .setDescription(lang(ctx).get("command.reactionRoles.add.instruction.react"));
 
                         msg1.editMessage(messageAndEmojiSelection.build()).queue(msg2 -> { // Edit message to select the reaction roles message and emoji
 
@@ -109,8 +112,8 @@ public class ReactionRolesAdd implements CommandHandler {
 
                                         messageAndEmojiSelection.clear()
                                                 .setAuthor("reaction roles add", null, e.getUser().getEffectiveAvatarUrl())
-                                                .setColor(Utilities.getUtils().blue)
-                                                .setDescription("Successfully added");
+                                                .setColor(Utilities.blue)
+                                                .setDescription(lang(ctx).get("command.reactionRoles.add.success"));
                                         e.getChannel().sendMessage(messageAndEmojiSelection.build()).queue(); // Send success message
 
                                         e.getChannel().retrieveMessageById(reactionRolesInfo.getString("message")).queue(message -> { // Get reaction roles message
@@ -128,7 +131,7 @@ public class ReactionRolesAdd implements CommandHandler {
                                         msg1.clearReactions().queue(); // Clear reactions
                                         new Error(ctx.getEvent())
                                                 .setCommand("reaction roles add")
-                                                .setMessage("You took too long")
+                                                .setMessage(lang(ctx).get("error.timeout"))
                                                 .send();
                                     })
                                     .load();
@@ -140,7 +143,7 @@ public class ReactionRolesAdd implements CommandHandler {
                         msg1.clearReactions().queue(); // Clear reactions
                         new Error(ctx.getEvent())
                                 .setCommand("reaction roles add")
-                                .setMessage("You took too long")
+                                .setMessage(lang(ctx).get("error.timeout"))
                                 .send();
                     })
                     .load();

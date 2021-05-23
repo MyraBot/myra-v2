@@ -1,52 +1,42 @@
 package com.myra.dev.marian.commands.economy.administrator;
 
-import com.myra.dev.marian.database.guild.MongoGuild;
-
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Administrator;
-import com.myra.dev.marian.utilities.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 public class Currency implements CommandHandler {
 
-@CommandEvent(
-        name = "economy currency",
-        requires = Administrator.class
-)
+    @CommandEvent(
+            name = "economy currency",
+            requires = Administrator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        // Get utilities
-        Utilities utilities = Utilities.getUtils();
-        // Get database
-        MongoGuild db = new MongoGuild(ctx.getGuild());
-        // Usage
+        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+
+        // Command usage
         if (ctx.getArguments().length == 0) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("leveling currency", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "economy currency <emoji>`", db.getNested("economy").getString("currency") + " │ Set a custom currency", false);
-            ctx.getChannel().sendMessage(usage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("economy currency")
+                    .addUsages(new Usage()
+                            .setUsage("economy currency <emoji>")
+                            .setEmoji(db.getNested("economy").getString("currency"))
+                            .setDescription(lang(ctx).get("description.economy.currency")))
+                    .send();
             return;
         }
-        /**
-         * Change currency
-         */
-        // Get new currency
-        String currency = "";
-        for (String argument : ctx.getArguments()) {
-            currency += argument + " ";
-        }
-        //remove last space
-        currency = currency.substring(0, currency.length() - 1);
-        // Update database
-        db.getNested("economy").setString("currency", currency);
+
+        db.getNested("economy").setString("currency", ctx.getArgumentsRaw()); // Update database
         // Send success message
-        Success success = new Success(ctx.getEvent())
+        new Success(ctx.getEvent())
                 .setCommand("economy currency")
-                .setEmoji(currency)
-                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                .setMessage("Changed currency to " + currency);
-        success.send();
+                .setEmoji(ctx.getArgumentsRaw())
+                .setMessage(lang(ctx).get("command.economy.currency.info.success"))
+                .send();
     }
 }

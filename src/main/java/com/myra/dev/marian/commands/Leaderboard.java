@@ -3,10 +3,12 @@ package com.myra.dev.marian.commands;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.Config;
 import com.myra.dev.marian.database.guild.LeaderboardType;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.LeaderboardMember;
 import com.myra.dev.marian.utilities.CustomEmoji;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -22,6 +24,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.myra.dev.marian.utilities.language.Lang.lang;
+
 public class Leaderboard implements CommandHandler {
     // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
     final String[] emojis = {
@@ -36,14 +40,14 @@ public class Leaderboard implements CommandHandler {
     )
     public void execute(CommandContext ctx) throws Exception {
         // Create loading embed
-        EmbedBuilder loading = new EmbedBuilder()
-                .setAuthor(ctx.getGuild().getName() + "'s leaderboard", null, ctx.getGuild().getIconUrl())
-                .setColor(Utilities.getUtils().blue)
-                .setDescription("*loading*");
+        Success loading = new Success(ctx.getEvent())
+                .setCommand("leaderboard")
+                .setEmoji("\uD83E\uDD47")
+                .setHyperLink(Config.SERVER_ADDRESS + "/leaderboard/" + ctx.getGuild().getId()) // Online leaderboard
+                .setMessage(lang(ctx).get("word.loading"));
         // Send message
-        ctx.getChannel().sendMessage(loading.build()).queue(message -> {
-            // Create leaderboard embed
-            getLeaderboard(message, type.LEVEL);
+        ctx.getChannel().sendMessage(loading.getEmbed().build()).queue(message -> {
+            getLeaderboard(message, type.LEVEL); // Create leaderboard embed
             // Add reactions
             message.addReaction("\uD83C\uDFC6").queue(); // Add level emoji
             message.addReaction(CustomEmoji.COIN.getAsEmote()).queue(); // Add balance emote
@@ -55,23 +59,15 @@ public class Leaderboard implements CommandHandler {
                             && e.getMessageIdLong() == message.getIdLong()
                             && Arrays.asList(emojis).stream().anyMatch(emoji -> emoji.equalsIgnoreCase(e.getReactionEmote().toString())))
                     .setAction(e -> {
-                        message.editMessage(loading.build()).queue(); // Edit to loading message
+                        message.editMessage(loading.getEmbed().build()).queue(); // Edit to loading message
+                        final String reaction = e.getReactionEmote().toString().toUpperCase(); // Get reacted reaction emote
 
-                        // Reaction is emote
-                        if (e.getReactionEmote().isEmote()) { // Reaction is emote
-                            getLeaderboard(message, type.BALANCE); // Send balance leaderboard
-                        }
-                        // Reaction is emoji
-                        else {
-                            // Leveling leaderboard
-                            if (e.getReactionEmote().toString().toUpperCase().equals(emojis[0])) {
-                                getLeaderboard(message, type.LEVEL); // Send level leaderboard
-                            }
-                            // Voice call leaderboard
-                            else if (e.getReactionEmote().toString().toUpperCase().equals(emojis[2])) {
-                                getLeaderboard(message, type.VOICE); // Send voice call leaderboard
-                            }
-                        }
+                        // Balance leaderboard
+                        if (e.getReactionEmote().isEmote()) getLeaderboard(message, type.BALANCE);
+                            // Level leaderboard
+                        else if (reaction.equals(emojis[0])) getLeaderboard(message, type.LEVEL);
+                            // Voice leaderboard
+                        else if (reaction.equals(emojis[2])) getLeaderboard(message, type.VOICE);
 
                         e.getReaction().removeReaction(e.getUser()).queue(); // Remove reaction
                     })
@@ -92,13 +88,12 @@ public class Leaderboard implements CommandHandler {
         final Guild guild = message.getGuild(); // Get guild
 
         // Get leaderboard with all members
-        List<LeaderboardMember> leaderboardRaw;
-        if (type == Leaderboard.type.LEVEL) // Get level leaderboard
-            leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
-        else if (type == Leaderboard.type.BALANCE) // Get balance leaderboard
-            leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
-        else // Get voice leaderboard
-            leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
+        List<LeaderboardMember> leaderboardRaw = null;
+        switch (type) {
+            case LEVEL -> leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
+            case BALANCE -> leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
+            case VOICE -> leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
+        }
 
         final List<String> ids = new ArrayList<>(); // Create a list to store top 10 member ids
         for (int i = 0; i < 10; i++) {
@@ -108,6 +103,7 @@ public class Leaderboard implements CommandHandler {
         }
         String[] topIds = ids.toArray(new String[0]); // Convert List to Array
 
+        List<LeaderboardMember> finalLeaderboardRaw = leaderboardRaw;
         guild.retrieveMembersByIds(topIds) // Retrieve top 10 members
                 .onSuccess(members -> { // Members were successfully retrieved
                     StringBuilder leaderboard = new StringBuilder(); // Create leaderboard message
@@ -120,7 +116,7 @@ public class Leaderboard implements CommandHandler {
                         if (memberResult.isEmpty()) continue; // No member found
                         final Member member = memberResult.get();
 
-                        final LeaderboardMember memberDocument = leaderboardRaw.stream() // Find member document to get the balance
+                        final LeaderboardMember memberDocument = finalLeaderboardRaw.stream() // Find member document to get the balance
                                 .filter(doc -> doc.getId().equals(id))
                                 .findFirst()
                                 .get();
@@ -130,7 +126,7 @@ public class Leaderboard implements CommandHandler {
                         if (type == Leaderboard.type.LEVEL)
                             value = String.valueOf(memberDocument.getLevel()); // Get level
                         else if (type == Leaderboard.type.BALANCE)
-                            value = Utilities.getUtils().formatNumber(memberDocument.getBalance()); // Format balance
+                            value = Format.number(memberDocument.getBalance()); // Format balance
                         else
                             value = Format.toTime(memberDocument.getVoiceCallTime()); // Format time
 
@@ -141,13 +137,15 @@ public class Leaderboard implements CommandHandler {
                     // Create embed
                     String header;
                     if (type == Leaderboard.type.LEVEL) // Show level leaderboard
-                        header = String.format("%s's level leaderboard%n", guild.getName());
-                    else // Show balance leaderboard
-                        header = String.format("%s's balance leaderboard%n", guild.getName());
+                        header = lang(guild).get("command.leaderboard.level").replace("{$guild.name}", guild.getName());
+                    else if (type == Leaderboard.type.BALANCE) // Show balance leaderboard
+                        header = lang(guild).get("command.leaderboard.balance").replace("{$guild.name}", guild.getName());
+                    else // Show voice call time leaderboard
+                        header = lang(guild).get("command.leaderboard.voice").replace("{$guild.name}", guild.getName());
 
-                    EmbedBuilder embed = new EmbedBuilder()
+                    final EmbedBuilder embed = new EmbedBuilder()
                             .setAuthor(guild.getName() + "'s leaderboard", null, guild.getIconUrl())
-                            .setColor(Utilities.getUtils().blue)
+                            .setColor(Utilities.blue)
                             .setDescription(header)
                             .appendDescription(leaderboard);
                     // Send message

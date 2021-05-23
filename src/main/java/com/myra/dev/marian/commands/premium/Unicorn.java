@@ -34,7 +34,7 @@ public class Unicorn implements CommandHandler {
             return;
         }
 
-        final Role role = Utilities.getUtils().getRole(ctx.getEvent(), ctx.getArgumentsRaw(), "unicorn", "\uD83E\uDD84");
+        final Role role = Utilities.getRole(ctx.getEvent(), ctx.getArgumentsRaw(), "unicorn", "\uD83E\uDD84");
         if (role == null) return;
 
         final Long unicornRole = db.getLong("unicorn"); // Get current unicorn role

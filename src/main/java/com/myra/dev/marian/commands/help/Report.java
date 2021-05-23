@@ -20,7 +20,7 @@ public class Report implements CommandHandler {
         if (ctx.getArguments().length == 0) {
             EmbedBuilder usage = new EmbedBuilder()
                     .setAuthor("report", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().gray)
+                    .setColor(Utilities.gray)
                     .addField("`" + ctx.getPrefix() + "report <bug>`", "\uD83D\uDC1B │ Report a bug you found", false)
                     .setFooter("You can also add attachments");
             ctx.getChannel().sendMessage(usage.build()).queue(); // Send usage

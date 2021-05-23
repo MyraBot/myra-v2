@@ -8,10 +8,11 @@ import com.myra.dev.marian.database.managers.NotificationsYoutubeManager;
 import com.myra.dev.marian.utilities.APIs.youtube.Youtube;
 import com.myra.dev.marian.utilities.APIs.youtube.data.YoutubeChannel;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Administrator;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 public class YouTuber implements CommandHandler {
 
@@ -21,20 +22,20 @@ public class YouTuber implements CommandHandler {
             requires = Administrator.class,
             channel = Channel.GUILD
     )
-    public void execute(CommandContext ctx) throws Exception{
-        // Usage
+    public void execute(CommandContext ctx) throws Exception {
+        // Command usage
         if (ctx.getArguments().length == 0) {
             new CommandUsage(ctx.getEvent())
                     .setCommand("notification youtube")
                     .addUsages(new Usage()
                             .setUsage("notifications youtube <youtube channel>")
                             .setEmoji("\\\uD83D\uDCFA")
-                            .setDescription("Add and remove auto notifications for YouTube"))
+                            .setDescription(lang(ctx).get("description.notificationsYoutube")))
                     .send();
             return;
         }
 
-        final String query = Utilities.getUtils().getString(ctx.getArguments()); // Get the arguments as one string
+        final String query = Utilities.getString(ctx.getArguments()); // Get the arguments as one string
         YoutubeChannel channel;
         // Get channel by url
         if (query.matches(Utilities.URL_PATTERN))
@@ -47,20 +48,24 @@ public class YouTuber implements CommandHandler {
             NotificationsYoutubeManager.getInstance().removeYoutuber(channel.getId(), ctx.getGuild()); // Remove youtuber from notifications list
             Youtube.unsubscribe(channel.getId()); // Unsubscribe from that channel
 
-            EmbedBuilder success = new EmbedBuilder()
-                    .setAuthor("notification youtube", "https://www.youtube.com/channel/" + channel.getId(), ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription("Removed **" + channel.getName() + "** from the notifications");
-            ctx.getChannel().sendMessage(success.build()).queue(); // Send success message
-        } else {
+            new Success(ctx.getEvent())
+                    .setCommand("notifications youtube")
+                    .setHyperLink("https://www.youtube.com/channel/" + channel.getId())
+                    .setMessage(lang(ctx).get("command.notifications.twitch.removed")
+                            .replace("{$channel}", channel.getName()))
+                    .send();
+        }
+        // Add youtuber
+        else {
             NotificationsYoutubeManager.getInstance().addYoutuber(channel.getId(), ctx.getGuild()); // Add youtuber to notifications list
             Youtube.unsubscribe(channel.getId()); // Subscribe to the channel
 
-            EmbedBuilder success = new EmbedBuilder()
-                    .setAuthor("notification youtube", "https://www.youtube.com/channel/" + channel.getId(), ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription("Added **" + channel.getName() + "** to the notifications");
-            ctx.getChannel().sendMessage(success.build()).queue(); // Send success message
+            new Success(ctx.getEvent())
+                    .setCommand("notifications youtube")
+                    .setHyperLink("https://www.youtube.com/channel/" + channel.getId())
+                    .setMessage(lang(ctx).get("command.notifications.twitch.added")
+                            .replace("{$channel}", channel.getName()))
+                    .send();
         }
     }
 }

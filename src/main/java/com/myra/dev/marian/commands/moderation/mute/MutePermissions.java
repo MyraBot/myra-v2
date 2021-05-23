@@ -7,18 +7,17 @@ import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent;
 
 import java.util.EnumSet;
 
-public class MutePermissions  {
+public class MutePermissions {
 
     public void textChannelCreateEvent(TextChannelCreateEvent event) {
-        String id = new MongoGuild(event.getGuild()).getString("muteRole");
-        if (id.equals("not set")) return;
-        Role muteRole = event.getGuild().getRoleById(id);
+        // Bot doesn't have MANAGE CHANNEL permission
+        if (event.getGuild().getSelfMember().hasPermission(event.getChannel(), Permission.MANAGE_CHANNEL)) return;
+
+        final String roleId = new MongoGuild(event.getGuild()).getString("muteRole");
+        if (roleId.equals("not set")) return;
+        final Role muteRole = event.getGuild().getRoleById(roleId);
         if (muteRole == null) return;
 
-        // Bot has permissions to change channel
-        if (event.getGuild().getSelfMember().hasPermission(event.getChannel(), Permission.MANAGE_CHANNEL)) {
-            event.getChannel().getManager().putPermissionOverride(muteRole, null, EnumSet.of(Permission.MESSAGE_WRITE)).queue();
-        }
-
+        event.getChannel().getManager().putPermissionOverride(muteRole, null, EnumSet.of(Permission.MESSAGE_WRITE)).queue();
     }
 }

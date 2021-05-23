@@ -1,24 +1,29 @@
 package com.myra.dev.marian.commands.help;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.APIs.TopGG;
-import com.myra.dev.marian.utilities.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.Config;
+import com.myra.dev.marian.utilities.APIs.TopGG;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Vote implements CommandHandler {
 
-@CommandEvent(
-        name = "vote",
-        aliases = {"v", "top.gg"}
-)
+    @CommandEvent(
+            name = "vote",
+            aliases = {"v", "top.gg"}
+    )
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
         if (ctx.getArguments().length != 0) return;
-        EmbedBuilder vote = new EmbedBuilder()
-                .setAuthor("vote", "https://top.gg/bot/718444709445632122/vote", ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
-                .setDescription("You want to " + Utilities.getUtils().hyperlink("vote", "https://top.gg/bot/718444709445632122/vote") + " for me? That would be awesome!\nCurrent votes: `" + TopGG.getInstance().getUpVotes() + "`");
-        ctx.getChannel().sendMessage(vote.build()).queue();
+
+        new Success(ctx.getEvent())
+                .setCommand("vote")
+                .setEmoji("\uD83D\uDDF3")
+                .setMessage(lang(ctx).get("command.help.vote.message")
+                        .replace("{$url}", "https://top.gg/bot/" + Config.MYRA_ID + "/vote") // Vote url
+                        .replace("{$votes}", TopGG.getInstance().getUpVotes())); // Bot votes
     }
 }

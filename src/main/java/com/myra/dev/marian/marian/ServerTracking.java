@@ -12,7 +12,7 @@ public class ServerTracking {
     public void onGuildJoin(GuildJoinEvent event) {
         EmbedBuilder server = new EmbedBuilder()
                 .setTitle("I joined " + event.getGuild().getName())
-                .setColor(Utilities.getUtils().blue)
+                .setColor(Utilities.blue)
                 .setThumbnail(event.getGuild().getIconUrl())
                 .setTimestamp(event.getGuild().getMember(event.getJDA().getSelfUser()).getTimeJoined().toInstant());
 
@@ -34,7 +34,7 @@ public class ServerTracking {
     public void onGuildLeave(GuildLeaveEvent event) {
         EmbedBuilder server = new EmbedBuilder()
                 .setTitle("I got kicked out of " + event.getGuild().getName())
-                .setColor(Utilities.getUtils().red)
+                .setColor(Utilities.red)
                 .setThumbnail(event.getGuild().getIconUrl())
                 .setTimestamp(event.getGuild().getMember(event.getJDA().getSelfUser()).getTimeJoined().toInstant());
 

@@ -44,33 +44,32 @@ public class WelcomeImageRender {
         final String fontName = db.getNested("welcome").getString("welcomeImageFont");
         final InputStream font = this.getClass().getClassLoader().getResourceAsStream(fontName + ".ttf"); // Get as input stream
         // Get graphics
-        final Graphic graphic = Graphic.getInstance();
         final Graphics graphics = background.getGraphics();
         final Graphics2D graphics2D = (Graphics2D) graphics;
         //enable anti aliasing
-        graphic.enableAntiAliasing(graphics);
+        Graphic.enableAntiAliasing(graphics);
         //choose format
         if (background.getHeight() > background.getWidth()) {
-            portrait(background, user, graphic, graphics, graphics2D, font);
+            portrait(background, user, graphics, graphics2D, font);
         } else {
-            landscape(background, user, graphic, graphics, graphics2D, font);
+            landscape(background, user, graphics, graphics2D, font);
         }
 
         // Return graphic as inputStream
-        return graphic.toInputStream(background);
+        return Graphic.toInputStream(background);
     }
 
-    private void landscape(BufferedImage background, User user, Graphic graphic, Graphics graphics, Graphics2D graphics2D, InputStream inputStream) throws Exception {
+    private void landscape(BufferedImage background, User user, Graphics graphics, Graphics2D graphics2D, InputStream inputStream) throws Exception {
         //resize avatar
-        BufferedImage avatar = graphic.getAvatar(user.getEffectiveAvatarUrl());
-        avatar = graphic.resizeImage(avatar, background.getWidth() / 5, background.getWidth() / 5);
+        BufferedImage avatar = Graphic.getAvatar(user.getEffectiveAvatarUrl());
+        avatar = Graphic.resizeImage(avatar, background.getWidth() / 5, background.getWidth() / 5);
         //load font
         Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 //draw avatar
         graphics2D.drawImage(
                 avatar,
-                graphic.imageCenter('X', avatar, background),
-                graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
+                Graphic.imageCenter('X', avatar, background),
+                Graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
                 null);
         // Draw circle around avatar
         graphics2D.setColor(Color.white);
@@ -80,8 +79,8 @@ public class WelcomeImageRender {
                 BasicStroke.JOIN_ROUND
         ));
         graphics2D.drawOval(
-                graphic.imageCenter('X', avatar, background),
-                graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
+                Graphic.imageCenter('X', avatar, background),
+                Graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
                 avatar.getWidth(), avatar.getHeight()
         );
 // Draw 'welcome'
@@ -109,22 +108,22 @@ public class WelcomeImageRender {
         graphics.setFont(font);
         //draw user name
         graphics.drawString(name,
-                graphic.textCenter('X', name, font, background),
-                (int) (graphic.textCenter('Y', name, font, background) + background.getHeight() / 2.25)
+                Graphic.textCenter('X', name, font, background),
+                (int) (Graphic.textCenter('Y', name, font, background) + background.getHeight() / 2.25)
         );
     }
 
-    private void portrait(BufferedImage background, User user, Graphic graphic, Graphics graphics, Graphics2D graphics2D, InputStream inputStream) throws Exception {
+    private void portrait(BufferedImage background, User user, Graphics graphics, Graphics2D graphics2D, InputStream inputStream) throws Exception {
         //resize avatar
-        BufferedImage avatar = graphic.getAvatar(user.getEffectiveAvatarUrl());
-        avatar = graphic.resizeImage(avatar, background.getWidth() / 2, background.getWidth() / 2);
+        BufferedImage avatar = Graphic.getAvatar(user.getEffectiveAvatarUrl());
+        avatar = Graphic.resizeImage(avatar, background.getWidth() / 2, background.getWidth() / 2);
         //load font
         Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
 //draw avatar
         graphics2D.drawImage(
                 avatar,
-                graphic.imageCenter('X', avatar, background),
-                graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
+                Graphic.imageCenter('X', avatar, background),
+                Graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
                 null);
         // Draw circle around avatar
         graphics2D.setColor(Color.white);
@@ -134,8 +133,8 @@ public class WelcomeImageRender {
                 BasicStroke.JOIN_ROUND
         ));
         graphics2D.drawOval(
-                graphic.imageCenter('X', avatar, background),
-                graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
+                Graphic.imageCenter('X', avatar, background),
+                Graphic.imageCenter('Y', avatar, background) - background.getHeight() / 4,
                 avatar.getWidth(), avatar.getHeight()
         );
 // Draw 'welcome'
@@ -144,8 +143,8 @@ public class WelcomeImageRender {
         graphics.setFont(font);
         //draw 'welcome'
         graphics.drawString("welcome",
-                graphic.textCenter('X', "welcome", font, background),
-                graphic.textCenter('Y', "welcome", font, background) + background.getHeight() / 6
+                Graphic.textCenter('X', "welcome", font, background),
+                Graphic.textCenter('Y', "welcome", font, background) + background.getHeight() / 6
         );
 // Draw user name
         final String name = user.getName(); // Get username
@@ -163,8 +162,8 @@ public class WelcomeImageRender {
         graphics.setFont(font);
         //draw user name
         graphics.drawString(name,
-                graphic.textCenter('X', name, font, background),
-                (graphic.textCenter('Y', name, font, background) + background.getHeight() / 3)
+                Graphic.textCenter('X', name, font, background),
+                (Graphic.textCenter('Y', name, font, background) + background.getHeight() / 3)
         );
     }
 }

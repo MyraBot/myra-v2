@@ -1,14 +1,16 @@
 package com.myra.dev.marian.commands.economy;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.CommandCooldown;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.Arrays;
@@ -16,61 +18,50 @@ import java.util.List;
 import java.util.Random;
 
 public class Fish implements CommandHandler {
+    private final int maxCatch = 25;
 
-@CommandEvent(
-        name = "fish"
-)
+    @CommandEvent(
+            name = "fish"
+    )
     public void execute(CommandContext ctx) throws Exception {
-        // Check for no arguments
-        if (ctx.getArguments().length != 0) return;
-        //Check for cooldown
-        if (!CommandCooldown.getInstance().addCommand(ctx, "fish", 5)) return;
-        // Get randomizer
-        Random random = new Random();
+        if (ctx.getArguments().length != 0) return; // Check for no arguments
 
+        if (!CommandCooldown.getInstance().addCommand(ctx, "fish", 5)) return; //Check for cooldown
         final GuildMember db = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get Member in database
-
         // Balance limit would be reached
-        if (db.getBalance() + 7 > Config.ECONOMY_MAX) {
+        if (db.getBalance() + maxCatch > Config.ECONOMY_MAX) {
             new Error(ctx.getEvent())
                     .setCommand("fish")
                     .setEmoji("\uD83C\uDFA3")
-                    .setMessage("We don't want people to get too rich... What about giving other members money? Then try again!")
+                    .setMessage(lang(ctx).get("command.economy.fish.balanceLimit"))
                     .send();
             return;
         }
 
         // Caught a fish
-        if (random.nextInt(25) <= 20) {
-            // Get win message
-            final String message = winMessage().get(0);
-            // Get price
-            final int reward = Integer.parseInt(winMessage().get(1));
+        if (new Random().nextInt(25) <= 20) {
+            final String message = winMessage().get(0); // Get win message
+            final int reward = Integer.parseInt(winMessage().get(1)); // Get price
             // Send message
             ctx.getChannel().sendMessage(new EmbedBuilder()
                     .setAuthor("fish", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
+                    .setColor(Utilities.blue)
                     .setDescription("\uD83C\uDFA3 │ " + message + " **+ " + reward + "**")
-                    .build()
-            ).queue();
-            // Get current balance
-            final int balance = db.getBalance();
-            // Update balance
-            db.setBalance(balance + reward);
+                    .build())
+                    .queue();
+            db.setBalance(db.getBalance() + reward); // Update balance
         }
         // Didn't catch a fish
         else {
-            // Get win message
-            final String message = loseMessage().get(0);
-            // Get price
-            final int lostMoney = Integer.parseInt(loseMessage().get(1));
+            final String message = loseMessage().get(0); // Get loose message
+            final int lostMoney = Integer.parseInt(loseMessage().get(1)); // Get price
             // Send message
             ctx.getChannel().sendMessage(new EmbedBuilder()
                     .setAuthor("fish", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
+                    .setColor(Utilities.blue)
                     .setDescription("\uD83C\uDFA3 │ " + message + " **- " + lostMoney + "**")
-                    .build()
-            ).queue();
+                    .build())
+                    .queue();
             // Get current balance
             final int balance = db.getBalance();
             // Update balance

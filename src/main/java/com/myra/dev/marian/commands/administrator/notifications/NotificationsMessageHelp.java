@@ -5,6 +5,7 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 
 public class NotificationsMessageHelp implements CommandHandler {
@@ -22,11 +23,11 @@ public class NotificationsMessageHelp implements CommandHandler {
                     .addUsages(
                             new Usage()
                                     .setUsage("notifications message twitch <message>")
-                                    .setDescription("Add a notification message, which is send once your streamer is live")
+                                    .setDescription(lang(ctx).get("description.notificationsMessage.twitch"))
                                     .setEmoji("\uD83D\uDCEF"),
                             new Usage()
                                     .setUsage("notifications message youtube <message>")
-                                    .setDescription("Add a notification message, which is send once a youtuber uploaded a video")
+                                    .setDescription(lang(ctx).get("description.notificationsMessage.youtube"))
                                     .setEmoji("\\\uD83D\uDCFA"));
             usage.send();
         }

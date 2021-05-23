@@ -11,11 +11,14 @@ import com.myra.dev.marian.database.guild.ShopRolesDocument;
 import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.Format;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,11 +33,10 @@ public class Buy implements CommandHandler {
 
         // Show shop
         if (ctx.getArguments().length == 0) {
-            // Create embed builder
-            EmbedBuilder shop = new EmbedBuilder()
-                    .setAuthor("shop", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription("");
+            // Create message for shop
+            final Success shop = new Success(ctx.getEvent())
+                    .setCommand("shop")
+                    .setEmoji("\uD83D\uDED2");
 
             // Add roles
             for (ShopRolesDocument role : roles) {
@@ -43,84 +45,89 @@ public class Buy implements CommandHandler {
                     ShopRolesManager.getInstance().removeRole(ctx.getGuild(), role.getId()); // Remove role
                     continue;
                 }
-                shop.appendDescription("• " + ctx.getGuild().getRoleById(role.getId()).getAsMention() + " - " + Utilities.getUtils().formatNumber(role.getPrice()) + "\n");
+                // Role is valid
+                else {
+                    shop.appendMessage("• " + ctx.getGuild().getRoleById(role.getId()).getAsMention() + " - " + Format.number(role.getPrice()) + "\n"); // Add role to shop message
+                }
             }
-            shop.appendDescription("\nTo buy a role use `" + ctx.getPrefix() + "buy <role>`");
-
-            // Send message
-            ctx.getChannel().sendMessage(shop.build()).queue();
+            shop.appendMessage("\n").appendMessage(lang(ctx).get("command.economy.buy.usage")); // Add buy usage
+            shop.send(); // Send shop overview
             return;
         }
 
 
-        final Utilities utilities = Utilities.getUtils();
-        // Get role name
-        if (utilities.getRole(ctx.getEvent(), ctx.getArgumentsRaw(), "buy", "\uD83D\uDED2") == null) return;
-        final Role role = utilities.getRole(ctx.getEvent(), ctx.getArgumentsRaw(), "buy", "\uD83D\uDED2");
+        // Get provided role
+        final Role role = Utilities.getRole(ctx.getEvent(), ctx.getArgumentsRaw(), "buy", "\uD83D\uDED2");
+        if (role == null) return;
 
         // Get role document
         final Optional<ShopRolesDocument> find = roles.stream()
                 .filter(r -> r.getId().equals(role.getId()))
                 .findFirst();
-
+        // Role is not for sale
         if (find.isEmpty()) {
             new Error(ctx.getEvent())
                     .setCommand("buy")
                     .setEmoji("\uD83D\uDED2")
-                    .setMessage("Tried buying admin? Pfff *nice idea*")
+                    .setMessage(lang(ctx).get("command.economy.buy.error.doesntExist"))
                     .send();
             return;
         }
-        final ShopRolesDocument roleInfo = find.get();
-
 
         final MongoGuild db = new MongoGuild(ctx.getGuild());
+        final ShopRolesDocument roleInfo = find.get(); // Get right shop role
         // Sell role
         if (ctx.getMember().getRoles().contains(ctx.getGuild().getRoleById(roleInfo.getId()))) {
             final int balance = db.getMembers().getMember(ctx.getMember()).getBalance(); // Get members balance
-            final int sellPrice = roleInfo.getPrice() / 2; // Get price to sell role
+            final String currency = db.getNested("economy").getString("currency"); // Get guild currency
+            int sellPrice = roleInfo.getPrice() / 2; // Get price to sell role
 
-            // Maximum amount of money would be reached
+            // Maximum amount of an would be reached
             if (balance + sellPrice > Config.ECONOMY_MAX) {
-                final int sellingPrice = Config.ECONOMY_MAX - balance; // Get price to sell the role
+                sellPrice = Config.ECONOMY_MAX - balance; // Get missing balance to reach limit
 
-                EmbedBuilder removeRole = new EmbedBuilder()
-                        .setAuthor("buy", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                        .setColor(Utilities.getUtils().blue)
-                        .setDescription("You already own this role. You can't get the full amount of money, because you would be too rich. Do you want to sell this role for `" + sellingPrice + "` " + db.getNested("economy").getString("currency"));
-                ctx.getChannel().sendMessage(removeRole.build()).queue();
+                new Success(ctx.getEvent())
+                        .setCommand("buy")
+                        .setEmoji("\uD83D\uDED2")
+                        .setMessage(lang(ctx).get("command.economy.buy.error.tooRich")
+                                .replace("{$price}", Format.number(sellPrice)) // Selling price
+                                .replace("{$currency}", currency)) // Server currency
+                        .send();
             }
             // Maximum amount of money wouldn't be reached
             else {
-                EmbedBuilder removeRole = new EmbedBuilder()
-                        .setAuthor("buy", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                        .setColor(Utilities.getUtils().blue)
-                        .setDescription("You already own this role. Do you want to sell this role for " + sellPrice + " " + db.getNested("economy").getString("currency"));
-                ctx.getChannel().sendMessage(removeRole.build()).queue(message -> {
+                final Success confirmation = new Success(ctx.getEvent())
+                        .setCommand("buy")
+                        .setEmoji("\uD83D\uDED2")
+                        .setMessage(lang(ctx).get("command.economy.buy.message.sell")
+                                .replace("{$price}", Format.number(sellPrice)));// Selling price
+
+                final int finalSellPrice = sellPrice; // Create final variable of selling price
+                ctx.getChannel().sendMessage(confirmation.getEmbed().build()).queue(message -> {
                     // Event waiter
                     ctx.getWaiter().waitForEvent(GuildMessageReceivedEvent.class)
                             .setCondition(e -> !e.getAuthor().isBot() && e.getAuthor().getIdLong() == ctx.getAuthor().getIdLong())
                             .setAction(e -> {
-                                final String response = e.getMessage().getContentRaw(); // Get response
+                                final String response = e.getMessage().getContentRaw().toLowerCase(); // Get response as lower case
 
                                 // Sell role
-                                if (response.equalsIgnoreCase("yes") || response.equalsIgnoreCase("ye")) {
-                                    final String currency = db.getNested("economy").getString("currency"); // Get currency
+                                if (Arrays.stream(lang(ctx).getArray("array.yes")).anyMatch(word -> word.equalsIgnoreCase(response))) {
                                     new Success(ctx.getEvent())
                                             .setCommand("buy")
                                             .setEmoji("\uD83D\uDED2")
-                                            .setMessage(String.format("Sold **%s** for `%s`%s", role.getAsMention(), sellPrice, currency))
+                                            .setMessage(String.format("Sold **%s** for `%s`%s", role.getAsMention(), finalSellPrice, currency))
                                             .send();
                                     ctx.getGuild().removeRoleFromMember(ctx.getMember(), role).queue(); // Remove role
 
-                                    db.getMembers().getMember(ctx.getMember()).setBalance(balance + sellPrice);
+                                    db.getMembers().getMember(ctx.getMember()).setBalance(balance + finalSellPrice); // Update balance
                                 }
                                 // Cancel selling role
-                                else if (response.equalsIgnoreCase("no") || response.equalsIgnoreCase("nope")) {
+                                else if (Arrays.stream(lang(ctx).getArray("array.no")).anyMatch(word -> word.equalsIgnoreCase(response))) {
                                     new Success(ctx.getEvent())
                                             .setCommand("buy")
                                             .setEmoji("\uD83D\uDED2")
-                                            .setMessage(String.format("Canceled selling **%s**... Maybe next time?", role.getAsMention()))
+                                            .setMessage(lang(ctx).get("command.economy.buy.message.canceled")
+                                                    .replace("{$role}", role.getAsMention()))
                                             .send();
                                 }
                             })
@@ -137,24 +144,23 @@ public class Buy implements CommandHandler {
                 new Error(ctx.getEvent())
                         .setCommand("buy")
                         .setEmoji("\uD83D\uDED2")
-                        .setMessage("You don't have enough money")
+                        .setMessage(lang(ctx).get("error.lessMoney"))
                         .send();
                 return;
             }
             // Add role
             try {
                 ctx.getGuild().addRoleToMember(ctx.getMember(), role).queue();
-            } catch (Exception e){
+            } catch (Exception e) {
                 // Role to buy is higher than bot
                 if (e.toString().startsWith("net.dv8tion.jda.api.exceptions.HierarchyException: Can't modify a role with higher or equal highest role than yourself!")) {
                     new Error(ctx.getEvent())
                             .setCommand("buy")
                             .setEmoji("\uD83D\uDED2")
-                            .setMessage("I couldn't assign this role, my role needs to be higher than the one you tried to buy")
+                            .setMessage(lang(ctx).get("error.roleHierarchy"))
                             .send();
                     return;
-                }
-                else e.printStackTrace();
+                } else e.printStackTrace();
             }
             // Remove balance
             final int balance = member.getBalance();
@@ -162,8 +168,8 @@ public class Buy implements CommandHandler {
             // Send success message
             EmbedBuilder success = new EmbedBuilder()
                     .setAuthor("buy", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription("You successfully bought " + role.getAsMention());
+                    .setColor(Utilities.blue)
+                    .setDescription(lang(ctx).get("command.economy.buy.message.bought"));
             ctx.getChannel().sendMessage(success.build()).queue();
         }
     }

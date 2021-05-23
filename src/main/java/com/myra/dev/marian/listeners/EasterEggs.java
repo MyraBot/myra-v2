@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.myra.dev.marian.utilities.language.Lang.lang;
+
 public class EasterEggs {
     private final String jtxId = "266226790458982412"; // User id from jtx
     private final List<String> sysMembers = new ArrayList<>() {{
@@ -24,7 +26,7 @@ public class EasterEggs {
 
         // Chocolate
         if (rawMessage.toLowerCase().contains("i like chocolate")) {
-            event.getChannel().sendMessage(String.format("I like chocolate too" + "%n(\\\\__/)" + "%n( • - • )" + "%n/っ \uD83C\uDF6B")).queue();
+            event.getChannel().sendMessage(lang(event).get("listener.easterEgg.chocolate")).queue();
         }
 
         // Guild events

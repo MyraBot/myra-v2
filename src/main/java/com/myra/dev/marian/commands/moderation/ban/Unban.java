@@ -1,71 +1,71 @@
 package com.myra.dev.marian.commands.moderation.ban;
 
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
-import java.time.Instant;
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Unban implements CommandHandler {
-
-@CommandEvent(
-        name = "unban",
-        aliases = {"unbean"},
-        requires = Moderator.class
-)
+    @CommandEvent(
+            name = "unban",
+            aliases = {"unbean"},
+            requires = Moderator.class
+    )
     public void execute(CommandContext ctx) throws Exception {
-        Utilities utilities = Utilities.getUtils(); // Get utilities
         // Command usage
         if (ctx.getArguments().length == 1) {
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setAuthor("│ unban", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "unban <user>`", "\uD83D\uDD13 │ unban a specific member", false);
-            ctx.getChannel().sendMessage(embed.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("unban")
+                    .addUsages(new Usage()
+                            .setUsage("unban <user>")
+                            .setEmoji("\uD83D\uDD13")
+                            .setDescription(lang(ctx).get("description.mod.unban")))
+                    .send();
             return;
         }
-// Unban
-        User user = utilities.getUser(ctx.getEvent(), ctx.getArguments()[0], "unban", "\uD83D\uDD13"); // Get member
+
+        final User user = Utilities.getUser(ctx.getEvent(), ctx.getArguments()[0], "unban", "\uD83D\uDD13"); // Get member
         if (user == null) return;
 
 
         ctx.getGuild().retrieveBanList().queue(bans -> {
             // User isn't banned
-            if (!bans.stream().anyMatch(ban -> ban.getUser().equals(user))) {
+            if (bans.stream().noneMatch(ban -> ban.getUser().equals(user))) {
                 new Error(ctx.getEvent())
                         .setCommand("unban")
                         .setEmoji("\uD83D\uDD13")
-                        .setMessage("This user isn't banned")
+                        .setMessage(lang(ctx).get("command.mod.unban.error.notBanned"))
                         .send();
                 return;
             }
 
+            // Prepare message
+            final Success success = new Success(ctx.getEvent())
+                    .setCommand("unban")
+                    .setFooter(lang(ctx).get("command.mod.info.requestBy")
+                                    .replace("{$member}", ctx.getAuthor().getAsTag()), // Member who executed the unban
+                            ctx.getAuthor().getEffectiveAvatarUrl())
+                    .addTimestamp();
 
             // Guild message
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setAuthor(user.getAsTag() + " got unbanned", null, user.getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription("\uD83D\uDD13 │ " + user.getAsMention() + " got unbanned from " + ctx.getGuild().getName())
-                    .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setTimestamp(Instant.now());
+            success.setMessage(lang(ctx).get("command.mod.unban.info.guild")
+                    .replace("{$user}", user.getAsTag())) // Member to unban
+                    .send();
             // Direct message
-            EmbedBuilder directMessage = new EmbedBuilder()
-                    .setAuthor("You got unbanned", null, ctx.getGuild().getIconUrl())
-                    .setColor(Utilities.getUtils().blue)
-                    .setDescription("\uD83D\uDD13 │ You got unbanned from `" + ctx.getGuild().getName() + "`")
-                    .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setTimestamp(Instant.now());
-
-            // Send messages
-            ctx.getChannel().sendMessage(embed.build()).queue(); // Guild message
-            user.openPrivateChannel().queue((channel) -> { // Direct message
-                channel.sendMessage(directMessage.build()).queue();
+            user.openPrivateChannel().queue(channel -> {
+                success.setMessage(lang(ctx).get("command.mod.unban.info.guild")
+                        .replace("{$guild}", ctx.getGuild().getName())) // Guild name
+                        .setChannel(channel)
+                        .send();
             });
 
             ctx.getGuild().unban(user).queue(); // unban user

@@ -24,8 +24,8 @@ public class Spotify {
     public void generateAuthToken() {
         // Form parameters
         final RequestBody body = new FormBody.Builder()
-                .add("client_id", Utilities.getUtils().spotifyClientId) // Add client id
-                .add("client_secret", Utilities.getUtils().spotifyClientSecret) // Add client secret
+                .add("client_id", Utilities.spotifyClientId) // Add client id
+                .add("client_secret", Utilities.spotifyClientSecret) // Add client secret
                 .add("grant_type", "client_credentials")
                 .build();
         //build request

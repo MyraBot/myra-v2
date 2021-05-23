@@ -13,7 +13,7 @@ public class WelcomeDirectMessageToggle implements CommandHandler {
         requires = Administrator.class
 )
     public void execute(CommandContext ctx) throws Exception {
-        //toggle feature
+        // Toggle feature
         new MongoGuild(ctx.getGuild()).getListenerManager().toggle("welcomeDirectMessage", "\u2709\uFE0F", ctx.getEvent());
     }
 }

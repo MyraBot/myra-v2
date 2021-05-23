@@ -1,5 +1,6 @@
 package com.myra.dev.marian.commands.administrator;
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -7,7 +8,9 @@ import com.mongodb.client.MongoCursor;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.management.Listeners;
 import com.myra.dev.marian.utilities.CustomEmoji;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.UserBadge;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -22,22 +25,45 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Config implements CommandHandler {
 
     @CommandEvent(
+            name = "config",
+            requires = Administrator.class,
+            channel = Channel.GUILD
+    )
+    public void onConfigHelp(CommandContext ctx) {
+        // No other command meant
+        if (ctx.getArguments().length != 1) {
+            // Command usages
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("config")
+                    .addUsages(
+                            new Usage().setUsage("config clean")
+                                    .setEmoji("\uD83E\uDDFD")
+                                    .setDescription(lang(ctx).get("description.config.clean")),
+                            new Usage().setUsage("config update")
+                                    .setEmoji("\u2B50")
+                                    .setDescription(lang(ctx).get("description.config.update")))
+                    .send();
+        }
+    }
+
+    @CommandEvent(
             name = "config clean",
-            requires = Administrator.class
+            requires = Administrator.class,
+            channel = Channel.GUILD
     )
     public void onMemberPurge(CommandContext ctx) {
         // Confirmation
-        final EmbedBuilder confirmation = new Success(ctx.getEvent())
+        final Success confirmation = new Success(ctx.getEvent())
                 .setCommand("config clean")
                 .setEmoji("\uD83E\uDDFD")
-                .setMessage("Remove left members from the database")
-                .setFooter("Do not touch this command, if you don't know what it does!")
-                .getEmbed();
-        ctx.getChannel().sendMessage(confirmation.build()).queue(message -> {
+                .setMessage(lang(ctx).get("description.config.clean"))
+                .setFooter(lang(ctx).get("message.securityWarning"));
+        ctx.getChannel().sendMessage(confirmation.getEmbed().build()).queue(message -> {
             message.addReaction(CustomEmoji.GREEN_TICK.getAsEmoji()).queue(); // Add reaction
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
@@ -48,12 +74,11 @@ public class Config implements CommandHandler {
                         Listeners.unavailableGuilds.add(e.getGuild().getId()); // Add Guild to unavailable guilds
 
                         final AtomicLong total = new AtomicLong(0); // Amount of passed members
-                        EmbedBuilder progress = new Success(ctx.getEvent())
+                        final String progressTemplate = lang(ctx).get("command.config.clean.info.progress");
+                        final EmbedBuilder progress = new Success(ctx.getEvent())
                                 .setCommand("config clean")
                                 .setEmoji("\uD83E\uDDFD")
-                                .setMessage("Now all members which left get removed from the database. This can take some time. Meanwhile the bot won't response on any actions of this server." +
-                                        "\nPlease be patient." +
-                                        "\n`0%`")
+                                .setMessage(progressTemplate.replace("{$percent}", "0"))
                                 .addTimestamp()
                                 .getEmbed();
 
@@ -87,7 +112,9 @@ public class Config implements CommandHandler {
                             new Success(ctx.getEvent())
                                     .setCommand("config clean")
                                     .setEmoji("\uD83E\uDDFD")
-                                    .setMessage(String.format("Successfully removed `%s/%s` members!", cleared, total.get()))
+                                    .setMessage(lang(ctx).get("command.config.clean.info.success")
+                                            .replace("{$clearedMembers}", String.valueOf(cleared)) // Amount of removed members
+                                            .replace("{$totalMembers}", String.valueOf(total.get()))) // Total membesr
                                     .addTimestamp()
                                     .send();
                             Listeners.unavailableGuilds.remove(e.getGuild().getId()); // Make guild available again
@@ -98,11 +125,9 @@ public class Config implements CommandHandler {
                             // While database is working
                             while (databaseAction.isAlive()) {
                                 try {
-                                    final long percentage = total.get() * 100 / memberCount;
-                                    progress.setDescription("Now all members which left get removed from the database. This can take some time. Meanwhile the bot won't response on any actions of this server." +
-                                            "\nPlease be patient." +
-                                            "\n`" + percentage + "%`");
-                                    progressMessage.editMessage(progress.build()).queue();
+                                    final long percentage = total.get() * 100 / memberCount; // calculate percentage
+                                    progress.setDescription(progressTemplate.replace("{$percent}", String.valueOf(percentage))); // Update percentage
+                                    progressMessage.editMessage(progress.build()).queue(); // Edit message
 
                                     Thread.sleep(5000);
                                 } catch (InterruptedException exception) {
@@ -120,15 +145,17 @@ public class Config implements CommandHandler {
     }
 
     @CommandEvent(
-            name = "config update"
+            name = "config update",
+            requires = Administrator.class,
+            channel = Channel.GUILD
     )
     public void onMemberUpdate(CommandContext ctx) {
         // Confirmation
         final EmbedBuilder confirmation = new Success(ctx.getEvent())
-                .setCommand("config clean")
+                .setCommand("config update")
                 .setEmoji("\u2B50")
-                .setMessage("Update users data")
-                .setFooter("Do not touch this command, if you don't know what it does!")
+                .setMessage(lang(ctx).get("description.config.update"))
+                .setFooter(lang(ctx).get("message.securityWarning"))
                 .getEmbed();
         ctx.getChannel().sendMessage(confirmation.build()).queue(message -> {
             message.addReaction(CustomEmoji.GREEN_TICK.getAsEmoji()).queue(); // Add reaction
@@ -138,17 +165,15 @@ public class Config implements CommandHandler {
                             e.getReactionEmote().toString().equals(CustomEmoji.GREEN_TICK.getAsReactionEmote()))
                     .setAction(e -> {
                         Listeners.unavailableGuilds.add(e.getGuild().getId()); // Add Guild to unavailable guilds
+
                         final long total = MongoDb.getInstance().getCollection("users").countDocuments(exists(e.getGuild().getId())); // Get amount of documents to parse
                         final AtomicLong updated = new AtomicLong(0); // Amount of already passed documents
-
-                        EmbedBuilder progress = new Success(ctx.getEvent())
-                                .setCommand("config clean")
+                        final String progressTemplate = lang(ctx).get("command.config.update.progress");
+                        final Success progress = new Success(ctx.getEvent())
+                                .setCommand("config update")
                                 .setEmoji("\u2B50")
-                                .setMessage("Now the data of all members get updated. This can take some time. Meanwhile the bot won't response on any actions of this server." +
-                                        "\nPlease be patient." +
-                                        "\n`0%`")
-                                .addTimestamp()
-                                .getEmbed();
+                                .setMessage(progressTemplate.replace("{$percent}", "0"))
+                                .addTimestamp();
 
                         // Database clearing thread
                         final Thread databaseAction = new Thread(() -> {
@@ -180,7 +205,8 @@ public class Config implements CommandHandler {
                             new Success(ctx.getEvent())
                                     .setCommand("config clean")
                                     .setEmoji("\u2B50")
-                                    .setMessage(String.format("Successfully updated `%s` members!", updated))
+                                    .setMessage(lang(ctx).get("command.config.update.success")
+                                            .replace("{$updatedMembers}", String.valueOf(updated)))
                                     .addTimestamp()
                                     .send();
                             Listeners.unavailableGuilds.remove(e.getGuild().getId()); // Make guild available again
@@ -188,15 +214,13 @@ public class Config implements CommandHandler {
                         databaseAction.setName("Update members " + ctx.getGuild().getId()); // Set thread name
 
                         // Progress animation thread
-                        e.getChannel().sendMessage(progress.build()).queue(progressMessage -> new Thread(() -> {
+                        e.getChannel().sendMessage(progress.getEmbed().build()).queue(progressMessage -> new Thread(() -> {
                             // While database is working
                             while (databaseAction.isAlive()) {
                                 try {
-                                    final long percentage = updated.get() * 100 / total;
-                                    progress.setDescription("Now all members which left get removed from the database. This can take some time. Meanwhile the bot won't response on any actions of this server." +
-                                            "\nPlease be patient." +
-                                            "\n`" + percentage + "%`");
-                                    progressMessage.editMessage(progress.build()).queue();
+                                    final long percentage = updated.get() * 100 / total; // Calculate percentage
+                                    progress.setMessage(progressTemplate.replace("{$percent}", String.valueOf(percentage))); // Update percentage
+                                    progressMessage.editMessage(progress.getEmbed().build()).queue(); // Edit message
 
                                     Thread.sleep(5000);
                                 } catch (InterruptedException exception) {

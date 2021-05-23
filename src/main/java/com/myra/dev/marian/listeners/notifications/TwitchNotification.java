@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import static com.myra.dev.marian.utilities.language.Lang.lang;
+
 public class TwitchNotification {
 
     public void jdaReady(ReadyEvent event) throws Exception {
@@ -47,12 +49,12 @@ public class TwitchNotification {
                                 .setCommand("notifications")
                                 .setEmoji("\uD83D\uDD14")
                                 .setAvatar(guild.getIconUrl())
-                                .setMessage("No notifications channel specified")
+                                .setMessage(lang(guild).get("listener.notifications.error.noChannel"))
                                 .setChannel(guild.getDefaultChannel())
                                 .send();
                         continue;
                     }
-                    TextChannel channel = guild.getTextChannelById(channelRaw); // Get notifications channel
+                    final TextChannel channel = guild.getTextChannelById(channelRaw); // Get notifications channel
                     if (channel == null) continue;
 
                     // For each streamer
@@ -95,8 +97,8 @@ public class TwitchNotification {
                         // Create embed
                         EmbedBuilder notification = new EmbedBuilder()
                                 .setAuthor(name, "https://www.twitch.tv/" + name, thumbnail)
-                                .setColor(Utilities.getUtils().blue)
-                                .setDescription(Utilities.getUtils().hyperlink(title, String.format("https://www.twitch.tv/%s", name)) + "\n" + game)
+                                .setColor(Utilities.blue)
+                                .setDescription(Utilities.hyperlink(title, String.format("https://www.twitch.tv/%s", name)) + "\n" + game)
                                 .setThumbnail(thumbnail)
                                 .setImage(preview)
                                 .setTimestamp(date.toInstant());
@@ -113,7 +115,7 @@ public class TwitchNotification {
                 updatedDocument.replace("twitch refresh", System.currentTimeMillis()); // Update last check
                 MongoDb.getInstance().getCollection("config").findOneAndReplace(MongoDb.getInstance().getCollection("config").find().first(), updatedDocument); // Update document
 
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }, start, 5, TimeUnit.MINUTES);

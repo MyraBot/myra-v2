@@ -22,14 +22,13 @@ public class Commands implements CommandHandler {
             "\uD83D\uDD29" // Administrator
     };
 
-
     @CommandEvent(
             name = "commands",
             aliases = {"command"}
     )
     public void execute(CommandContext ctx) throws Exception {
-        //menu
-        ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(), ctx.getEvent().getJDA(), ctx.getAuthor(), ctx.getPrefix()).commands().build()).queue(message -> {
+        // Menu
+        ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(), ctx.getAuthor()).commands().build()).queue(message -> {
             // Add reactions
             message.addReaction(emojis[0]).queue(); // Help
             message.addReaction(emojis[1]).queue(); // General
@@ -44,10 +43,10 @@ public class Commands implements CommandHandler {
                     .setCondition(e -> !e.getUser().isBot() // No bot
                             && e.getMessageId().equals(message.getId()) // Same message
                             && e.getUserIdLong() == ctx.getAuthor().getIdLong() // Same author
-                            && Arrays.stream(emojis).anyMatch(e.getReactionEmote().getEmoji()::equals)) // Match emoji
+                            && Arrays.asList(emojis).contains(e.getReactionEmote().getEmoji())) // Match emoji
                     .setAction(e -> {
                         final String prefix = new MongoGuild(e.getGuild()).getString("prefix"); // Get Prefix
-                        final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getJDA(), e.getUser(), prefix); // Get Embeds
+                        final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getUser()); // Get Embeds
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 
                         // Help commands

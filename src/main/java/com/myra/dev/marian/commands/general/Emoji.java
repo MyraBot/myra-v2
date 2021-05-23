@@ -1,36 +1,38 @@
 package com.myra.dev.marian.commands.general;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 
 public class Emoji implements CommandHandler {
 
-@CommandEvent(
-        name = "character",
-        aliases = {"char", "emoji"}
-)
+    @CommandEvent(
+            name = "character",
+            aliases = {"char", "emoji"}
+    )
     public void execute(CommandContext ctx) throws Exception {
+        // Command usage
         if (ctx.getArguments().length != 1) {
             new CommandUsage(ctx.getEvent())
                     .setCommand("character")
                     .addUsages(new Usage()
-                    .setUsage("character <character/emoji>")
-                    .setEmoji("\u2049")
-                    .setDescription("Get the Unicode of a character or emoji")
-                    ).send();
+                            .setUsage("character <character/emoji>")
+                            .setEmoji("\u2049")
+                            .setDescription(lang(ctx).get("description.general.emoji")))
+                    .send();
         }
-        if (ctx.getArguments()[0].codePoints().count() > 10) {
-            // Invalid
-            return;
-        }
+
+        // Invalid character
+        if (ctx.getArguments()[0].codePoints().count() > 10) return;
 
         Success success = new Success(ctx.getEvent())
                 .setCommand("character")
-                .setMessage("**Character information of " + ctx.getArguments()[0] + "**");
+                .setMessage(lang(ctx).get("command.general.character.success")
+                        .replace("{$character}", ctx.getArguments()[0])); // Character to get informations from
         ctx.getArguments()[0].codePoints().forEachOrdered(code -> { // Loop through all code point variants
             final char[] chars = Character.toChars(code); // Convert codepoints to characters
 

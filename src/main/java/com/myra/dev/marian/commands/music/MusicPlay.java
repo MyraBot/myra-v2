@@ -8,59 +8,70 @@ import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.spotify.Playlist;
 import com.myra.dev.marian.utilities.APIs.spotify.Spotify;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
-import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 @SuppressWarnings("ConstantConditions") // Requires '.enableCache(CacheFlag.VOICE_STATE)' to be not null
 public class MusicPlay implements CommandHandler {
-
     @CommandEvent(
             name = "play",
+            aliases = {"p"},
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
-        //command usage
+        // Command usage
         if (ctx.getArguments().length == 0) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("play", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(Utilities.getUtils().gray)
-                    .addField("`" + ctx.getPrefix() + "play <song>`", "\uD83D\uDCBF │ add a song to the queue*", false)
-                    .setFooter("supported platforms: YoutTube, SoundCloud, Bandcamp, Vimeo, Twitch streams");
-            ctx.getChannel().sendMessage(usage.build()).queue();
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("play")
+                    .addUsages(new Usage()
+                            .setUsage("play <song>")
+                            .setEmoji("\uD83D\uDCBF")
+                            .setDescription(lang(ctx).get("description.music.play")))
+                    .addInformation(lang(ctx).get("command.music.info.platforms"))
+                    .send();
             return;
         }
-        // Add a audio track to the queue
-        // Member isn't in a voice call
+
+        final AudioManager audioManager = ctx.getGuild().getAudioManager();
+        // Bot hasn't joined voice channel yet
+        if (!audioManager.isConnected()) {
+            audioManager.openAudioConnection(ctx.getMember().getVoiceState().getChannel()); // Connect to voice channel
+        }
+        // Author isn't in a voice channel yet
         if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
             new Error(ctx.getEvent())
-                    .setCommand("play")
-                    .setEmoji("\uD83D\uDCBF")
-                    .setMessage("You need to join a voice channel first to use this command")
-                    .send();
+                    .setCommand("leave")
+                    .setEmoji("\uD83D\uDCE4")
+                    .setMessage(lang(ctx).get("command.music.error.memberNotInVoiceChannel")).send();
             return;
         }
-        // Member isn't in the same voice call as bot
-        if (ctx.getGuild().getAudioManager().isConnected() && !ctx.getEvent().getMember().getVoiceState().getChannel().equals(ctx.getGuild().getAudioManager().getConnectedChannel())) {
-            new Error(ctx.getEvent())
-                    .setCommand("play")
-                    .setEmoji("\uD83D\uDCBF")
-                    .setMessage("You need to join the same voice channel as me")
-                    .send();
+        // Author isn't in the same voice channel as bot
+        if (audioManager.isConnected() && !audioManager.getConnectedChannel().getMembers().contains(ctx.getEvent().getMember())) {
+            audioManager.getConnectedChannel().createInvite().timeout(15, TimeUnit.MINUTES).queue(invite -> {
+                new Error(ctx.getEvent())
+                        .setCommand("leave")
+                        .setEmoji("\uD83D\uDCE4")
+                        .setMessage(lang(ctx).get("command.music.error.alreadyConnected")
+                                .replace("{$channel}", invite.getChannel().getName()) // Channel name
+                                .replace("{$invite}", invite.getUrl())) // Invite url
+                        .send();
+            });
             return;
         }
 
-        if (!ctx.getGuild().getAudioManager().isConnected())
-            ctx.getGuild().getAudioManager().openAudioConnection(ctx.getMember().getVoiceState().getChannel());
         // Get song
         String song = ctx.getArgumentsRaw();
-
         // If song is url
-        if (isValidURL(song)) {
+        if (Utilities.isValidURL(song)) {
             // Link is spotify playlist
             if (song.startsWith("https://open.spotify.com/playlist/")) {
                 final String playlistId = song.split("/")[4].split("\\?")[0]; // Get playlist id
@@ -77,20 +88,7 @@ public class MusicPlay implements CommandHandler {
             PlayerManager.getInstance().loadAndPlay(ctx.getEvent().getMessage(), String.format("ytsearch:%s", song), false, null); // Play song}
         }
 
-        try {
-            ctx.getEvent().getMessage().delete().queue(); // Delete message
-        } catch (InsufficientPermissionException e){
-            // Ignore missing permissions
-        }
-
-    }
-
-    private boolean isValidURL(String url) {
-        try {
-            new URL(url);
-            return true;
-        } catch (MalformedURLException e){
-            return false;
-        }
+        ctx.getEvent().getMessage().delete().queue(null, new ErrorHandler() // Delete message
+                .ignore(InsufficientPermissionException.class));  // Ignore missing permissions exceptions
     }
 }

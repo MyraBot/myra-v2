@@ -4,6 +4,7 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.myra.dev.marian.utilities.APIs.Reddit;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 
 public class Meme implements CommandHandler {
 
@@ -18,7 +19,7 @@ public class Meme implements CommandHandler {
             new Error(ctx.getEvent())
                     .setCommand("meme")
                     .setEmoji("\uD83E\uDD2A")
-                    .setMessage(String.format("Yo, feel honored. This is a very rare error (:%n*Also I couldn't load the meme*"))
+                    .setMessage(lang(ctx).get("command.fun.meme.error.unknown"))
                     .send();
         }
     }

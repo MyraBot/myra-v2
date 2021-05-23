@@ -1,15 +1,18 @@
 package com.myra.dev.marian.commands.moderation.ban;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.mongodb.client.MongoCollection;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.guild.MongoGuild;
+import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
+import com.myra.dev.marian.utilities.EmbedMessage.Success;
+import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import static com.myra.dev.marian.utilities.language.Lang.*;
 import com.myra.dev.marian.utilities.permissions.Moderator;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -18,108 +21,92 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import org.bson.Document;
 import org.json.JSONObject;
 
-import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 public class Tempban implements CommandHandler {
-    private final MongoDb mongoDb = MongoDb.getInstance();
-
     @CommandEvent(
             name = "tempban",
             aliases = {"tempbean"},
             requires = Moderator.class
     )
     public void execute(CommandContext ctx) throws Exception {
-        final Utilities utilities = Utilities.getUtils(); // Get utilities
         // Command usage
         if (ctx.getArguments().length == 0) {
-            EmbedBuilder usage = new EmbedBuilder()
-                    .setAuthor("tempban", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColor(utilities.gray)
-                    .addField("`" + ctx.getPrefix() + "tempban <user> <duration><time unit> [reason]`", "\u23F1\uFE0F │ Ban a user for a certain amount of time", false)
-                    .setFooter("Accepted time units: seconds, minutes, hours, days");
-            ctx.getChannel().sendMessage(usage.build()).queue();
-            return;
-        }
-// Tempban
-        final String reason = ctx.getArgumentsRaw().split("\\s+", 3)[2]; // Get reason
-        final String durationRaw = ctx.getArguments()[1]; // Get duration from the message
-        //if the duration is not [NumberLetters]
-        if (!durationRaw.matches("[0-9]+[a-zA-z]+")) {
-            new Error(ctx.getEvent())
+            new CommandUsage(ctx.getEvent())
                     .setCommand("tempban")
-                    .setEmoji("\u23F1\uFE0F")
-                    .setMessage("Invalid time")
-                    .setFooter("please note: `<time><time unit>`")
+                    .addUsages(new Usage()
+                            .setUsage("tempban <user> <duration><time unit> (reason)")
+                            .setEmoji("\u23F1\uFE0F")
+                            .setDescription(lang(ctx).get("description.mod.tempban")))
+                    .addInformation(lang(ctx).get("command.mod.tempban.info.timeUnits"))
                     .send();
             return;
         }
 
-        Member member = utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "tempban", "\u23F1\uFE0F"); // Get member
+        // Get provided member
+        final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "tempban", "\u23F1\uFE0F"); // Get member
         if (member == null) return;
 
+
+        final String reason = ctx.getArguments().length == 1 ? "none" : ctx.getArgumentsRaw().split("\\s+", 3)[2]; // Get reason
+        final String durationRaw = ctx.getArguments()[1]; // Get duration from the message
+        // Duration doesn't math [NumbersLetters]
+        if (!durationRaw.matches("[0-9]+[a-zA-z]+")) {
+            new Error(ctx.getEvent())
+                    .setCommand("tempban")
+                    .setEmoji("\u23F1\uFE0F")
+                    .setMessage(lang(ctx).get("error.invalidTime"))
+                    .send();
+            return;
+        }
+
         // Return duration
-        JSONObject durationList = utilities.getDuration(durationRaw);
-        String duration = String.valueOf(durationList.getLong("duration")); // Get duration
+        final JSONObject durationList = Utilities.getDuration(durationRaw);
+        final String duration = String.valueOf(durationList.getLong("duration")); // Get duration
         long durationInMilliseconds = durationList.getLong("durationInMilliseconds"); // Get duration in milliseconds
-        TimeUnit timeUnit = TimeUnit.valueOf(durationList.getString("timeUnit")); // Get Time unit
+        final TimeUnit timeUnit = TimeUnit.valueOf(durationList.getString("timeUnit")); // Get Time unit
 
-        final User user = member.getUser(); // Get member as user
-        // Guild message (ban)
-        EmbedBuilder guildMessageBan = new EmbedBuilder()
-                .setAuthor(user.getAsTag() + " got temporary banned", null, user.getEffectiveAvatarUrl())
-                .setColor(utilities.red)
-                .setDescription("\u23F1\uFE0F │ " + user.getAsMention() + " got banned for **" + duration + " " + timeUnit.toString().toLowerCase() + "**")
-                .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
-        // Direct message (ban)
-        EmbedBuilder directMessageBan = new EmbedBuilder()
-                .setAuthor("You got temporary banned", null, ctx.getGuild().getIconUrl())
-                .setColor(utilities.red)
-                .setDescription("\u23F1\uFE0F │ You got banned on `" + ctx.getGuild().getName() + "` for **" + duration + " " + timeUnit.toString().toLowerCase() + "**")
-                .setFooter("requested by " + ctx.getAuthor().getAsTag(), ctx.getAuthor().getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
+        // Prepare message
+        final Success success = new Success(ctx.getEvent())
+                .setCommand("tempban")
+                // Member who executed the ban
+                .setFooter(lang(ctx).get("command.mod.info.requestBy")
+                                .replace("{$member}", ctx.getAuthor().getAsTag()),
+                        ctx.getAuthor().getEffectiveAvatarUrl())
+                // Add reason
+                .addField("\uD83D\uDCC4 │ " + lang(ctx).get("word.reason"), reason)
+                .addTimestamp();
 
-        // With reason
-        if (reason != null) {
-            guildMessageBan.addField("\uD83D\uDCC4 │ reason:", reason, false); // Add reason
-            directMessageBan.addField("\uD83D\uDCC4 │ reason:", reason, false); // Add reason
-        }
-        // Without reason
-        else {
-            guildMessageBan.addField("\uD83D\uDCC4 │ no reason", "there was no reason given", false); // Set reason to none
-            directMessageBan.addField("\uD83D\uDCC4 │ no reason", "there was no reason given", false); // Set reason to none
-        }
-        // Send messages
-        ctx.getChannel().sendMessage(guildMessageBan.build()).queue(); // Send guild messages
-        user.openPrivateChannel().queue((channel) -> { // Send direct message
-            channel.sendMessage(directMessageBan.build()).queue();
+        // Send guild message
+        success.setMessage(lang(ctx).get("command.mod.tempban.info.guild")
+                .replace("{$member}", member.getAsMention()) // Member who got banned
+                .replace("{$duration}", duration) // Ban duration
+                .replace("{$timeunit}", timeUnit.toString().toLowerCase()))
+                .send(); // Send in current channel
+        // Send direct message
+        member.getUser().openPrivateChannel().queue(channel -> {
+            success.setMessage(lang(ctx).get("command.mod.tempban.info.dm")
+                    .replace("{$guild}", ctx.getGuild().getName()) // Guild name
+                    .replace("{$duration}", duration) // Ban duration
+                    .replace("{$timeunit}", timeUnit.toString().toLowerCase()))
+                    .setChannel(channel) // Set channel to direct message
+                    .send();
         });
-        // With reason
-        if (reason != null) member.ban(7, reason).queue();
-            // Without reason
-        else member.ban(7).queue();
 
-// Unban
-        Document document = createUnban(user.getId(), ctx.getGuild().getId(), durationInMilliseconds, ctx.getAuthor().getId()); // Create unban document
+        member.ban(7, reason).queue(); // Ban member
+
+
+        final Document document = createUnban(member.getId(), ctx.getGuild().getId(), durationInMilliseconds, ctx.getAuthor().getId()); // Create unban document
         //delay
-        Utilities.TIMER.schedule(new Runnable() {
-
-@CommandEvent(
-        name = "tempban",
-        aliases = {"temp ban", "tempbean", "temp bean"},
-        requires = Moderator.class
-)
-            public void run() {
-                ctx.getGuild().unban(user).queue(); // Unban
-                unbanMessage(user, ctx.getGuild(), ctx.getAuthor()); // Send unban message
-                mongoDb.getCollection("unbans").deleteOne(document); // Delete Document
-            }
+        Utilities.TIMER.schedule(() -> {
+            ctx.getGuild().unban(member.getUser()).queue(); // Unban
+            unbanMessage(member.getUser(), ctx.getGuild(), ctx.getAuthor()); // Send unban message
+            MongoDb.getInstance().getCollection("unbans").deleteOne(document); // Delete Document
         }, durationInMilliseconds, TimeUnit.MILLISECONDS);
     }
 
     public Document createUnban(String userId, String guildId, Long durationInMilliseconds, String moderatorId) {
-        MongoCollection<Document> guilds = mongoDb.getCollection("unbans");
+        MongoCollection<Document> guilds = MongoDb.getInstance().getCollection("unbans");
         // Create document
         Document docToInsert = new Document()
                 .append("userId", userId)
@@ -133,7 +120,7 @@ public class Tempban implements CommandHandler {
 
     public void loadUnbans(ReadyEvent event) throws Exception {
         //for each document
-        for (Document doc : mongoDb.getCollection("unbans").find()) {
+        for (Document doc : MongoDb.getInstance().getCollection("unbans").find()) {
             Long unbanTime = doc.getLong("unbanTime"); // Get unban time
             Guild guild = event.getJDA().getGuildById(doc.getString("guildId")); // Get guild
 
@@ -147,7 +134,7 @@ public class Tempban implements CommandHandler {
                     if (bans.stream().anyMatch(ban -> ban.getUser().equals(event.getJDA().getUserById(userId)))) {
                         guild.unban(user).queue(); // Unban
                         unbanMessage(user, guild, event.getJDA().getUserById(doc.getString("moderatorId"))); // Send unban message
-                        mongoDb.getCollection("unbans").deleteOne(doc); // Delete document
+                        MongoDb.getInstance().getCollection("unbans").deleteOne(doc); // Delete document
                     }
                 }
 // Unban time isn't reached yet
@@ -156,7 +143,7 @@ public class Tempban implements CommandHandler {
                     Utilities.TIMER.schedule(() -> {
                         guild.unban(user).queue(); // Unban
                         unbanMessage(user, guild, event.getJDA().getUserById(doc.getString("moderatorId"))); // Send unban message
-                        mongoDb.getCollection("unbans").deleteOne(doc); // Delete document
+                        MongoDb.getInstance().getCollection("unbans").deleteOne(doc); // Delete document
                     }, doc.getLong("unbanTime") - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
                 }
             });
@@ -165,20 +152,22 @@ public class Tempban implements CommandHandler {
 
     private void unbanMessage(User user, Guild guild, User author) {
         MongoGuild db = new MongoGuild(guild); // Get database
-        // Direct message
-        EmbedBuilder directMessage = new EmbedBuilder()
-                .setAuthor("│ You got unbanned", null, guild.getIconUrl())
-                .setColor(Utilities.getUtils().blue)
-                .setDescription("\uD83D\uDD13 │ You got unbanned from " + guild.getName())
-                .setFooter("requested by " + author.getAsTag(), author.getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
-        // Guild message
-        EmbedBuilder guildMessage = new EmbedBuilder()
-                .setAuthor("│ " + user.getAsTag() + " got unbanned", null, user.getEffectiveAvatarUrl())
-                .setColor(Utilities.getUtils().blue)
-                .setDescription("\uD83D\uDD13 │ " + user.getAsMention() + " got unbanned from " + guild.getName())
-                .setFooter("requested by " + author.getAsTag(), author.getEffectiveAvatarUrl())
-                .setTimestamp(Instant.now());
+
+        // Prepare message
+        final Success success = new Success(null)
+                .setCommand("tempban")
+                .setFooter(lang(guild).get("command.mod.tempban.info.requesterInfo").replace("{$member}",
+                        author.getAsTag()), author.getEffectiveAvatarUrl())
+                .addTimestamp();
+
+        // Send direct message
+        user.openPrivateChannel().queue(channel -> {
+            success.setMessage(lang(guild).get("command.mod.unban.info.dm")
+                    .replace("{$guild}", guild.getName()))
+                    .setAvatar(guild.getIconUrl())
+                    .setChannel(channel)
+                    .send();
+        });
 
         // No log channel set
         if (db.getString("logChannel").equals("not set")) {
@@ -190,12 +179,12 @@ public class Tempban implements CommandHandler {
                     .send();
             return;
         }
-        final TextChannel textChannel = guild.getTextChannelById(db.getString("logChannel")); // Get log channel
-
-        // Send messages
-        textChannel.sendMessage(guildMessage.build()).queue(); // Send guild message
-        user.openPrivateChannel().queue((channel) -> { // Send direct message
-            channel.sendMessage(directMessage.build()).queue();
-        });
+        final TextChannel logChannel = guild.getTextChannelById(db.getString("logChannel")); // Get log channel
+        // Send in log channel
+        success.setMessage(lang(guild).get("command.mod.unban.info.guild")
+                .replace("{$user}", user.getAsTag()))
+                .setAvatar(user.getEffectiveAvatarUrl())
+                .setChannel(logChannel)
+                .send();
     }
 }

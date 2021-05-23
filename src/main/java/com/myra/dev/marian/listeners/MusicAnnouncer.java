@@ -1,14 +1,17 @@
 package com.myra.dev.marian.listeners;
 
+import com.myra.dev.marian.DiscordBot;
+import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.RequestData;
 import com.myra.dev.marian.utilities.CustomEmoji;
 import com.myra.dev.marian.utilities.EmbedMessage.Success;
-import com.myra.dev.marian.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class MusicAnnouncer extends AudioEventAdapter {
     private String oldMessageId;
@@ -21,8 +24,13 @@ public class MusicAnnouncer extends AudioEventAdapter {
         final RequestData requestData = track.getUserData(RequestData.class); // Get request data
 
         requestData.getGuild().retrieveMemberById(requestData.getMemberId()).queue(member -> {
-            final AudioTrackInfo trackInfo = track.getInfo(); // Get track information
-            String announcement = String.format("%s Now playing %s [%s]", CustomEmoji.VOICE.getAsEmoji(), Utilities.getUtils().hyperlink(String.format("`%s - %s`", trackInfo.title, trackInfo.author), trackInfo.uri), member.getAsMention());
+            final Long guildId = PlayerManager.getGuildIdFromPlayer(player); // Get guild id of audioPlayer
+            final Guild guild = DiscordBot.shardManager.getGuildById(guildId); // Get guild by id
+            final String announcement = lang(guild).get("listener.music.announcer")
+                    .replace("{$emote}", CustomEmoji.VOICE.getAsEmoji()) // Voice call emote
+                    .replace("{$track.name}", track.getInfo().title) // Track title
+                    .replace("{$track.url}", track.getInfo().uri) // Track url
+                    .replace("{$requester.mention}", member.getAsMention()); // Requester mention
 
             final EmbedBuilder nowPlaying = new Success(null)
                     .setCommand("Now playing")
@@ -35,7 +43,8 @@ public class MusicAnnouncer extends AudioEventAdapter {
             if (oldMessageId != null) {
                 requestData.getChannel().retrieveMessageById(oldMessageId).queue(
                         msg -> msg.delete().queue(),
-                        error -> {}
+                        error -> {
+                        }
                 );
             }
             // Send message
