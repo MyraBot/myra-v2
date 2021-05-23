@@ -62,7 +62,6 @@ import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedHelp;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedMessage;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedToggle;
 import com.myra.dev.marian.marian.GetInvite;
-import com.myra.dev.marian.marian.MariansDiscordEmbeds;
 import com.myra.dev.marian.marian.SetGuildPremium;
 import com.myra.dev.marian.marian.Shutdown;
 
@@ -72,7 +71,6 @@ public class Registration {
         DiscordBot.COMMAND_SERVICE.registerCommandClasses(
                 // Marian
                 new SetGuildPremium(),
-                new MariansDiscordEmbeds(),
                 new GetInvite(),
                 new Shutdown(),
                 // Premium
@@ -179,7 +177,6 @@ public class Registration {
                 new MusicQueue(),
                 new MusicSkip(),
                 new MusicClearQueue(),
-                //new MusicFilters(),
                 // Autorole
                 new AutoRole(),
                 // Notification
