@@ -1,7 +1,7 @@
 package com.myra.dev.marian.commands.music;
 
 import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.myra.dev.marian.DiscordBot;
+import com.github.m5rian.jdaCommandHandler.CommandUtils;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.PlayerManager;
 import com.myra.dev.marian.utilities.APIs.LavaPlayer.TrackScheduler;
@@ -52,8 +52,7 @@ public class MusicVoteListener {
                         }).whenComplete((input, exception) -> { // Run after all entities are iterated
                             if (exception != null) {
                                 exception.printStackTrace();
-                            }
-                            else {
+                            } else {
                                 try {
                                     System.out.println(votes.get());
                                     if (votes.get() < size / 2) return; // Not enough votes
@@ -61,19 +60,19 @@ public class MusicVoteListener {
                                     final String prefix = new MongoGuild(event.getGuild()).getString("prefix"); // Get prefix
                                     final TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(event.getGuild()).scheduler;  // Get track scheduler
 
-                                    final List<String> skipExecutors = DiscordBot.COMMAND_SERVICE.getCommandExecutors(MusicSkip.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicSkip} class*/
+                                    final List<String> skipExecutors = CommandUtils.getCommandExecutors(MusicSkip.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicSkip} class*/
                                     final List<String> clearQueueExecutors;
-                                    clearQueueExecutors = DiscordBot.COMMAND_SERVICE.getCommandExecutors(MusicClearQueue.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicClearQueue} class*/
+                                    clearQueueExecutors = CommandUtils.getCommandExecutors(MusicClearQueue.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicClearQueue} class*/
 
                                     // Skip song
                                     if (skipExecutors.stream().anyMatch(executor -> message.getContentRaw().equalsIgnoreCase(prefix + executor))) {
-                                        musicSkip.skip(event.getGuild(), event.getChannel(), message.getAuthor());
+                                        musicSkip.skip(event.getGuild(), event.getChannel(), message.getMember());
                                     }
                                     // Clear queue
                                     if (clearQueueExecutors.stream().anyMatch(executor -> message.getContentRaw().equalsIgnoreCase(prefix + executor))) {
-                                        musicClearQueue.clearQueue(scheduler, event.getChannel(), message.getAuthor());
+                                        musicClearQueue.clearQueue(scheduler, event.getChannel(), message.getMember());
                                     }
-                                } catch (Exception e){
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
