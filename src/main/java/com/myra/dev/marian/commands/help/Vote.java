@@ -24,6 +24,7 @@ public class Vote implements CommandHandler {
                 .setEmoji("\uD83D\uDDF3")
                 .setMessage(lang(ctx).get("command.help.vote.message")
                         .replace("{$url}", "https://top.gg/bot/" + Config.MYRA_ID + "/vote") // Vote url
-                        .replace("{$votes}", TopGG.getInstance().getUpVotes())); // Bot votes
+                        .replace("{$votes}", TopGG.getInstance().getUpVotes())) // Bot votes
+                .send();
     }
 }
