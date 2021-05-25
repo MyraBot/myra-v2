@@ -56,7 +56,6 @@ public class Buy implements CommandHandler {
             return;
         }
 
-
         // Get provided role
         final Role role = Utilities.getRole(ctx.getEvent(), ctx.getArgumentsRaw(), "buy", "\uD83D\uDED2");
         if (role == null) return;
@@ -71,6 +70,15 @@ public class Buy implements CommandHandler {
                     .setCommand("buy")
                     .setEmoji("\uD83D\uDED2")
                     .setMessage(lang(ctx).get("command.economy.buy.error.doesntExist"))
+                    .send();
+            return;
+        }
+        // Bot can't modify role
+        if (!ctx.getGuild().getSelfMember().canInteract(role)) {
+            new Error(ctx.getEvent())
+                    .setCommand("buy")
+                    .setEmoji("\uD83D\uDED2")
+                    .setMessage(lang(ctx).get("error.roleHierarchy"))
                     .send();
             return;
         }
@@ -149,20 +157,9 @@ public class Buy implements CommandHandler {
                         .send();
                 return;
             }
+
             // Add role
-            try {
-                ctx.getGuild().addRoleToMember(ctx.getMember(), role).queue();
-            } catch (Exception e) {
-                // Role to buy is higher than bot
-                if (e.toString().startsWith("net.dv8tion.jda.api.exceptions.HierarchyException: Can't modify a role with higher or equal highest role than yourself!")) {
-                    new Error(ctx.getEvent())
-                            .setCommand("buy")
-                            .setEmoji("\uD83D\uDED2")
-                            .setMessage(lang(ctx).get("error.roleHierarchy"))
-                            .send();
-                    return;
-                } else e.printStackTrace();
-            }
+            ctx.getGuild().addRoleToMember(ctx.getMember(), role).queue();
             // Remove balance
             final int balance = member.getBalance();
             member.setBalance(balance - roleInfo.getPrice());
