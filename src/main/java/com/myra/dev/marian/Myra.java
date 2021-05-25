@@ -13,8 +13,15 @@ public class Myra {
      * @param args Non-required {@link String} arguments.
      */
     public static void main(String[] args) {
-        new DiscordBot(); // Start Discord bot
-        new WebServer(); // Start web server
+        // Start Discord bot
+        final Thread discord = new Thread(DiscordBot::new);
+        discord.setName("Discord Bot");
+        // Start web server
+        final Thread webServer = new Thread(WebServer::new);
+        webServer.setName("Spark Web server");
+
+        discord.start();
+        webServer.start();
     }
 
 }
