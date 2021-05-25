@@ -39,7 +39,7 @@ public class YouTuber implements CommandHandler {
         YoutubeChannel channel;
         // Get channel by url
         if (query.matches(Utilities.URL_PATTERN))
-            channel = Youtube.getChannel(query.split("/")[4]); // Get channel information
+            channel = Youtube.getChannels(query.split("/")[4]).get(0); // Get channel information
             // Search channel by query
         else channel = Youtube.searchChannel(query).get(0); // Get channel information
 

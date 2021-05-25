@@ -10,6 +10,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -18,11 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Youtube {
+    private static final Logger logger = LoggerFactory.getLogger(Youtube.class);
+
     private static final String CALLBACK_URL = Config.SERVER_ADDRESS + ":" + Config.WEB_SERVER_PORT + "/youtube";
     private static final String TOPIC_URL = "https://www.youtube.com/xml/feeds/videos.xml?channel_id=";
     private static final String SUBSCRIBE_URL = "https://pubsubhubbub.appspot.com/subscribe";
 
     private static final String LIST_URL = "https://www.googleapis.com/youtube/v3/search";
+    private static final String CHANNELS_LIST_URL = "https://www.googleapis.com/youtube/v3/channels";
 
     public static void subscribe(String channelId) {
         final RequestBody requestBody = new MultipartBody.Builder()
@@ -39,11 +44,8 @@ public class Youtube {
                 .build();
 
         try (Response response = Utilities.HTTP_CLIENT.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                // TODO Return something so you know if the request was successful or not
-            } else {
-                // TODO Return something so you know if the request was successful or not
-            }
+            if (response.isSuccessful()) logger.info("Request for " + channelId + " was successful");
+            else logger.error("Request for " + channelId + " failed");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,8 +76,42 @@ public class Youtube {
         }
     }
 
-    public static YoutubeChannel getChannel(String id) {
+    /**
+     * Get more detailed information about one or more youtube channels using their id.
+     *
+     * @param ids The youtube channel ids to get information from.
+     * @return Returns a List of {@link YoutubeChannel}s for the given channel ids.
+     */
+    public static List<YoutubeChannel> getChannels(String... ids) {
+        // Create request
+        final Request request = new Request.Builder()
+                .url(CHANNELS_LIST_URL + "?" +
+                        "&part=snippet" +
+                        "&id=" + String.join(",", ids) +
+                        "&key=" + Config.YOUTUBE_KEY)
+                .addHeader("client_id", Config.YOUTUBE_KEY)
+                .get()
+                .build();
 
+        // Execute response
+        try (Response response = Utilities.HTTP_CLIENT.newCall(request).execute()) {
+            final List<YoutubeChannel> channels = new ArrayList<>(); // Create list for youtube channels
+            final JSONObject json = new JSONObject(response.body().string()); // Convert response to JSONArray
+            final JSONArray items = json.getJSONArray("items");
+
+            for (int i = 0; i < items.length(); i++) {
+                final JSONObject info = items.getJSONObject(i).getJSONObject("snippet");
+                final String id = items.getJSONObject(i).getString("id"); // Get channel id
+                final String name = info.getString("title"); // Get channel name
+                final String description = info.getString("description"); // Get channel description
+                final String avatar = info.getJSONObject("thumbnails").getJSONObject("high").getString("url"); // Get channel avatar
+
+                channels.add(new YoutubeChannel(id, name)); // Add channel to list
+            }
+            return channels;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

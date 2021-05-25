@@ -13,7 +13,6 @@ import com.myra.dev.marian.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -38,10 +37,9 @@ public class NotificationsList implements CommandHandler {
         if (ctx.getArguments().length != 0) return;
 
         final List<String> streamerList = new NotificationsTwitchManager().getStreamers(ctx.getGuild()); // Get streamers
-        final List<String> youtuberIdList = NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()); // Get youtubers
-        final List<YoutubeChannel> youtuberList = new ArrayList(); // Create list for all youtuber objects
-        youtuberIdList.forEach(youtuber -> youtuberList.add(Youtube.getChannel(youtuber))); // Add all youtubers
 
+        final List<String> youtuberIdLIst = NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()); // Get youtubers
+        final List<YoutubeChannel> youtuberList = Youtube.getChannels(youtuberIdLIst.toArray(new String[0])); // Get channels as YoutubeChannel objects
 
         // Show by default streamers
         EmbedBuilder streamersEmbed = new EmbedBuilder()
