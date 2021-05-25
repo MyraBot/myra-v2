@@ -13,7 +13,6 @@ import com.myra.dev.marian.listeners.*;
 import com.myra.dev.marian.listeners.leveling.LevelingListener;
 import com.myra.dev.marian.listeners.leveling.VoiceCall;
 import com.myra.dev.marian.listeners.notifications.TwitchNotification;
-import com.myra.dev.marian.listeners.notifications.YoutubeNotification;
 import com.myra.dev.marian.listeners.premium.UnicornChange;
 import com.myra.dev.marian.listeners.welcome.WelcomeListener;
 import com.myra.dev.marian.marian.Roles;
@@ -126,7 +125,6 @@ public class Listeners extends ListenerAdapter {
             new Twitch().jdaReady(); // Get access token for twitch
             Spotify.getApi().generateAuthToken(); // Generate Spotify auth token
 
-            YoutubeNotification.renewSubscriptions(); // Renew all subscriptions
             new TwitchNotification().jdaReady(event); // Start twitch notifications
 
             online(); // Change profile picture and activity
