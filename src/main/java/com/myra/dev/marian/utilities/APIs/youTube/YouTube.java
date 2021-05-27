@@ -19,11 +19,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class which can execute Youtube requests.
+ * <p>
+ * For subscribing and unsubscribing to Youtubers look at
+ * https://pubsubhubbub.appspot.com/subscribe
+ */
 public class Youtube {
     private static final Logger logger = LoggerFactory.getLogger(Youtube.class);
 
     private static final String CALLBACK_URL = Config.SERVER_ADDRESS + ":" + Config.WEB_SERVER_PORT + "/youtube";
-    private static final String TOPIC_URL = "https://www.youtube.com/xml/feeds/videos.xml?channel_id=";
+    private static final String TOPIC_URL = "https://www.youtube.com/channel/";
     private static final String SUBSCRIBE_URL = "https://pubsubhubbub.appspot.com/subscribe";
 
     private static final String LIST_URL = "https://www.googleapis.com/youtube/v3/search";
@@ -44,8 +50,12 @@ public class Youtube {
                 .build();
 
         try (Response response = Utilities.HTTP_CLIENT.newCall(request).execute()) {
-            if (response.isSuccessful()) logger.info("Request for " + channelId + " was successful");
-            else logger.error("Request for " + channelId + " failed");
+            if (response.isSuccessful()) {
+                // Response successful
+            }
+            else {
+                // Subscription failed
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

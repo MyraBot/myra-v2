@@ -26,8 +26,7 @@ public class YoutubeVideo {
     }
 
     public String getThumbnail() {
-        final String baseUrl = "https://img.youtube.com/vi/{videoId}/mqdefault.jpg";
-        return baseUrl.replace("{videoId}", this.id);
+        return "https://img.youtube.com/vi/" + this.id + "/mqdefault.jpg";
     }
 
     public ZonedDateTime getUploadTime() {

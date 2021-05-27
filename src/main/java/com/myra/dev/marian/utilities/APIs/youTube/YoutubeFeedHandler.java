@@ -27,11 +27,16 @@ public class YoutubeFeedHandler {
         this.videoId = xml.getElementsByTag("feed").get(0).getElementsByTag("yt:videoId").get(0).text(); // Video id
         this.published = ZonedDateTime.parse(xml.getElementsByTag("feed").get(0).getElementsByTag("published").get(0).text()); // Parse upload time to ZoneDateTime
 
+        if (getVideo() == null) {
+            System.out.println("no data found");
+            return;
+        }
+
         YoutubeNotification.onVideoUpload(getChannel(), getVideo());
     }
 
     /**
-     * @return Returns all important information as a {@link YoutubeVideo}.
+     * @return Returns more detailed information about the youtube video from the request.
      */
     private YoutubeVideo getVideo() {
         final String baseUrlXml = "https://www.youtube.com/feeds/videos.xml?channel_id="; // Base request url
@@ -44,8 +49,8 @@ public class YoutubeFeedHandler {
             final Document xml = Jsoup.parse(response.body().string()); // Get response
 
             final Element content = xml.getElementsByTag("feed").get(0); // Get content
-            final Elements videos = content.getElementsByTag("entry"); // Get videos information
-            for (Element video : videos) { // Search right video
+            final Elements items = content.getElementsByTag("entry"); // Get videos information
+            for (Element video : items) { // Search right video
                 final String videoId = video.getElementsByTag("yt:videoId").get(0).text(); // Get video id
                 if (videoId.equals(this.videoId)) { // Right video
                     final String title = video.getElementsByTag("title").get(0).text(); // Get video title
@@ -55,9 +60,11 @@ public class YoutubeFeedHandler {
                     final String description = mediaGroup.getElementsByTag("media:description").get(0).text(); // Get description
                     final String views = mediaGroup.getElementsByTag("media:community").get(0).getElementsByTag("media:statistics").get(0).attr("views"); // Get video view count
 
-                    return new YoutubeVideo(this.videoId, title, this.published, description, views); //  Create video object
+                    return new YoutubeVideo(this.videoId, title, this.published, description, views); // Add youtube video
                 }
             }
+
+            return null;
         }
         // There was an issue while making the GET request
         catch (Exception e) {
