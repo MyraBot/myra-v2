@@ -84,8 +84,8 @@ public class MongoDocuments {
                 .append("welcomeColour", Utilities.blue)
                 .append("welcomeImageBackground", "not set")
                 .append("welcomeImageFont", "default")
-                .append("welcomeEmbedMessage", "Welcome {user} to {server}! Enjoy your stay")
-                .append("welcomeDirectMessage", "Welcome {user} to {server}! Enjoy your stay");
+                .append("welcomeEmbedMessage", "Welcome {member} to {server}! Enjoy your stay")
+                .append("welcomeDirectMessage", "Welcome {member} to {server}! Enjoy your stay");
         // Create document
         Document guildDoc = new Document("guildId", guild.getId())
                 .append("guildName", guild.getName())
