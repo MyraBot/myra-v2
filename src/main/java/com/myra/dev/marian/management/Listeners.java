@@ -28,8 +28,7 @@ import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
@@ -39,10 +38,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateDiscriminatorEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateFlagsEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,56 +130,6 @@ public class Listeners extends ListenerAdapter {
             e.printStackTrace();
         }
     }
-
-    //User Events
-    public void onUserUpdateName(@Nonnull UserUpdateNameEvent event) {
-        try {
-            if (event.getUser().isBot()) return;
-
-            userUpdates.onNameChange(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onUserUpdateDiscriminator(@Nonnull UserUpdateDiscriminatorEvent event) {
-        try {
-            if (event.getUser().isBot()) return;
-
-            userUpdates.onDiscriminatorChange(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onUserUpdateAvatar(@Nonnull UserUpdateAvatarEvent event) {
-        try {
-            if (event.getUser().isBot()) return;
-
-            userUpdates.onAvatarChange(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //public void onUserUpdateOnlineStatus(@Nonnull UserUpdateOnlineStatusEvent event) {}
-    //public void onUserUpdateActivityOrder(@Nonnull UserUpdateActivityOrderEvent event) {}
-
-    public void onUserUpdateFlags(@Nonnull UserUpdateFlagsEvent event) {
-        try {
-            if (event.getUser().isBot()) return;
-
-            userUpdates.onBadgesChange(event.getUser());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //public void onUserTyping(@Nonnull UserTypingEvent event) {}
-    //public void onUserActivityStart(@Nonnull UserActivityStartEvent event) {}
-    //public void onUserActivityEnd(@Nonnull UserActivityEndEvent event) {}
-    //public void onUserUpdateActivities(@Nonnull UserUpdateActivitiesEvent event) {}
-
 
     //Message Events
     //Guild (TextChannel) Message Events
@@ -304,22 +249,10 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
-    @Override
-    public void onGuildMemberRoleAdd(@Nonnull GuildMemberRoleAddEvent event) {
+    //Guild Member Update Events
+    public void onGuildMemberUpdate(@Nonnull GuildMemberUpdateEvent event) {
         try {
-            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
-
-            userUpdates.onBadgesChange(event.getUser()); // Update badges
-            //new Roles().categories(event);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onGuildMemberRoleRemove(@Nonnull GuildMemberRoleRemoveEvent event) {
-        try {
-            userUpdates.onBadgesChange(event.getUser());
+            userUpdates.onUpdate(event.getUser());
         } catch (Exception e) {
             e.printStackTrace();
         }
