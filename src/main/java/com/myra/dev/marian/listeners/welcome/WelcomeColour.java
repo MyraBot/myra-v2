@@ -34,37 +34,27 @@ public class WelcomeColour implements CommandHandler {
             return;
         }
 
-        String hex;
-        //remove #
-        if (ctx.getArguments()[0].startsWith("#")) {
-            StringBuilder raw = new StringBuilder(ctx.getArguments()[0]);
-            raw.deleteCharAt(0);
-            hex = "0x" + raw;
-        }
-        //add 0x
-        else {
-            hex = "0x" + ctx.getArguments()[0];
-        }
-        //if colour doesn't exist
+        // Try to decode colour
         try {
-            Color color = Color.decode(hex);
-            hex = Integer.toHexString(color.getRGB()).substring(2);
-        } catch (Exception e) {
+            final Color color = Color.decode(ctx.getArguments()[0]); // try to decode colour
+            final String hex = Integer.toHexString(color.getRGB()).substring(2); // Get hex from colour
+
+            new MongoGuild(ctx.getGuild()).getNested("welcome").setString("welcomeColour", hex); // Save in database
+            //success
+            new Success(ctx.getEvent())
+                    .setCommand("welcome colour")
+                    .setEmoji("\uD83C\uDFA8")
+                    .setMessage(lang(ctx).get("command.welcome.colour.done")
+                            .replace("{$colour}", hex)) // New colour
+                    .send();
+        }
+        // Colour input isn't a valid colour
+        catch (Exception e) {
             new Error(ctx.getEvent())
                     .setCommand("welcome colour")
                     .setEmoji("\uD83C\uDFA8")
                     .setMessage(lang(ctx).get("error.invalidColour"))
                     .send();
-            return;
         }
-
-        new MongoGuild(ctx.getGuild()).getNested("welcome").setInteger("welcomeColour", Integer.parseInt(hex)); // Save in database
-        //success
-        new Success(ctx.getEvent())
-                .setCommand("welcome colour")
-                .setEmoji("\uD83C\uDFA8")
-                .setMessage(lang(ctx).get("command.welcome.colour.done")
-                        .replace("{$colour}", hex.replace("0x", "#"))) // New colour
-                .send();
     }
 }
