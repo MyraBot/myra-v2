@@ -16,7 +16,7 @@ public class WelcomeImageToggle implements CommandHandler {
     )
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
-        if (ctx.getArguments().length != 0) {
+        if (ctx.getArguments().length == 0) {
             // Toggle command
             new MongoGuild(ctx.getGuild()).getListenerManager().toggle("welcomeImage", "\uD83D\uDDBC", ctx.getEvent());
         }
