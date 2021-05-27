@@ -1,10 +1,13 @@
 package com.myra.dev.marian.utilities;
 
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.natanbc.lavadsp.DspInfo;
+import com.myra.dev.marian.Myra;
 import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -13,11 +16,20 @@ import okhttp3.OkHttpClient;
 import org.bson.Document;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.myra.dev.marian.utilities.language.Lang.lang;
@@ -172,7 +184,7 @@ public class Utilities {
     public static void error(MessageChannel textChannel, String command, String commandEmoji, String errorHeader, String error, String authorAvatar) {
         textChannel.sendMessage(new EmbedBuilder()
                 .setAuthor(command, null, authorAvatar)
-                .setColor(Utilities.red)
+                .setColor(com.myra.dev.marian.utilities.Utilities.red)
                 .addField("\uD83D\uDEA7 │ " + errorHeader, error, false)
                 .build())
                 .queue();
@@ -414,6 +426,86 @@ public class Utilities {
         }
 
         return false; // No errors
+    }
+
+    public static Properties getProperties() {
+        try (InputStream inputStream = Myra.class.getClassLoader().getResourceAsStream("config.properties")) {
+            final Properties properties = new Properties();
+
+            properties.load(inputStream); // load a properties file
+            return properties;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     * Finds a library's pom.properties file.
+     *
+     * @param clazz Any class from the library to check.
+     * @return Returns a {@link Properties} object of the pom.properties file.
+     */
+    public static Properties getPropertyFile(final Class<?> clazz) {
+        Optional<Properties> property = Optional.ofNullable(clazz)
+                .map(cls -> unthrow(cls::getProtectionDomain))
+                .map(ProtectionDomain::getCodeSource)
+                .map(CodeSource::getLocation)
+                .map(url -> unthrow(url::openStream))
+                .map(is -> unthrow(() -> new JarInputStream(is)))
+                /*
+                 Locate the pom.properties file in the Jar, if present and return a
+                 Properties object representing the properties in that file.
+                 */
+                .map(jarInputStream -> {
+                    try {
+                        JarEntry jarEntry;
+                        while ((jarEntry = jarInputStream.getNextJarEntry()) != null) {
+                            String entryName = jarEntry.getName();
+                            if (entryName.startsWith("META-INF")
+                                    && entryName.endsWith("pom.properties")) {
+
+                                Properties properties = new Properties();
+                                ClassLoader classLoader = clazz.getClassLoader();
+                                properties.load(classLoader.getResourceAsStream(entryName));
+                                return properties;
+                            }
+                        }
+                    } catch (IOException ignored) {
+                    }
+                    return null;
+                });
+
+
+        final Properties unknown = new Properties();
+        unknown.put("version", "unknown");
+        unknown.put("groupId", "unknown");
+        unknown.put("artifactId", "unknown");
+        return property.orElse(unknown);
+    }
+
+    /**
+     * Wrap a Callable with code that returns null when an exception occurs, so
+     * it can be used in an Optional.map() chain.
+     */
+    private static <T> T unthrow(final Callable<T> code) {
+        try {
+            return code.call();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public static String getVersions(String pattern, Class... classes) {
+        final StringBuilder table = new StringBuilder();
+        for (Class<?> clazz : classes) {
+            if (clazz.getCanonicalName().startsWith("com.myra.dev.marian")) table.append(String.format(pattern, "Myra", getProperties().getProperty("version")));
+            if (clazz.getCanonicalName().startsWith("net.dv8tion.jda")) table.append(String.format(pattern, "JDA", JDAInfo.VERSION));
+            if (clazz.getCanonicalName().startsWith("com.github.natanbc")) table.append(String.format(pattern, "LavaDsp", DspInfo.VERSION));
+            else table.append(String.format(pattern, getPropertyFile(clazz).getProperty("artifactId"), getPropertyFile(clazz).getProperty("version")));
+        }
+        return table.toString();
     }
 
 }

@@ -5,9 +5,12 @@ plugins {
 }
 
 mainClassName = 'com.myra.dev.marian.Myra'
+group = 'com.myra.dev.marian'
+version = '2.1.1'
 
 sourceCompatibility = JavaVersion.VERSION_15
 targetCompatibility = JavaVersion.VERSION_15
+
 
 repositories {
     jcenter()
@@ -22,7 +25,7 @@ repositories {
     }
 }
 
-dependencies  {
+dependencies {
     implementation group: 'net.dv8tion', name: 'JDA', version: '4.2.1_255' // JDA
     implementation group: 'com.github.m5rian', name: 'JdaCommandHandler', version: '0.2.2' // JDA Command handler
     implementation group: 'com.github.sedmelluq', name: 'lavaplayer', version: '1.3.74' // Lava player
@@ -36,3 +39,39 @@ dependencies  {
 }
 
 compileJava.options.encoding = 'UTF-8'
+
+// Generate .properties file for version
+task createProperties(dependsOn: processResources) {
+    doLast {
+        Properties properties = new Properties() // Create properties object
+        properties['version'] = project.version.toString() // Put version in there
+        properties['ascii'] = '\u001B[1;94m' +
+                '\n' +
+                ' ,ggg, ,ggg,_,ggg,                                    \n' +
+                'dP""Y8dP""Y88P""Y8b                                   \n' +
+                'Yb, `88\'  `88\'  `88                                   \n' +
+                ' `"  88    88    88                                   \n' +
+                '     88    88    88                                   \n' +
+                '     88    88    88  gg     gg   ,gggggg,    ,gggg,gg \n' +
+                '     88    88    88  I8     8I   dP""""8I   dP"  "Y8I \n' +
+                '     88    88    88  I8,   ,8I  ,8\'    8I  i8\'    ,8I \n' +
+                '     88    88    Y8,,d8b, ,d8I ,dP     Y8,,d8,   ,d8b,\n' +
+                '     88    88    `Y8P""Y88P"8888P      `Y8P"Y8888P"`Y8\n' +
+                '                          ,d8I\'                       \n' +
+                '                        ,dP\'8I                        \n' +
+                '                       ,8"  8I                        \n' +
+                '                       I8   8I                        \n' +
+                '                       `8, ,8I                        \n' +
+                '                        `Y8P"                         \n' +
+                '\u001B[0m'
+
+        new File("$project.projectDir/src/main/resources/config.properties")
+                .withWriter { writer -> properties.store(writer, null) }
+        new File("$buildDir/resources/main/config.properties")
+                .withWriter { writer -> properties.store(writer, null) }
+    }
+}
+
+classes {
+    dependsOn createProperties
+}
