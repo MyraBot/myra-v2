@@ -62,13 +62,13 @@ public class Unmute implements CommandHandler {
         final Success success = new Success(null)
                 .setCommand("unmute")
                 .setEmoji("\uD83D\uDD08")
-                .setFooter(defaultLang().get("command.mod.tempmute.info.requesterInfo")
-                        .replace("{$guild}", ctx.getGuild().getName())) // Guild name
                 .addTimestamp();
 
         // Guild message
-        success.setMessage(lang(ctx).get("command.mod.unmute.info.guild")
-                .replace("{$user}", ctx.getMember().getAsMention()))
+        success.setAvatar(member.getUser().getEffectiveAvatarUrl())
+                .setMessage(lang(ctx).get("command.mod.unmute.info.guild")
+                        .replace("{$member.mention}", ctx.getMember().getAsMention()))
+                .setChannel(ctx.getChannel())
                 .send();
         // Direct message
         member.getUser().openPrivateChannel().queue(channel -> {
