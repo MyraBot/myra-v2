@@ -37,39 +37,38 @@ public class DiscordBot {
             .allowMention()
             .build();
 
+    /**
+     * The {@link MemberCachePolicy} says what to do when we get a member through an event.
+     * <p>
+     * The {@link ChunkingFilter} says what we should do at boot.
+     * Disable caching members on startup, otherwise we would hit instantly the Websockets limit.
+     */
     public DiscordBot() {
         COMMAND_SERVICE.registerPermission(
                 new Marian(),
                 new Administrator(),
-                new Moderator()
-        );
+                new Moderator());
 
-        DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(
-                TOKEN,
+        final DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(TOKEN,
                 // Enabled events
                 GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
                 GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)
                 GatewayIntent.GUILD_MESSAGE_REACTIONS, // Reaction add remove bla bla
                 GatewayIntent.GUILD_VOICE_STATES,
                 //GatewayIntent.GUILD_PRESENCES, // Is needed for the CLIENT_STATUS CacheFlag
-                GatewayIntent.GUILD_EMOJIS // Emote add/update/delete events. Also is needed for the CacheFlag
-        )
+                GatewayIntent.GUILD_EMOJIS) // Emote add/update/delete events. Also is needed for the CacheFlag
                 .enableCache(
                         CacheFlag.EMOTE,
                         //CacheFlag.CLIENT_STATUS,
-                        CacheFlag.VOICE_STATE
-                )
-                // Needed to register user update events (update name, avatar, ...)
-                // Without ALL I'm not able to see members in voice channels
-                .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .setChunkingFilter(ChunkingFilter.NONE) // Disable member chunking on startup
+                        CacheFlag.VOICE_STATE)
+                .setMemberCachePolicy(MemberCachePolicy.DEFAULT)
+                .setChunkingFilter(ChunkingFilter.NONE)
                 .setLargeThreshold(50)
                 .setStatus(OnlineStatus.IDLE)
                 .setActivity(Activity.watching(LOADING_STATUS))
                 .addEventListeners(
                         new Listeners(),
-                        new CommandListener(COMMAND_SERVICE)
-                );
+                        new CommandListener(COMMAND_SERVICE));
 
         // Update database
         MongoDbUpdate.update(() -> {
