@@ -41,6 +41,7 @@ public class Myra {
                 Spark.class,
                 Logger.class);
         System.out.println(versions);
+        Config.setup();
 
         // Start Discord bot
         final Thread discord = new Thread(DiscordBot::new);

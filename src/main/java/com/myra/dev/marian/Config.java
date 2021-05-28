@@ -1,9 +1,19 @@
 package com.myra.dev.marian;
 
 public class Config {
+
+    public static void setup() {
+        final String os = System.getProperty("os.name");
+        if (os.startsWith("Windows")) {
+            SERVER_ADDRESS = "http://myra.dyndns1.de";
+        } else {
+            SERVER_ADDRESS = "http://www.myra.bot";
+        }
+    }
+
     public static final Integer WEB_SERVER_PORT = 1027;
 
-    public static final String SERVER_ADDRESS = "http://www.myra.bot";
+    public static String SERVER_ADDRESS;
 
     public static final String YOUTUBE_KEY = "AIzaSyARpgQKLyve0fUSxEjzN-tAzRIGc2QlZxo";
 
