@@ -12,6 +12,7 @@ import com.myra.dev.marian.utilities.EmbedMessage.CommandUsage;
 import com.myra.dev.marian.utilities.EmbedMessage.Error;
 import com.myra.dev.marian.utilities.EmbedMessage.Usage;
 import com.myra.dev.marian.utilities.Utilities;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -48,6 +49,15 @@ public class MusicPlay implements CommandHandler {
         }
         // Author isn't in a voice channel yet
         if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
+            // Missing permissions to connect
+            if (!ctx.getGuild().getSelfMember().hasPermission(ctx.getMember().getVoiceState().getChannel(), Permission.VOICE_CONNECT)) {
+                new Error(ctx.getEvent())
+                        .setCommand("play")
+                        .setEmoji("\uD83D\uDCBF")
+                        .setMessage(lang(ctx).get("command.music.join.error.missingPermission"))
+                        .send();
+                return;
+            }
             new Error(ctx.getEvent())
                     .setCommand("leave")
                     .setEmoji("\uD83D\uDCE4")
