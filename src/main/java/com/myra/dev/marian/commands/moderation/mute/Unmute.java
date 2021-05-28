@@ -12,7 +12,6 @@ import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.entities.Member;
 
-import static com.myra.dev.marian.utilities.language.Lang.defaultLang;
 import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Unmute implements CommandHandler {
@@ -67,7 +66,7 @@ public class Unmute implements CommandHandler {
         // Guild message
         success.setAvatar(member.getUser().getEffectiveAvatarUrl())
                 .setMessage(lang(ctx).get("command.mod.unmute.info.guild")
-                        .replace("{$member.mention}", ctx.getMember().getAsMention()))
+                        .replace("{$member.mention}", member.getAsMention()))
                 .setChannel(ctx.getChannel())
                 .send();
         // Direct message
