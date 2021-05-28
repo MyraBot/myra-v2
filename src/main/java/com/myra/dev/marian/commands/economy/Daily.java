@@ -4,16 +4,17 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.jdaCommandHandler.commandMessages.CommandMessage;
 import com.myra.dev.marian.Config;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.database.guild.member.GuildMember;
 import com.myra.dev.marian.utilities.APIs.DiscordBoats;
 import com.myra.dev.marian.utilities.APIs.TopGG;
 import com.myra.dev.marian.utilities.Format;
-import static com.myra.dev.marian.utilities.language.Lang.*;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.concurrent.TimeUnit;
+
+import static com.myra.dev.marian.utilities.language.Lang.lang;
 
 public class Daily implements CommandHandler {
 
@@ -27,23 +28,19 @@ public class Daily implements CommandHandler {
         final GuildMember member = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getEvent().getMember()); // Get member from database
         long lastClaim = member.getLastClaim(); // Get last claimed reward
 
-
         long passedTime = System.currentTimeMillis() - lastClaim; // Get duration, which passed (in milliseconds)
         final String currency = new MongoGuild(ctx.getGuild()).getNested("economy").getString("currency"); // Get currency
 
-        // Create embed
-        EmbedBuilder daily = new EmbedBuilder()
-                .setAuthor("daily", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                .setColor(ctx.getMember().getColor());
+        // 24 hours didn't pass
+        if (TimeUnit.MILLISECONDS.toHours(passedTime) < 24) {
+            final long nextBonusAt = lastClaim + TimeUnit.HOURS.toMillis(24); // Get millis when you can claim your next reward
+            final long nextBonusIn = nextBonusAt - System.currentTimeMillis(); // Get millis how long you need to wait to claim your next daily reward
 
-        // 12 didn't pass
-        if (TimeUnit.MILLISECONDS.toHours(passedTime) < 12) {
-            final long nextBonusAt = lastClaim + TimeUnit.HOURS.toMillis(12); // Get duration until you can claim your reward
-            String nextBonusIn = Format.toTime(nextBonusAt - System.currentTimeMillis()); // Make time look nicer
-
-            daily.setDescription(lang(ctx).get("command.economy.daily.wait") // Set description
-                    .replace("{$time}", nextBonusIn));
-            ctx.getChannel().sendMessage(daily.build()).queue(); // Send message
+            // Send message
+            info(ctx).setColour(ctx.getMember().getColor())
+                    .setDescription(lang(ctx).get("command.economy.daily.wait")
+                            .replace("{$time}", Format.toTime(nextBonusIn)))
+                    .send();
             return;
         }
 
@@ -55,8 +52,9 @@ public class Daily implements CommandHandler {
             // User voted on discord.boats
             if (DiscordBoats.getInstance().hasVoted(ctx.getAuthor())) voteBonus += 100;
 
+
             // Missed reward
-            if (TimeUnit.MILLISECONDS.toHours(passedTime) > 36) member.setDailyStreak(1); // Reset daily streak
+            if (TimeUnit.MILLISECONDS.toHours(passedTime) > 48) member.setDailyStreak(1); // Reset daily streak
                 // New reward
             else member.setDailyStreak(member.getDailyStreak() + 1); // Update daily streak
 
@@ -70,31 +68,37 @@ public class Daily implements CommandHandler {
             // Maximum amount of balance reached
             if (member.getBalance() + dailyReward > Config.ECONOMY_MAX) {
                 member.setBalance(Config.ECONOMY_MAX); // Set members balance to the maximum
-                daily.setDescription(lang(ctx).get("command.economy.daily.balanceLimit") // Show streak reward
-                        .replace("{$maxBalance}", String.valueOf(Config.ECONOMY_MAX)));
+
+                final CommandMessage info = info(ctx).setColour(ctx.getMember().getColor())
+                        .setDescription(lang(ctx).get("command.economy.daily.balanceLimit")
+                                .replace("{$maxBalance}", String.valueOf(Config.ECONOMY_MAX)));
                 // User voted
-                if (voteBonus != 0) {
-                    daily.appendDescription("\n" + lang(ctx).get("command.economy.daily.voteThank")); // Show vote bonus
+                if (voteBonus > 0) {
+                    info.appendDescription("\n" + lang(ctx).get("command.economy.daily.voteThank")); // Vote thank
                 }
+                info.setFooter(lang(ctx).get("command.economy.daily.streak")
+                        .replace("{$streak}", member.getDailyStreak() + "/14"))
+                        .send();
             }
             // Maximum isn't reached yet
             else {
                 member.setBalance(member.getBalance() + streakReward + voteBonus); // Update members balance
-                daily.setDescription(lang(ctx).get("command.economy.daily.success")
-                        .replace("{$streakReward}", String.valueOf(streakReward)) // Show streak reward
-                        .replace("{$balance}", Format.number(member.getBalance())) // Show current balance
-                        .replace("{$currency}", currency)); // Guild currency
 
+                final CommandMessage info = info(ctx).setColour(ctx.getMember().getColor())
+                        .setDescription(lang(ctx).get("command.economy.daily.success")
+                                .replace("{$streakReward}", String.valueOf(streakReward)) // Show streak reward
+                                .replace("{$balance}", Format.number(member.getBalance())) // Show current balance
+                                .replace("{$currency}", currency)); // Guild currency
                 // User voted
                 if (voteBonus != 0) {
-                    daily.appendDescription(lang(ctx).get("command.economy.daily.voteBonus")
-                            .replace("{$bonus}", Format.number(voteBonus))); // Vote bonus
+                    info.appendDescription("\n\n" + lang(ctx).get("command.economy.daily.voteThank")) // Vote thank
+                            .appendDescription("\n" + lang(ctx).get("command.economy.daily.voteBonus")
+                                    .replace("{$bonus}", Format.number(voteBonus))); // Vote bonus
                 }
+                info.setFooter(lang(ctx).get("command.economy.daily.streak")
+                        .replace("{$streak}", member.getDailyStreak() + "/14"))
+                        .send();
             }
-
-            member.updateClaimedReward(); // Update last claimed reward time
-            daily.setFooter("streak: " + member.getDailyStreak() + "/14"); // Show streak
-            ctx.getChannel().sendMessage(daily.build()).queue(); // Send daily reward
         }
     }
 }
