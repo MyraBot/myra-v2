@@ -1,6 +1,7 @@
 package com.myra.dev.marian;
 
 import com.github.m5rian.jdaCommandHandler.CommandListener;
+import com.github.m5rian.jdaCommandHandler.commandMessages.CommandMessageFactory;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandServiceBuilder;
 import com.myra.dev.marian.database.MongoDbUpdate;
@@ -35,6 +36,9 @@ public class DiscordBot {
             .setDefaultPrefix(Config.DEFAULT_PREFIX)
             .setVariablePrefix(guild -> new MongoGuild(guild).getString("prefix"))
             .allowMention()
+            .setInfoFactory(new CommandMessageFactory()
+                    .setAuthor(ctx -> ctx.getMethodInfo().getCommand().name())
+                    .setAuthorAvatar(ctx -> ctx.getAuthor().getEffectiveAvatarUrl()))
             .build();
 
     /**
