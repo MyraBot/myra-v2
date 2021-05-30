@@ -45,10 +45,6 @@ public class MusicPlay implements CommandHandler {
         final AudioManager audioManager = ctx.getGuild().getAudioManager();
         // Bot hasn't joined voice channel yet
         if (!audioManager.isConnected()) {
-            audioManager.openAudioConnection(ctx.getMember().getVoiceState().getChannel()); // Connect to voice channel
-        }
-        // Author isn't in a voice channel yet
-        if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
             // Missing permissions to connect
             if (!ctx.getGuild().getSelfMember().hasPermission(ctx.getMember().getVoiceState().getChannel(), Permission.VOICE_CONNECT)) {
                 new Error(ctx.getEvent())
@@ -58,6 +54,10 @@ public class MusicPlay implements CommandHandler {
                         .send();
                 return;
             }
+            audioManager.openAudioConnection(ctx.getMember().getVoiceState().getChannel()); // Connect to voice channel
+        }
+        // Author isn't in a voice channel yet
+        if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
             new Error(ctx.getEvent())
                     .setCommand("leave")
                     .setEmoji("\uD83D\uDCE4")
