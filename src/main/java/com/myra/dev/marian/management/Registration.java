@@ -61,6 +61,7 @@ import com.myra.dev.marian.listeners.welcome.welcomeDirectMessage.WelcomeDirectM
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedHelp;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedMessage;
 import com.myra.dev.marian.listeners.welcome.welcomeEmbed.WelcomeEmbedToggle;
+import com.myra.dev.marian.marian.Blacklist;
 import com.myra.dev.marian.marian.GetInvite;
 import com.myra.dev.marian.marian.SetGuildPremium;
 import com.myra.dev.marian.marian.Shutdown;
@@ -73,6 +74,7 @@ public class Registration {
                 new SetGuildPremium(),
                 new GetInvite(),
                 new Shutdown(),
+                new Blacklist(),
                 // Premium
                 new Unicorn(),
                 // Administrator
