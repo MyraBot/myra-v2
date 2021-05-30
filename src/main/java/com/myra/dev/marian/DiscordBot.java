@@ -2,28 +2,37 @@ package com.myra.dev.marian;
 
 import com.github.m5rian.jdaCommandHandler.CommandListener;
 import com.github.m5rian.jdaCommandHandler.commandMessages.CommandMessageFactory;
+import com.github.m5rian.jdaCommandHandler.commandMessages.CommandUsageFactory;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService;
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandServiceBuilder;
+import com.mongodb.client.model.Filters;
+import com.myra.dev.marian.database.MongoDb;
 import com.myra.dev.marian.database.MongoDbUpdate;
 import com.myra.dev.marian.database.guild.MongoGuild;
 import com.myra.dev.marian.management.Listeners;
 import com.myra.dev.marian.utilities.ConsoleColours;
+import com.myra.dev.marian.utilities.Utilities;
 import com.myra.dev.marian.utilities.permissions.Administrator;
 import com.myra.dev.marian.utilities.permissions.Marian;
 import com.myra.dev.marian.utilities.permissions.Moderator;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.bson.Document;
 
 import javax.security.auth.login.LoginException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DiscordBot {
     public static ShardManager shardManager;
@@ -36,9 +45,21 @@ public class DiscordBot {
             .setDefaultPrefix(Config.DEFAULT_PREFIX)
             .setVariablePrefix(guild -> new MongoGuild(guild).getString("prefix"))
             .allowMention()
+            .setUserBlacklist(() -> {
+                final List<String> userIds = new ArrayList<>();
+                final List<Document> userBlacklist = MongoDb.getInstance().getCollection("config").find(Filters.eq("document", "blacklist")).first().getList("users", Document.class);
+                userBlacklist.forEach(user -> userIds.add(user.getString("userId")));
+                return userIds;
+            })
             .setInfoFactory(new CommandMessageFactory()
                     .setAuthor(ctx -> ctx.getMethodInfo().getCommand().name())
-                    .setAuthorAvatar(ctx -> ctx.getAuthor().getEffectiveAvatarUrl()))
+                    .setAuthorAvatar(ctx -> ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setColourHex(ctx -> String.valueOf(Utilities.blue)))
+            .setUsageFactory(new CommandUsageFactory()
+                    .setDefaultEmbed(ctx -> new EmbedBuilder()
+                            .setAuthor(ctx.getMethodInfo().getCommand().name(), null, ctx.getAuthor().getEffectiveAvatarUrl())
+                            .setColor(Utilities.gray))
+                    .addUsageAsField((ctx, command) -> new MessageEmbed.Field("`" + ctx.getPrefix() + command.name() + command.args() + "`", command.emoji() + " │ " + command.description(), false)))
             .build();
 
     /**
