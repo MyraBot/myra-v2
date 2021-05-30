@@ -4,8 +4,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-mainClassName = 'com.myra.dev.marian.Myra'
-group = 'com.myra.dev.marian'
+mainClassName = 'com.github.m5rian.Myra'
+group = 'com.github.m5rian'
 version = '2.1.1'
 
 sourceCompatibility = JavaVersion.VERSION_15
