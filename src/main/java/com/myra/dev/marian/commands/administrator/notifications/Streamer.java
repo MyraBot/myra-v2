@@ -70,7 +70,7 @@ public class Streamer implements CommandHandler {
         else {
             NotificationsTwitchManager.getInstance().addStreamer(ctx.getGuild(), channelName); // Remove streamer from the database
             // Complete embed
-            success.addField("\uD83D\uDD15 │ " + lang(ctx).get("command.notifications.twitch.added.name"),
+            success.addField("\uD83D\uDD14 │ " + lang(ctx).get("command.notifications.twitch.added.name"),
                     lang(ctx).get("command.notifications.twitch.added.value").replace("{$streamer}", channelName),
                     false)
                     .setThumbnail(channelInformation.getString("profilePicture"));
