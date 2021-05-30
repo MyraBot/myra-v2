@@ -41,17 +41,14 @@ public class Daily implements CommandHandler {
                     .setDescription(lang(ctx).get("command.economy.daily.wait")
                             .replace("{$time}", Format.toTime(nextBonusIn)))
                     .send();
-            return;
         }
-
         // Claim reward
-        if (TimeUnit.MILLISECONDS.toHours(passedTime) >= 12) {
+        else {
             int voteBonus = 0; // Create vote bonus
             // User voted on top.gg
             if (TopGG.getInstance().hasVoted(ctx.getAuthor())) voteBonus += 100;
             // User voted on discord.boats
             if (DiscordBoats.getInstance().hasVoted(ctx.getAuthor())) voteBonus += 100;
-
 
             // Missed reward
             if (TimeUnit.MILLISECONDS.toHours(passedTime) > 48) member.setDailyStreak(1); // Reset daily streak
@@ -99,6 +96,7 @@ public class Daily implements CommandHandler {
                         .replace("{$streak}", member.getDailyStreak() + "/14"))
                         .send();
             }
+            member.updateClaimedReward(); // Update last claimed daily reward time
         }
     }
 }
