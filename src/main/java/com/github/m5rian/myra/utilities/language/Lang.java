@@ -3,6 +3,7 @@ package com.github.m5rian.myra.utilities.language;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashMap;
@@ -41,6 +42,10 @@ public class Lang {
     }
 
     public static LanguageBundle lang(Member member) {
+        return new LanguageBundle(getLanguage(Country.ENGLISH));
+    }
+
+    public static LanguageBundle lang(Message message) {
         return new LanguageBundle(getLanguage(Country.ENGLISH));
     }
 
