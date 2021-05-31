@@ -32,7 +32,6 @@ public class MusicTimeout {
             timeoutQueue.add(guild.getIdLong()); // Add guild to timeout queue
 
             Utilities.TIMER.schedule(() -> {
-                System.out.println("Checking!!!");
                 // The timeout wasn't canceled
                 if (timeoutQueue.contains(guild.getIdLong())) {
                     final GuildMusicManager manager = PlayerManager.getInstance().getMusicManager(guild);
