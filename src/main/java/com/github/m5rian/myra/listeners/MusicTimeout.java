@@ -6,54 +6,48 @@ import com.github.m5rian.myra.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MusicTimeout {
-    private final static Map<Long, MusicTimeout> setter = new HashMap<>();
 
-    public static MusicTimeout getGuildManager(Guild guild) {
-        // No MusicTimeout saved for this guild
-        if (!setter.containsKey(guild.getIdLong())) {
-            final MusicTimeout guildTimeOut = new MusicTimeout(); // Create new MusicTimeout object
-            setter.put(guild.getIdLong(), guildTimeOut); // Add new MusicTimeout to setter
-            return guildTimeOut; // Return guild specific MusicTimeout object
-        }
+    private final static List<Long> timeoutQueue = new ArrayList<>();
 
-        return setter.get(guild.getIdLong());
-    }
-
-
-    private AtomicBoolean timeout = new AtomicBoolean(false);
-
-    public void timeout(Guild guild, VoiceChannel call) {
-        if (!guild.getAudioManager().isConnected()) return; // Bot isn't in a voice call
+    public static void timeout(VoiceChannel call) {
+        if (!call.getGuild().getAudioManager().isConnected()) return; // Bot isn't in a voice call
 
         // Get amount of members in a voice call without bots
         final long members = call.getMembers().stream().filter(member -> !member.getUser().isBot()).count();
+        final Guild guild = call.getGuild(); // Get guild
 
+        // In the voice call are still members
+        if (members != 0) {
+            System.out.println("stopping timeout");
+            timeoutQueue.remove(guild.getIdLong()); // Remove guild from the timeout queue
+        }
         // No member is in the voice call
         if (members == 0) {
-            this.timeout.set(true);
+            System.out.println("started timeout");
+            timeoutQueue.add(guild.getIdLong()); // Add guild to timeout queue
 
             Utilities.TIMER.schedule(() -> {
-                if (this.timeout.get()) {
-                    GuildMusicManager manager = PlayerManager.getInstance().getMusicManager(guild);
+                System.out.println("Checking!!!");
+                // The timeout wasn't canceled
+                if (timeoutQueue.contains(guild.getIdLong())) {
+                    final GuildMusicManager manager = PlayerManager.getInstance().getMusicManager(guild);
 
                     manager.scheduler.getQueue().clear(); // Clear queue
                     manager.audioPlayer.stopTrack(); // Stop track
                     manager.audioPlayer.destroy(); // Destroy audio player
 
                     guild.getAudioManager().closeAudioConnection(); // Leave voice call
+
+                    timeoutQueue.remove(guild.getIdLong()); // Remove guild from timeout queue
                 }
             }, 10, TimeUnit.SECONDS);
 
         }
     }
 
-    public void interrupt() {
-        this.timeout.set(false);
-    }
 }

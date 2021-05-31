@@ -262,11 +262,12 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildVoiceJoin(@Nonnull GuildVoiceJoinEvent event) {
         try {
+            MusicTimeout.timeout(event.getChannelJoined()); // Check for music timeout
+
             if (event.getMember().getUser().isBot()) return;
             if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             voiceCall.updateXpGain(event.getChannelJoined()); // Start xp gian
-            MusicTimeout.getGuildManager(event.getGuild()).interrupt();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -275,12 +276,13 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildVoiceMove(@Nonnull GuildVoiceMoveEvent event) {
         try {
+            MusicTimeout.timeout(event.getChannelJoined()); // Check for music timeout
+
             if (event.getMember().getUser().isBot()) return;
             if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             voiceCall.updateXpGain(event.getChannelLeft()); // Update xp for users, who are still in old voice call
             voiceCall.updateXpGain(event.getChannelJoined()); // Update xp for users in new voice call
-            MusicTimeout.getGuildManager(event.getGuild()).timeout(event.getGuild(), event.getChannelLeft()); // Check for music timeout
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -289,11 +291,12 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildVoiceLeave(@Nonnull GuildVoiceLeaveEvent event) {
         try {
+            MusicTimeout.timeout(event.getChannelLeft()); // Check for music timeout
+
             if (event.getMember().getUser().isBot()) return;
             if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             voiceCall.stopXpGain(event.getMember()); // Stop xp gain
-            MusicTimeout.getGuildManager(event.getGuild()).timeout(event.getGuild(), event.getChannelLeft()); // Check for music timeout
         } catch (Exception e) {
             e.printStackTrace();
         }
