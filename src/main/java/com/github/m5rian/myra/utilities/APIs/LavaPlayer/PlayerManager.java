@@ -3,9 +3,9 @@ package com.github.m5rian.myra.utilities.APIs.LavaPlayer;
 import com.github.m5rian.myra.utilities.APIs.spotify.Playlist;
 import com.github.m5rian.myra.utilities.APIs.spotify.Song;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.LoadingBar;
+import com.github.m5rian.myra.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -21,8 +21,9 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class PlayerManager {
     private static PlayerManager INSTANCE;
@@ -168,112 +169,55 @@ public class PlayerManager {
     }
 
     private void loadSpotifyPlaylist(Message message, Playlist playlist, GuildMusicManager musicManager) {
-        final User author = message.getAuthor(); // Get requester
+        final LoadingBar loadingBarPreset = new LoadingBar("□", "■", 10L, (long) playlist.getSongs().size()); // Create preset for loading bar
+        // Create decoding embed
+        final EmbedBuilder decoding = new Success(null)
+                .setCommand("play")
+                .setAvatar(message.getAuthor().getEffectiveAvatarUrl())
+                .setHyperLink(playlist.getUrl())
+                .setMessage(lang(message).get("command.music.play.spotify.playlist.info.decoding")
+                        .replace("{$playlist.name}", playlist.getName())
+                        .replace("{$playlist.url}", playlist.getUrl()))
+                .setFooter(loadingBarPreset.render(0L))
+                .getEmbed();
 
-        final EmbedBuilder decoding = getDecodingEmbed(message.getAuthor(), playlist); // Get decoding embed
-        message.getChannel().sendMessage(decoding.build()).queue(msg -> {
+        message.getChannel().sendMessage(decoding.build()).queue(response -> {
+            final SpotifyPlaylistLoader playlistLoader = new SpotifyPlaylistLoader(response, playlist, musicManager); // Create a spotify playlist loader
 
-            final AtomicInteger overall = new AtomicInteger(); // Amount of passed tracks
-            final AtomicInteger loaded = new AtomicInteger(); // Amount of successfully loaded tracks
-            final AtomicInteger failed = new AtomicInteger(); // Amount of failed tracks
+            // Song loading
+            final Thread songLoading = new Thread(() -> {
+                for (Song song : playlist.getSongs()) {
+                    final StringBuilder artists = new StringBuilder(); // Create string for all artists
+                    song.getArtists().forEach(artist -> artists.append(artist.getName()).append(" ")); // Add all artists
+                    final String songName = String.format("ytsearch:%s - %s", song.getName(), artists); // Create string to search in youtube
 
-            for (Song song : playlist.getSongs()) {
-                final StringBuilder artists = new StringBuilder();
-                song.getArtists().forEach(artist -> artists.append(artist.getName()).append(" ")); // Add all artists
+                    audioPlayerManager.loadItemOrdered(musicManager, songName, playlistLoader); // Load song
+                }
+            });
+            songLoading.setName("Spotify playlist loader");
 
-                final String songName = String.format("ytsearch:%s - %s", song.getName(), artists);
-
-                audioPlayerManager.loadItemOrdered(musicManager, songName, new AudioLoadResultHandler() {
-                    /**
-                     * @param track The loaded track
-                     *              This method will only run if a link was provided
-                     *              We can ignore this method because spotify's links aren't valid
-                     */
-                    @Override
-                    public void trackLoaded(AudioTrack track) {
+            // Embed updating
+            final Thread messageUpdating = new Thread(() -> {
+                // As long as songs are loaded into music manager
+                while (playlist.getSongs().size() > playlistLoader.getPassedTracks()) {
+                    try {
+                        playlistLoader.updateEmbed(loadingBarPreset); // Update loading bar
+                        Thread.sleep(5000); // Wait 5 seconds
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                }
 
-                    /**
-                     * @param result The loaded playlist / Search result of query
-                     */
-                    @Override
-                    public void playlistLoaded(AudioPlaylist result) {
-                        // Don't add playlists
-                        if (!result.isSearchResult()) return;
+                // Last update of loading message to display that the playlist was loaded successfully
+                playlistLoader.updateEmbed(loadingBarPreset);
+            });
+            messageUpdating.setName("Spotify playlist message updater");
 
-                        final AudioTrack track = result.getTracks().get(0); // Get first song
-                        final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
-                        track.setUserData(requestData); // Add request data
-                        musicManager.scheduler.queue(track); // Add track to queue
-                        loaded.addAndGet(1); // Add one successfully loaded track
-                        overall.addAndGet(1); // Add one passed track
-                        updateDecodingStatus(msg, message.getAuthor(), playlist, overall.get(), loaded.get(), failed.get()); // Update decoding status
-                    }
-
-                    /**
-                     * Called when there were no items found by the specified identifier.
-                     */
-                    @Override
-                    public void noMatches() {
-                        failed.getAndAdd(1); // Add one failed song
-                        overall.addAndGet(1); // Add one passed track
-                        updateDecodingStatus(msg, message.getAuthor(), playlist, overall.get(), loaded.get(), failed.get()); // Update decoding status
-                    }
-
-                    @Override
-                    public void loadFailed(FriendlyException exception) {
-                        failed.getAndAdd(1); // Add one failed song
-                        overall.addAndGet(1); // Add one passed track
-                        updateDecodingStatus(msg, message.getAuthor(), playlist, overall.get(), loaded.get(), failed.get()); // Update decoding status
-                    }
-                });
-            }
-
+            songLoading.start();
+            messageUpdating.start();
         });
     }
 
-
-    private void updateDecodingStatus(Message msg, User author, Playlist playlist, int passedInt, int loaded, int failed) {
-        final String currentBar = msg.getEmbeds().get(0).getFooter().getText(); // Get current loading bar
-        final long passed = Long.parseLong(String.valueOf(passedInt)); // Get passed tracks as long
-        final String updatedBar = new LoadingBar("□", "■", 10L, (long) playlist.getSongs().size()).render(passed); // Get updated loading bar
-
-        // Finished loading
-        if (playlist.getSongs().size() == passedInt) {
-            Success success = new Success(null)
-                    .setCommand("play")
-                    .setAvatar(author.getEffectiveAvatarUrl())
-                    .setHyperLink(playlist.getUrl())
-                    .setThumbnail(playlist.getThumbnail())
-                    .setMessage(String.format("Added **%s** songs to the queue from the playlist %s", loaded, Utilities.hyperlink("`" + playlist.getName() + "`", playlist.getUrl())))
-                    .setFooter("by " + playlist.getOwner().getName());
-            if (failed > 0) success.appendMessage(String.format("%n⚠ │ `%s` songs failed to load", failed));
-
-            msg.editMessage(success.getEmbed().build()).queue(); // Edit message
-            return;
-        }
-
-        // Bar didn't change
-        if (currentBar.equals(updatedBar)) return;
-
-            // Bar changed
-        else {
-            EmbedBuilder decoding = getDecodingEmbed(author, playlist);// Get decoding embed
-            decoding.setFooter(updatedBar); // Update loading bar
-            msg.editMessage(decoding.build()).queue(); // Edit message
-        }
-
-    }
-
-    private EmbedBuilder getDecodingEmbed(User author, Playlist playlist) {
-        return new Success(null)
-                .setCommand("play")
-                .setAvatar(author.getEffectiveAvatarUrl())
-                .setHyperLink(playlist.getUrl())
-                .setMessage("Decoding " + Utilities.hyperlink("`" + playlist.getName() + "`", playlist.getUrl()))
-                .setFooter("□□□□□□□□□□")
-                .getEmbed();
-    }
 
     // Return PlayerManager class
     public static PlayerManager getInstance() {
