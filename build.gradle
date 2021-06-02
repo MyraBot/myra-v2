@@ -4,7 +4,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-mainClassName = 'com.github.m5rian.Myra'
+mainClassName = 'com.github.m5rian.myra.Myra'
 group = 'com.github.m5rian'
 version = '2.1.1'
 
