@@ -54,7 +54,7 @@ public class Lang {
     }
 
     private static ResourceBundle getLanguage(Country country) {
-        return ResourceBundle.getBundle(country.getId());
+        return ResourceBundle.getBundle("languages/" + country.getId());
     }
 
 }
