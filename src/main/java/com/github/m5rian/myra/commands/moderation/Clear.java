@@ -8,8 +8,9 @@ import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Moderator;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Clear implements CommandHandler {
 
@@ -45,7 +46,7 @@ public class Clear implements CommandHandler {
         final int amount = Integer.parseInt(ctx.getArguments()[0]); // Get amount of messages to delete
         // Delete messages
         ctx.getChannel().getIterableHistory()
-                .takeAsync(amount)
+                .takeAsync(amount + 1)
                 .thenAccept(messages -> ctx.getChannel().purgeMessages(messages));
 
         // Success information
