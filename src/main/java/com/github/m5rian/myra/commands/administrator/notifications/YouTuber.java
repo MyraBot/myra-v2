@@ -4,15 +4,17 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.database.managers.NotificationsYoutubeManager;
 import com.github.m5rian.myra.utilities.APIs.youtube.Youtube;
 import com.github.m5rian.myra.utilities.APIs.youtube.data.YoutubeChannel;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
+import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
-import com.github.m5rian.myra.database.managers.NotificationsYoutubeManager;
-import com.github.m5rian.myra.utilities.EmbedMessage.Success;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class YouTuber implements CommandHandler {
 
@@ -35,6 +37,13 @@ public class YouTuber implements CommandHandler {
             return;
         }
 
+        // Youtuber limit reached
+        if (NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()).size() >= 100) {
+            error(ctx).setDescription(lang(ctx).get("command.notifications.youtube.error.limit"))
+                    .send();
+            return;
+        }
+
         final String query = Utilities.getString(ctx.getArguments()); // Get the arguments as one string
         YoutubeChannel channel;
         // Get channel by url
@@ -51,7 +60,7 @@ public class YouTuber implements CommandHandler {
             new Success(ctx.getEvent())
                     .setCommand("notifications youtube")
                     .setHyperLink("https://www.youtube.com/channel/" + channel.getId())
-                    .setMessage(Lang.lang(ctx).get("command.notifications.twitch.removed")
+                    .setMessage(Lang.lang(ctx).get("command.notifications.youtube.info.removed")
                             .replace("{$channel}", channel.getName()))
                     .send();
         }
@@ -63,7 +72,7 @@ public class YouTuber implements CommandHandler {
             new Success(ctx.getEvent())
                     .setCommand("notifications youtube")
                     .setHyperLink("https://www.youtube.com/channel/" + channel.getId())
-                    .setMessage(Lang.lang(ctx).get("command.notifications.twitch.added")
+                    .setMessage(Lang.lang(ctx).get("command.notifications.youtube.info.added")
                             .replace("{$channel}", channel.getName()))
                     .send();
         }
