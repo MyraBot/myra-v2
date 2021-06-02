@@ -3,12 +3,12 @@ package com.github.m5rian.myra.commands.member.economy.administrator;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
+import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
-import com.github.m5rian.myra.database.guild.MongoGuild;
-import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 
 public class Currency implements CommandHandler {
 
@@ -36,7 +36,8 @@ public class Currency implements CommandHandler {
         new Success(ctx.getEvent())
                 .setCommand("economy currency")
                 .setEmoji(ctx.getArgumentsRaw())
-                .setMessage(Lang.lang(ctx).get("command.economy.currency.info.success"))
+                .setMessage(Lang.lang(ctx).get("command.economy.currency.info.success")
+                        .replace("{$currency}", ctx.getArgumentsRaw()))
                 .send();
     }
 }
