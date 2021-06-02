@@ -2,8 +2,11 @@ package com.github.m5rian.myra.utilities.EmbedMessage;
 
 import com.github.m5rian.myra.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
@@ -168,10 +171,18 @@ public class Success {
         if (this.channel == null) channel = e.getTextChannel();
         else channel = this.channel;
 
+        // Channel is a guild channel
+        if (channel instanceof TextChannel) {
+            final TextChannel guildChannel = (TextChannel) channel; // Get text channel from guild
+            final Member selfMember = guildChannel.getGuild().getSelfMember(); // Get self member
+
+            if (!selfMember.hasPermission(guildChannel, Permission.MESSAGE_WRITE)) return;
+        }
+
         channel.sendMessage(embed.build()).queue(msg -> {
             if (!delete) return;
             Utilities.TIMER.schedule(() -> {
-                msg.delete().queue(null, (exception) -> {// Delete message
+                msg.delete().queue(null, (exception) -> { // Delete message
                     exception.printStackTrace();
                 });
             }, 5, TimeUnit.SECONDS);

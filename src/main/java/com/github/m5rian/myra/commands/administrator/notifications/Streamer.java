@@ -10,12 +10,13 @@ import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
 
 import java.util.List;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Streamer implements CommandHandler {
 
@@ -34,6 +35,13 @@ public class Streamer implements CommandHandler {
                             .setUsage("notification twitch <streamer>")
                             .setEmoji("\uD83D\uDCE1")
                             .setDescription(lang(ctx).get("description.notificationsTwitch")))
+                    .send();
+            return;
+        }
+
+        // Streamer limit reached
+        if (NotificationsTwitchManager.getInstance().getStreamers(ctx.getGuild()).size() >= 100) {
+            error(ctx).setDescription(lang(ctx).get("command.notifications.twitch.error.limit"))
                     .send();
             return;
         }
