@@ -27,6 +27,7 @@ public class Config {
     public static final String MARIANS_DISCORD_INVITE = "https://discord.gg/nG4uKuB";
 
     public static final String MYRA_STAFF_ROLE = "715545225057140736";
+    public static final String MYRA_TRANSLATOR_ROLE = "849614228917583929";
     public static final String MYRA_PARTNER_ROLE = "842074433308196954";
 
     public static Long startUp;

@@ -12,6 +12,7 @@ import java.util.List;
 public enum UserBadge {
     // Myra badges
     MYRA_STAFF("Myra Staff"),
+    MYRA_TRANSLATOR("Myra Translator"),
     MYRA_PARTNER("Myra Partner"),
     // HypeSquad
     HYPESQUAD("HypeSquad Events"),
@@ -76,6 +77,9 @@ public enum UserBadge {
 
         final Member member = user.getJDA().getGuildById(Config.MARIAN_SERVER_ID).retrieveMemberById(user.getId()).complete();
         // User is myra staff
+        if (member.getRoles().stream().anyMatch(role -> Config.MYRA_TRANSLATOR_ROLE.equals(role.getId())))
+            badges.add(UserBadge.MYRA_TRANSLATOR);
+        // User is translator
         if (member.getRoles().stream().anyMatch(role -> Config.MYRA_STAFF_ROLE.equals(role.getId())))
             badges.add(UserBadge.MYRA_STAFF);
         // User is myra partner

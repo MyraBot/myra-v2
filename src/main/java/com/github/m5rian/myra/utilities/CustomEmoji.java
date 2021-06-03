@@ -18,6 +18,7 @@ public enum CustomEmoji {
     BUG_HUNTER_LEVEL_2("Bug Hunter Level 2", Config.MYRA_SERVER_ID),
 
     MYRA_STAFF("Myra Staff", Config.MYRA_SERVER_ID),
+    MYRA_TRANSLATOR("Myra Translator", Config.MYRA_SERVER_ID),
     MYRA_PARTNER("Myra Partner", Config.MYRA_SERVER_ID),
     // Ticks
     GREEN_TICK("Green Tick", Config.MYRA_SERVER_ID),
