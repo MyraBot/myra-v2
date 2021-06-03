@@ -1,21 +1,21 @@
 package com.github.m5rian.myra.commands.member.help;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.EmbedMessage.Success;
+import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.Webhook;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-public class Report implements CommandHandler {
-    private final String webhookUrl = "https://discord.com/api/v6/webhooks/788764863106252800/ZN7j5NCIEtekAxyKXJ55BUp8UqLmvsUuGAh2-Dlsndul0ziuxxyxpGiDtVBmsLd_beBF";
+import java.awt.*;
 
-    
-@CommandEvent(
-        name = "report",
-        aliases = {"bug"}
-)
+public class Report implements CommandHandler {
+
+    @CommandEvent(
+            name = "report",
+            aliases = {"bug"}
+    )
     public void execute(final CommandContext ctx) throws Exception {
         // Command usage
         if (ctx.getArguments().length == 0) {
@@ -29,12 +29,13 @@ public class Report implements CommandHandler {
         }
 
         // Bug report
-        final Webhook report = new Webhook(webhookUrl); // Set webhook
-        report.setUsername(ctx.getAuthor().getAsTag()); // Set webhook name
-        report.setAvatarUrl(ctx.getAuthor().getEffectiveAvatarUrl()); // Set webhook profile picture
+        final Webhook report = new Webhook(Config.MYRA_BUG_WEBHOOK) // Set webhook
+                .setUsername(ctx.getAuthor().getAsTag()) // Set webhook name
+                .setAvatarUrl(ctx.getAuthor().getEffectiveAvatarUrl()); // Set webhook profile picture
 
         Webhook.EmbedObject bug = new Webhook.EmbedObject() // Create JSON embed
-                .setDescription(ctx.getArgumentsRaw()); // Add bug description to JSON embed
+                .setDescription(ctx.getArgumentsRaw()) // Add bug description to JSON embed
+                .setColor(Color.decode(String.valueOf(Utilities.red)));
 
         // Attachment is given
         if (!ctx.getEvent().getMessage().getAttachments().isEmpty()) {
@@ -44,11 +45,7 @@ public class Report implements CommandHandler {
         report.addEmbed(bug); // Add the JSON embed to webhook
         report.send(); // Send report as a webhook
 
-        Success success = new Success(ctx.getEvent())
-                .setCommand("report")
-                .setEmoji("\uD83D\uDC1B")
-                .setAvatar(ctx.getAuthor().getEffectiveAvatarUrl())
-                .setMessage("Your bug report was successfully reported");
-        success.send();
+        // Send success
+        info(ctx).setDescription("Your bug report was successfully reported").send();
     }
 }
