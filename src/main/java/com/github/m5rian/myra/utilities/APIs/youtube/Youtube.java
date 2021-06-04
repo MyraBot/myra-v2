@@ -28,7 +28,7 @@ import java.util.List;
 public class Youtube {
     private static final Logger logger = LoggerFactory.getLogger(Youtube.class);
 
-    private static final String CALLBACK_URL = Config.SERVER_ADDRESS + ":" + Config.WEB_SERVER_PORT + "/youtube";
+    private static final String CALLBACK_URL = Config.LOCAL_ADDRESS + ":" + Config.WEB_SERVER_PORT + "/youtube";
     private static final String TOPIC_URL = "https://www.youtube.com/channel/";
     private static final String SUBSCRIBE_URL = "https://pubsubhubbub.appspot.com/subscribe";
 
