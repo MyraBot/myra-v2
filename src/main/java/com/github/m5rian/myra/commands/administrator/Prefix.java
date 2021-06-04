@@ -4,12 +4,15 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
+import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
-import com.github.m5rian.myra.database.guild.MongoGuild;
-import com.github.m5rian.myra.utilities.EmbedMessage.Success;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 public class Prefix implements CommandHandler {
 
@@ -30,6 +33,17 @@ public class Prefix implements CommandHandler {
                     .send();
             return;
         }
+
+        User mentionedUser = null;
+        if (!ctx.getArguments()[0].startsWith("<@&")) mentionedUser = ctx.getArguments()[0].startsWith("<@") ? ctx.getEvent().getJDA().retrieveUserById(ctx.getArguments()[0].replaceAll("[<@!>]", "")).complete() : null;
+        final TextChannel mentionedChannel = ctx.getArguments()[0].startsWith("<#") ? ctx.getGuild().getTextChannelById(ctx.getArguments()[0].replaceAll("[<#>]", "")) : null;
+        final Role mentionedRole = ctx.getArguments()[0].startsWith("<@&") ? ctx.getGuild().getRoleById(ctx.getArguments()[0].replaceAll("[<@&>]", "")) : null;
+        if (mentionedUser != null || mentionedChannel != null || mentionedRole != null) {
+            error(ctx).setDescription("You can't use that as a prefix").send();
+            return;
+        }
+
+
         // Change the prefix
         new MongoGuild(ctx.getGuild()).setString("prefix", ctx.getArguments()[0]); // Change prefix
         // Success information
