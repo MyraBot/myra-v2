@@ -1,29 +1,26 @@
 package com.github.m5rian.myra.commands.member;
 
+import ch.qos.logback.core.db.dialect.MsSQLDialect;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.guild.LeaderboardType;
-import com.github.m5rian.myra.utilities.Utilities;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.LeaderboardMember;
 import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Format;
+import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
@@ -48,11 +45,16 @@ public class Leaderboard implements CommandHandler {
                 .setMessage(Lang.lang(ctx).get("word.loading"));
         // Send message
         ctx.getChannel().sendMessage(loading.getEmbed().build()).queue(message -> {
-            getLeaderboard(message, type.LEVEL); // Create leaderboard embed
             // Add reactions
             message.addReaction("\uD83C\uDFC6").queue(); // Add level emoji
             message.addReaction(CustomEmoji.COIN.getAsEmote()).queue(); // Add balance emote
             message.addReaction("\uD83D\uDCDE").queue(); // Voice call emoji
+
+            final MessageEmbed levelLeaderboard = renderLeaderboard(type.LEVEL, ctx.getGuild()).build(); // Get level leaderboard
+            final MessageEmbed balanceLeaderboard = renderLeaderboard(type.BALANCE, ctx.getGuild()).build(); // Get balance leaderboard
+            final MessageEmbed voiceLeaderboard = renderLeaderboard(type.VOICE, ctx.getGuild()).build(); // Get voice leaderboard
+
+            message.editMessage(levelLeaderboard).queue(); // Display by default level leaderboard
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e -> !e.getUser().isBot()
@@ -64,11 +66,11 @@ public class Leaderboard implements CommandHandler {
                         final String reaction = e.getReactionEmote().toString().toUpperCase(); // Get reacted reaction emote
 
                         // Balance leaderboard
-                        if (e.getReactionEmote().isEmote()) getLeaderboard(message, type.BALANCE);
+                        if (e.getReactionEmote().isEmote()) message.editMessage(balanceLeaderboard).queue();
                             // Level leaderboard
-                        else if (reaction.equals(emojis[0])) getLeaderboard(message, type.LEVEL);
+                        else if (reaction.equals(emojis[0])) message.editMessage(levelLeaderboard).queue();
                             // Voice leaderboard
-                        else if (reaction.equals(emojis[2])) getLeaderboard(message, type.VOICE);
+                        else if (reaction.equals(emojis[2])) message.editMessage(voiceLeaderboard).queue();
 
                         e.getReaction().removeReaction(e.getUser()).queue(); // Remove reaction
                     })
@@ -85,73 +87,50 @@ public class Leaderboard implements CommandHandler {
         VOICE
     }
 
-    private void getLeaderboard(Message message, type type) {
-        final Guild guild = message.getGuild(); // Get guild
+    private EmbedBuilder renderLeaderboard(type type, Guild guild) {
+        final EmbedBuilder leaderboard = new EmbedBuilder()// Create embed builder for leaderboard
+                .setAuthor("leaderboard", Config.SERVER_ADDRESS + "/leaderboard/" + guild.getId(), guild.getIconUrl())
+                .setColor(Utilities.blue);
 
         // Get leaderboard with all members
-        List<LeaderboardMember> leaderboardRaw = null;
+        final List<LeaderboardMember> leaderboardMembers;
         switch (type) {
-            case LEVEL -> leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
-            case BALANCE -> leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
-            case VOICE -> leaderboardRaw = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
+            // Balance
+            case BALANCE -> {
+                leaderboardMembers = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
+                leaderboard.setDescription(lang(guild).get("command.leaderboard.balance") + "\n");
+            }
+            // Voice call time
+            case VOICE -> {
+                leaderboardMembers = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
+                leaderboard.setDescription(lang(guild).get("command.leaderboard.voice") + "\n");
+            }
+            // Level
+            default -> {
+                leaderboardMembers = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
+                leaderboard.setDescription(lang(guild).get("command.leaderboard.level") + "\n");
+            }
         }
 
-        final List<String> ids = new ArrayList<>(); // Create a list to store top 10 member ids
         for (int i = 0; i < 10; i++) {
-            if (i == leaderboardRaw.size()) break;
-            final LeaderboardMember member = leaderboardRaw.get(i); // Get current document
-            ids.add(member.getId());
+            if (i == leaderboardMembers.size()) break; // There are no more members
+            final LeaderboardMember member = leaderboardMembers.get(i); // Get current member
+
+            final String value; // Store value to display
+            switch (type) {
+                case BALANCE -> value = Format.number(member.getBalance()); // Balance
+                case VOICE -> value = Format.toTime(member.getVoiceCallTime()); // Voice call time
+
+                default -> value = String.valueOf(member.getLevel()); // Level
+            }
+
+            final int rank = i + 1; // Get users rank
+            // Add member to leaderboard
+            leaderboard.appendDescription(String.format("%d \uD83C\uDF97 `%s` **%s**%n",
+                    rank, value, member.getName()));
         }
-        String[] topIds = ids.toArray(new String[0]); // Convert List to Array
 
-        List<LeaderboardMember> finalLeaderboardRaw = leaderboardRaw;
-        guild.retrieveMembersByIds(topIds) // Retrieve top 10 members
-                .onSuccess(members -> { // Members were successfully retrieved
-                    StringBuilder leaderboard = new StringBuilder(); // Create leaderboard message
-                    AtomicInteger place = new AtomicInteger();
-
-                    for (final String id : ids) { // Add all members to leaderboard
-                        Optional<Member> memberResult = members.stream() // Find member object
-                                .filter(m -> m.getId().equals(id)) // Member needs same id as id from the leaderboard of the database
-                                .findFirst();
-                        if (memberResult.isEmpty()) continue; // No member found
-                        final Member member = memberResult.get();
-
-                        final LeaderboardMember memberDocument = finalLeaderboardRaw.stream() // Find member document to get the balance
-                                .filter(doc -> doc.getId().equals(id))
-                                .findFirst()
-                                .get();
-
-                        // Store value to display
-                        String value;
-                        if (type == Leaderboard.type.LEVEL)
-                            value = String.valueOf(memberDocument.getLevel()); // Get level
-                        else if (type == Leaderboard.type.BALANCE)
-                            value = Format.number(memberDocument.getBalance()); // Format balance
-                        else
-                            value = Format.toTime(memberDocument.getVoiceCallTime()); // Format time
-
-                        leaderboard.append(String.format("%d \uD83C\uDF97 `%s` **%s**%n", place.get() + 1, value, member.getEffectiveName())); // Add member to leaderboard
-                        place.getAndAdd(1); // Increase place
-                    }
-
-                    // Create embed
-                    String header;
-                    if (type == Leaderboard.type.LEVEL) // Show level leaderboard
-                        header = Lang.lang(guild).get("command.leaderboard.level").replace("{$guild.name}", guild.getName());
-                    else if (type == Leaderboard.type.BALANCE) // Show balance leaderboard
-                        header = Lang.lang(guild).get("command.leaderboard.balance").replace("{$guild.name}", guild.getName());
-                    else // Show voice call time leaderboard
-                        header = Lang.lang(guild).get("command.leaderboard.voice").replace("{$guild.name}", guild.getName());
-
-                    final EmbedBuilder embed = new EmbedBuilder()
-                            .setAuthor(guild.getName() + "'s leaderboard", null, guild.getIconUrl())
-                            .setColor(Utilities.blue)
-                            .setDescription(header)
-                            .appendDescription(leaderboard);
-                    // Send message
-                    message.editMessage(embed.build()).queue(); // Edit message to show the balance leaderboard
-                })
-                .onError(Throwable::printStackTrace);
+        return leaderboard;
     }
+
 }

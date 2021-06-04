@@ -5,15 +5,21 @@ import net.dv8tion.jda.api.entities.Guild;
 import org.bson.Document;
 
 public class LeaderboardMember {
-    private String id;
+    private final String id;
+    private final String name;
+    private final String discriminator;
+    private final String avatar;
 
-    private int level;
-    private long xp;
-    private int balance;
-    private long voiceCallTime;
+    private final int level;
+    private final long xp;
+    private final int balance;
+    private final long voiceCallTime;
 
     public LeaderboardMember(Document memberDocument, Guild guild) {
         this.id = memberDocument.getString("userId");
+        this.name = memberDocument.getString("name");
+        this.discriminator = memberDocument.getString("discriminator");
+        this.avatar = memberDocument.getString("avatar");
 
         final Document guildMemberDocument = (Document) memberDocument.get(guild.getId()); // Get document of guild
         this.level = guildMemberDocument.getInteger("level");
@@ -24,6 +30,18 @@ public class LeaderboardMember {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDiscriminator() {
+        return discriminator;
+    }
+
+    public String getAvatar() {
+        return avatar;
     }
 
     public int getLevel() {
