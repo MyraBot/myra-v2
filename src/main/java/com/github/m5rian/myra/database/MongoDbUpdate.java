@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -186,13 +187,15 @@ public class MongoDbUpdate {
     public void guildJoinEvent(GuildJoinEvent event) throws Exception {
         // Update user count in new Thread
         new Thread(() -> {
+            final List<Guild> guilds = event.getJDA().getGuilds();
             // Get user count
             LinkedHashSet<String> users = new LinkedHashSet<>(); // Create HashSet for user ids
-            for (Guild guild : event.getJDA().getGuilds()) { // Loop through each server
+            for (Guild guild : guilds) { // Loop through each server
                 Iterator<Member> members = guild.loadMembers().get().iterator(); // Get all members
                 while (members.hasNext()) { // Go Through each member
                     users.add(members.next().getId()); // Add each member id to user id list
                 }
+                guild.pruneMemberCache(); // Clear member cache
             }
             final Document updatedDocument = MongoDb.getInstance().getCollection("config").find(eq("document", "stats")).first(); // Get stat document
             updatedDocument.replace("users", users.size()); // Replace user count
