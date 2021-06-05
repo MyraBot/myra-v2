@@ -51,7 +51,7 @@ public class MuteRole implements CommandHandler {
         // Mute role changed
         else {
             success.setMessage(lang(ctx).get("command.mod.muteRole.info.success")
-                    .replace("{role}", role.getAsMention())) // New mute role
+                    .replace("{$role}", role.getAsMention())) // New mute role
                     .send();
             db.setString("muteRole", role.getId()); // Update database
         }
