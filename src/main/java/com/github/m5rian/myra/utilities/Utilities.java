@@ -260,6 +260,11 @@ public class Utilities {
     public static Member getModifiedMember(MessageReceivedEvent event, String providedUser, String command, String commandEmoji) {
         Member member;
 
+        // Role is mentioned
+        if (providedUser.startsWith("<@&")) {
+            error(event.getChannel(), command, commandEmoji, "No user given", "Please mention a member, not a role", event.getAuthor().getEffectiveAvatarUrl());
+            return null;
+        }
         // Role given by id or mention
         if (providedUser.startsWith("<@") || providedUser.matches("\\d+")) {
             member = event.getGuild().retrieveMemberById(providedUser.replaceAll("[<!@>]", "")).complete();
@@ -360,15 +365,30 @@ public class Utilities {
     /**
      * @param document The document to get the long from.
      * @param key      The key of the long value.
-     * @return Returns a long even if BSON reads an Integer.
+     * @return Returns a {@link Long} even if BSON reads an {@link Integer}.
      */
     public static Long getBsonLong(Document document, String key) {
         try {
             return document.getLong(key);
         }
-        // If voice call time is an integer
+        // If value is an integer
         catch (ClassCastException e) {
             return Long.valueOf(document.getInteger(key)); // Parse to long
+        }
+    }
+
+    /**
+     * @param document The document to get the string from.
+     * @param key      The key of the string value.
+     * @return Returns a {@link String} even if BSON reads an {@link Integer}.
+     */
+    public static String getBsonString(Document document, String key) {
+        try {
+            return document.getString(key);
+        }
+        // If value is an integer
+        catch (ClassCastException e) {
+            return String.valueOf(document.getInteger(key)); // Parse to string
         }
     }
 
