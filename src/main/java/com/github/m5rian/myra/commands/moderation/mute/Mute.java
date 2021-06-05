@@ -11,9 +11,10 @@ import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.entities.Member;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Mute implements CommandHandler {
 
@@ -23,7 +24,8 @@ public class Mute implements CommandHandler {
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
-        if (ctx.getArguments()[0].equalsIgnoreCase("role")) return; // Mute role command was used
+        if (ctx.getArguments().length > 0 && ctx.getArguments()[0].equalsIgnoreCase("role")) return; // Mute role command was used
+
         // Command usage
         if (ctx.getArguments().length == 0) {
             new CommandUsage(ctx.getEvent())
