@@ -9,6 +9,8 @@ import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.Webhook;
 import com.github.m5rian.myra.utilities.language.Lang;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
@@ -57,11 +59,11 @@ public class Feature implements CommandHandler {
                     // Add reactions
                     message.addReaction("\uD83D\uDC4D").queue(); // 👍
                     message.addReaction("\uD83D\uDC4E").queue(); // 👎
-                });
+                }, new ErrorHandler().ignore(ErrorResponse.UNKNOWN_MESSAGE));
             }
         }));
 
         // Success information
-        info(ctx).setDescription(Lang.lang(ctx).get("command.help.feature.success"));
+        info(ctx).setDescription(Lang.lang(ctx).get("command.help.feature.success")).send();
     }
 }
