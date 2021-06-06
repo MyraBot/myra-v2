@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import org.bson.Document;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import static com.mongodb.client.model.Filters.eq;
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
+import static com.mongodb.client.model.Filters.eq;
 
 public class Utilities {
     public static final ScheduledExecutorService TIMER = Executors.newScheduledThreadPool(5);
@@ -43,7 +42,7 @@ public class Utilities {
     //colours
     public static final int red = 0xC16B65;
     public static final int blue = 0x7AC8F2;
-    public static final int gray = 0x282c34;
+    public static final int gray = 0x2F3136;
     //keys
     public static final String URL_PATTERN = "/^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?/";
     public static final String twitchClientId = "2ns4hcj4kkd6vj3armlievqsw8znd3";
@@ -84,45 +83,82 @@ public class Utilities {
     /**
      * Get the duration from a String.
      *
-     * @param providedInformation The String with all information.
-     * @return Returns a String List, which contains the given duration, the duration in milliseconds and the Time Unit.
+     * @param ctx           A {@link CommandContext}.
+     * @param inputDuration The given duration.
+     * @param inputTimeUnit The given time unit.
+     * @return Returns a {@link Duration} with organized and formatted information.
      */
-    public static JSONObject getDuration(String providedInformation) {
-        //get time unit
-        TimeUnit timeUnit = null;
-        switch (providedInformation.replaceAll("\\d+", "")) {
-            case "s":
-            case "sec":
-            case "second":
-            case "seconds":
-                timeUnit = TimeUnit.SECONDS;
-                break;
-            case "m":
-            case "min":
-            case "minute":
-            case "minutes":
-                timeUnit = TimeUnit.MINUTES;
-                break;
-            case "h":
-            case "hour":
-            case "hours":
-                timeUnit = TimeUnit.HOURS;
-                break;
-            case "d":
-            case "day":
-            case "days":
-                timeUnit = TimeUnit.DAYS;
-                break;
+    public static Duration getDuration(CommandContext ctx, String inputDuration, String inputTimeUnit) {
+        // Inputs don't match the right characters
+        if (!inputDuration.matches("\\d+") || !inputTimeUnit.matches("\\D+")) {
+            ctx.getCommandService().executeError(ctx).setDescription(lang(ctx).get("error.invalidTime") + "\n" + lang(ctx).get("info.usage.time")).send();
+            return null;
         }
-        //get duration
-        long duration = Long.parseLong(providedInformation.replaceAll("[^\\d.]", ""));
+
+        // Get timeunit
+        final TimeUnit timeUnit = switch (inputTimeUnit) {
+            case "s", "sec", "second", "seconds" -> TimeUnit.SECONDS;
+            case "m", "min", "minute", "minutes" -> TimeUnit.MINUTES;
+            case "h", "hour", "hours" -> TimeUnit.HOURS;
+            case "d", "day", "days" -> TimeUnit.DAYS;
+            default -> null;
+        };
+        // Get duration
+        long duration = Long.parseLong(inputDuration);
         long durationInMilliseconds = timeUnit.toMillis(duration);
-        // Create the JSONObject
-        JSONObject time = new JSONObject();
-        time.put("duration", duration);
-        time.put("durationInMilliseconds", durationInMilliseconds);
-        time.put("timeUnit", timeUnit);
-        return time;
+
+        return new Duration(durationInMilliseconds, duration, timeUnit);
+    }
+
+    public static class Duration {
+        private final long durationInMillis;
+        private final long duration;
+        private final TimeUnit timeUnit;
+
+        Duration(long durationInMillis, long duration, TimeUnit timeUnit) {
+            this.durationInMillis = durationInMillis;
+            this.duration = duration;
+            this.timeUnit = timeUnit;
+        }
+
+        public long getMillis() {
+            return this.durationInMillis;
+        }
+
+        public long getDuration() {
+            return duration;
+        }
+
+        public TimeUnit getTimeUnit() {
+            return timeUnit;
+        }
+
+        public String getTimeUnitAsName(Guild guild) {
+            final String timeUnit;
+            // Duration is exactly 1
+            if (this.duration == 1) {
+                switch (this.timeUnit) {
+                    case SECONDS -> timeUnit = lang(guild).get("word.timeunit.second");
+                    case MINUTES -> timeUnit = lang(guild).get("word.timeunit.minute");
+                    case HOURS -> timeUnit = lang(guild).get("word.timeunit.hour");
+                    case DAYS -> timeUnit = lang(guild).get("word.timeunit.day");
+                    default -> timeUnit = lang(guild).get("word.invalid");
+                }
+            }
+            // Duration isn't 1
+            else {
+                switch (this.timeUnit) {
+                    case SECONDS -> timeUnit = lang(guild).get("word.timeunit.seconds");
+                    case MINUTES -> timeUnit = lang(guild).get("word.timeunit.minutes");
+                    case HOURS -> timeUnit = lang(guild).get("word.timeunit.hours");
+                    case DAYS -> timeUnit = lang(guild).get("word.timeunit.days");
+                    default -> timeUnit = lang(guild).get("word.invalid");
+                }
+            }
+
+            return timeUnit;
+        }
+
     }
 
     /**

@@ -6,18 +6,18 @@ import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import com.mongodb.client.MongoCollection;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
+import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.mongodb.client.MongoCollection;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import org.bson.Document;
-import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.m5rian.myra.utilities.language.Lang.*;
+import static com.github.m5rian.myra.utilities.language.Lang.defaultLang;
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 
 public class Reminder implements CommandHandler {
@@ -50,26 +50,25 @@ public class Reminder implements CommandHandler {
                     .send();
             return;
         }
-        // Get duration
-        final JSONObject durationList = Utilities.getDuration(durationRaw); // Split duration in time and time unit
-        String duration = String.valueOf(durationList.getLong("duration")); // Get duration
-        long durationInMilliseconds = durationList.getLong("durationInMilliseconds"); // Get duration in milliseconds
-        TimeUnit timeUnit = (TimeUnit) durationList.get("timeUnit"); // Get the time unit
+
+        final Utilities.Duration duration = Utilities.getDuration(ctx, ctx.getArguments()[0], ctx.getArguments()[1]); // Get duration
+        if (duration == null) return;
+
         // Reminder info
         new Success(ctx.getEvent())
                 .setCommand("reminder")
                 .setEmoji("\u23F0")
                 .setMessage(lang(ctx).get("command.general.reminder.info")
-                        .replace("{$duration}", duration) // Duration
-                        .replace("{$timeunit}", timeUnit.toString().toLowerCase())) // Timeout
+                        .replace("{$duration}", String.valueOf(duration.getDuration())) // Duration
+                        .replace("{$timeunit}", duration.getTimeUnitAsName(ctx.getGuild()))) // Timeout
                 .send();
         // Create reminder document
-        final Document document = createReminder(ctx.getAuthor().getId(), durationInMilliseconds + System.currentTimeMillis(), reason, timeUnit);
+        final Document document = createReminder(ctx.getAuthor().getId(), duration.getMillis() + System.currentTimeMillis(), reason, duration.getTimeUnit());
         // Delay
         Utilities.TIMER.schedule(() -> {
             remindMessage(ctx.getAuthor(), reason); //send reminder
             MongoDb.getInstance().getCollection("reminders").deleteOne(document); // Delete document
-        }, durationInMilliseconds, TimeUnit.MILLISECONDS);
+        }, duration.getMillis(), TimeUnit.MILLISECONDS);
     }
 
     //create document

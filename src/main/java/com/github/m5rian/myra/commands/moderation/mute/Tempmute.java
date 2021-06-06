@@ -4,76 +4,53 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.github.m5rian.myra.database.guild.MongoGuild;
-import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
-import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Moderator;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import org.bson.Document;
-import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
+
+import static com.github.m5rian.myra.utilities.language.Lang.defaultLang;
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Tempmute implements CommandHandler {
     @CommandEvent(
             name = "tempmute",
+            args = {"<member>", "<duration>", "<timeunit>", "(reason)"},
+            emoji = "\uD83D\uDD07",
+            description = "description.mod.tempmute",
             requires = Moderator.class
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
-        if (ctx.getArguments().length != 1) {
-            new CommandUsage(ctx.getEvent())
-                    .setCommand("tempmute")
-                    .addUsages(new Usage()
-                            .setUsage("tempmute <user> <duration><time unit> <reason>")
-                            .setEmoji("\uD83D\uDD07")
-                            .setDescription(lang(ctx).get("description.mod.tempmute")))
-                    .addInformation(lang(ctx).get("command.mod.info.requestBy"))
-                    .send();
+        if (ctx.getArguments().length < 3) {
+            usage(ctx).send();
             return;
         }
 
         // Get provided member
-        final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "tempmute", "\uD83D\uDD07"); // Get member
+        final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], ctx.getCommand().name(), ctx.getCommand().emoji()); // Get member
         if (member == null) return;
 
         String muteRoleId = new MongoGuild(ctx.getGuild()).getString("muteRole"); //Get mute role id
         if (muteRoleId.equals("not set")) { // No mute role set
-            new Error(ctx.getEvent())
-                    .setCommand("tempmute")
-                    .setEmoji("\uD83D\uDD07")
-                    .setMessage("You didn't specify a mute role")
-                    .setFooter("You can only delete an amount between 1 and 100 messages")
-                    .send();
-            return;
-        }
-        // String is not [NumberLetters]
-        if (!ctx.getArguments()[1].matches("[0-9]+[a-zA-z]+")) {
-            new Error(ctx.getEvent())
-                    .setCommand("tempmute")
-                    .setEmoji("\uD83D\uDD07")
-                    .setMessage("Invalid time")
-                    .setFooter("please note: `<time><time unit>`")
-                    .send();
+            error(ctx).setDescription(lang(ctx).get("error.mute.role.none")).send();
             return;
         }
 
-        final String reason = ctx.getArguments().length == 1 ? "none" : ctx.getArgumentsRaw().split("\\s+", 3)[2]; // Get reason
-        // Return duration
-        final JSONObject durationRaw = Utilities.getDuration(ctx.getArguments()[1]); // Separate time unit from duration
-        long duration = durationRaw.getLong("duration"); // Given duration
-        long durationInMilliseconds = durationRaw.getLong("durationInMilliseconds"); // Duration in milliseconds
-        TimeUnit timeUnit = TimeUnit.valueOf(durationRaw.getString("TimeUnit")); // Time unit
+        final String reason = ctx.getArguments().length == 3 ? "none" : ctx.getArgumentsRaw().split("\\s+", 4)[3]; // Get reason
+        final Utilities.Duration duration = Utilities.getDuration(ctx, ctx.getArguments()[1], ctx.getArguments()[2]); // Get duration
+        if (duration == null) return;
 
         // Prepare message
         final Success success = new Success(ctx.getEvent())
@@ -86,21 +63,21 @@ public class Tempmute implements CommandHandler {
         // Guild message
         success.setMessage(lang(ctx).get("command.mod.tempmute.info.guild")
                 .replace("{$member}", member.getAsMention())
-                .replace("{$duration}", String.valueOf(duration))
-                .replace("{$timeunit}", timeUnit.toString().toLowerCase()))
+                .replace("{$duration}", String.valueOf(duration.getDuration()))
+                .replace("{$timeunit}", duration.getTimeUnitAsName(ctx.getGuild())))
                 .send();
         // Direct message
         member.getUser().openPrivateChannel().queue(channel -> {
             success.setMessage(lang(ctx).get("command.mod.tempmute.info.dm")
                     .replace("{$guild}", ctx.getGuild().getName())
-                    .replace("{$duration}", String.valueOf(duration))
-                    .replace("{$timeunit}", timeUnit.toString().toLowerCase()))
+                    .replace("{$duration}", String.valueOf(duration.getDuration()))
+                    .replace("{$timeunit}", duration.getTimeUnitAsName(ctx.getGuild())))
                     .setChannel(channel)
                     .send();
         });
 
         ctx.getGuild().addRoleToMember(member, ctx.getGuild().getRoleById(muteRoleId)).queue(); // Mute
-        final Document document = createUnmute(member.getId(), ctx.getGuild().getId(), durationInMilliseconds, ctx.getAuthor().getId()); // Create unmute Document
+        final Document document = createUnmute(member.getId(), ctx.getGuild().getId(), duration.getMillis(), ctx.getAuthor().getId()); // Create unmute Document
 
 
         // Delay
@@ -112,7 +89,7 @@ public class Tempmute implements CommandHandler {
             ctx.getGuild().removeRoleFromMember(document.getString("userId"), ctx.getGuild().getRoleById(muteRoleId)).queue(); // Remove role
             unmuteMessage(member.getUser(), ctx.getGuild(), ctx.getAuthor()); // Send unmute message
             MongoDb.getInstance().getCollection("unmutes").deleteOne(document); // Delete unmute document
-        }, durationInMilliseconds, TimeUnit.MILLISECONDS);
+        }, duration.getMillis(), TimeUnit.MILLISECONDS);
     }
 
 
@@ -129,15 +106,17 @@ public class Tempmute implements CommandHandler {
         return docToInsert;
     }
 
-    //unmute message
+    // Unmute message
     private void unmuteMessage(User user, Guild guild, User author) {
         final MongoGuild db = new MongoGuild(guild); // Get database
+
         // Prepare unmute message
         final Success success = new Success(null)
                 .setCommand("tempmute")
                 .setEmoji("\u23F1")
                 .setFooter(defaultLang().get("command.mod.tempmute.info.requesterInfo")
-                        .replace("{$guild}", guild.getName())) // Guild name
+                        .replace("{$guild}", guild.getName()) // Guild name
+                        .replace("{$member}", author.getAsTag())) // Tempmute requester
                 .addTimestamp();
 
         // Direct message
@@ -149,21 +128,12 @@ public class Tempmute implements CommandHandler {
                     .send();
         });
 
-        // No afk log channel set
-        if (db.getString("logChannel").equals("not set")) {
-            new Error(null)
-                    .setCommand("tempban")
-                    .setEmoji("\u23F1")
-                    .setAvatar(guild.getIconUrl())
-                    .setMessage(defaultLang().get("error.noLogChannel"))
-                    .setChannel(guild.getDefaultChannel())
-                    .send();
-            return;
-        }
+        if (db.getString("logChannel").equals("not set")) return; // No log channel set
         final TextChannel logChannel = guild.getTextChannelById(db.getString("logChannel")); // Get log channel
-        //guild message unmute
-        success.setMessage(defaultLang().get("command.mod.unmute.info.guild")
-                .replace("{$user}", user.getAsTag())) // Guild name
+        // Guild unmute message
+        success.setMessage(lang(guild).get("command.mod.unmute.info.guild")
+                .replace("{$member.mention}", user.getAsMention()) // Muted member
+                .replace("{$member}", author.getAsTag())) // Tempmute requester
                 .setAvatar(user.getEffectiveAvatarUrl())
                 .setChannel(logChannel)
                 .send();
