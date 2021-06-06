@@ -1,8 +1,8 @@
 package com.github.m5rian.myra.database;
 
-import com.mongodb.client.MongoCursor;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.mongodb.client.MongoCursor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -75,7 +75,7 @@ public class MongoDbUpdate {
                 .append("youtube", notificationsRaw.getList("youtube", String.class));
         Document welcome = new Document()
                 .append("welcomeChannel", welcomeRaw.getString("welcomeChannel"))
-                .append("welcomeColour", welcomeRaw.getString("welcomeColour"))
+                .append("welcomeColour", Utilities.getBsonString(welcomeRaw, "welcomeColour"))
                 .append("welcomeImageBackground", welcomeRaw.getString("welcomeImageBackground"))
                 .append("welcomeImageFont", welcomeRaw.getString("welcomeImageFont"))
                 .append("welcomeEmbedMessage", welcomeRaw.getString("welcomeEmbedMessage"))
@@ -119,12 +119,13 @@ public class MongoDbUpdate {
                 .append("leveling", listenersRaw.getBoolean("leveling"));
 
         //create Document
-        Document updatedDocument = new Document()
+        return new Document()
                 .append("guildId", doc.getString("guildId"))
                 .append("guildName", doc.getString("guildName"))
                 .append("prefix", doc.getString("prefix"))
+                .append("lang", doc.getString("lang"))
                 .append("premium", doc.getBoolean("premium"))
-                .append("unicorn", doc.getLong("unicorn"))
+                .append("unicorn", Utilities.getBsonLong(doc, "unicorn"))
 
                 .append("economy", economy)
                 .append("leveling", leveling)
@@ -141,8 +142,6 @@ public class MongoDbUpdate {
                 .append("welcome", welcome)
                 .append("commands", commands)
                 .append("listeners", listeners);
-
-        return updatedDocument;
     }
 
     private static Document updateUser(Document userDocument) {

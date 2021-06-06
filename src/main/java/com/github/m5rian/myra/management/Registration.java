@@ -80,6 +80,7 @@ public class Registration {
                 // Administrator
                 new Prefix(),
                 new Config(),
+                new Language(),
                 new Say(),
                 new Toggle(),
                 new GlobalChatChannel(),

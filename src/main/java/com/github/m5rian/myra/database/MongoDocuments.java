@@ -3,6 +3,7 @@ package com.github.m5rian.myra.database;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -90,6 +91,7 @@ public class MongoDocuments {
         Document guildDoc = new Document("guildId", guild.getId())
                 .append("guildName", guild.getName())
                 .append("prefix", Config.DEFAULT_PREFIX)
+                .append("lang", Lang.Country.ENGLISH.getId())
                 .append("premium", false)
                 .append("unicorn", null)
 

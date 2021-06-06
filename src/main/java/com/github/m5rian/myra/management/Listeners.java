@@ -2,24 +2,25 @@ package com.github.m5rian.myra.management;
 
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.DiscordBot;
+import com.github.m5rian.myra.commands.developer.Roles;
+import com.github.m5rian.myra.commands.developer.ServerTracking;
 import com.github.m5rian.myra.commands.member.general.Reminder;
+import com.github.m5rian.myra.commands.member.help.InviteThanks;
+import com.github.m5rian.myra.commands.member.music.MusicVoteListener;
 import com.github.m5rian.myra.commands.moderation.ban.Tempban;
 import com.github.m5rian.myra.commands.moderation.mute.MutePermissions;
 import com.github.m5rian.myra.commands.moderation.mute.Tempmute;
 import com.github.m5rian.myra.database.MongoDbUpdate;
 import com.github.m5rian.myra.listeners.*;
-import com.github.m5rian.myra.utilities.APIs.Twitch;
-import com.github.m5rian.myra.utilities.APIs.spotify.Spotify;
-import com.github.m5rian.myra.utilities.Utilities;
-import com.github.m5rian.myra.commands.member.help.InviteThanks;
-import com.github.m5rian.myra.commands.member.music.MusicVoteListener;
 import com.github.m5rian.myra.listeners.leveling.LevelingListener;
 import com.github.m5rian.myra.listeners.leveling.VoiceCall;
 import com.github.m5rian.myra.listeners.notifications.TwitchNotification;
 import com.github.m5rian.myra.listeners.premium.UnicornChange;
 import com.github.m5rian.myra.listeners.welcome.WelcomeListener;
-import com.github.m5rian.myra.commands.developer.Roles;
-import com.github.m5rian.myra.commands.developer.ServerTracking;
+import com.github.m5rian.myra.utilities.APIs.Twitch;
+import com.github.m5rian.myra.utilities.APIs.spotify.Spotify;
+import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.Message;
@@ -117,6 +118,8 @@ public class Listeners extends ListenerAdapter {
             new Tempban().loadUnbans(event); // Load bans
             new Tempmute().onReady(event); // Load mutes
 
+            Lang.load(event.getJDA().getGuilds());
+
             new Twitch().jdaReady(); // Get access token for twitch
             Spotify.getApi().generateAuthToken(); // Generate Spotify auth token
 
@@ -202,9 +205,9 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
         try {
-            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
-
             new MongoDbUpdate().guildJoinEvent(event); // Add guild document to database
+            Lang.languages.put(event.getGuild().getId(), Lang.Country.ENGLISH); // Add english as default language to guild
+
             serverTracking.onGuildJoin(event); // Server tracking message
             new InviteThanks().guildJoinEvent(event); // Thank message to server owner
         } catch (Exception e) {
@@ -215,7 +218,8 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onGuildLeave(@Nonnull GuildLeaveEvent event) {
         try {
-            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
+            Lang.languages.remove(event.getGuild().getId()); // Remove guild from languages
 
             serverTracking.onGuildLeave(event); // Server tracking message
             new MongoDbUpdate().onGuildLeave(event);
