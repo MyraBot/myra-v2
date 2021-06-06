@@ -7,14 +7,14 @@ import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandService
 import com.github.m5rian.jdaCommandHandler.commandServices.DefaultCommandServiceBuilder;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.MongoDbUpdate;
+import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.management.Listeners;
+import com.github.m5rian.myra.utilities.ConsoleColours;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import com.github.m5rian.myra.utilities.permissions.Marian;
 import com.github.m5rian.myra.utilities.permissions.Moderator;
 import com.mongodb.client.model.Filters;
-import com.github.m5rian.myra.database.guild.MongoGuild;
-import com.github.m5rian.myra.management.Listeners;
-import com.github.m5rian.myra.utilities.ConsoleColours;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -34,6 +34,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
+
 public class DiscordBot {
     public static ShardManager shardManager;
 
@@ -52,14 +54,14 @@ public class DiscordBot {
                 return userIds;
             })
             .setInfoFactory(new CommandMessageFactory()
-                    .setAuthor(ctx -> ctx.getMethodInfo().getCommand().name())
+                    .setAuthor(ctx -> ctx.getCommand().name())
                     .setAuthorAvatar(ctx -> ctx.getAuthor().getEffectiveAvatarUrl())
                     .setColourHex(ctx -> String.valueOf(Utilities.blue)))
             .setUsageFactory(new CommandUsageFactory()
                     .setDefaultEmbed(ctx -> new EmbedBuilder()
-                            .setAuthor(ctx.getMethodInfo().getCommand().name(), null, ctx.getAuthor().getEffectiveAvatarUrl())
+                            .setAuthor(ctx.getCommand().name(), null, ctx.getAuthor().getEffectiveAvatarUrl())
                             .setColor(Utilities.gray))
-                    .addUsageAsField((ctx, command) -> new MessageEmbed.Field("`" + ctx.getPrefix() + command.name() + command.args() + "`", command.emoji() + " │ " + command.description(), false)))
+                    .addUsageAsField((ctx, command) -> new MessageEmbed.Field("`" + ctx.getPrefix() + command.name() + " " + String.join(" ", command.args()) + "`", command.emoji() + " │ " + lang(ctx).get(command.description()), false)))
             .build();
 
     /**
