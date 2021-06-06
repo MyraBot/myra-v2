@@ -4,16 +4,14 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
+import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Marian;
 import com.mongodb.client.model.Filters;
-import com.github.m5rian.myra.utilities.Utilities;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
 import java.util.List;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Blacklist implements CommandHandler {
 
@@ -51,7 +49,7 @@ public class Blacklist implements CommandHandler {
     )
     public void onBlacklistUser(CommandContext ctx) {
         // Get provided user
-        final User user = Utilities.getUser(ctx.getEvent(), ctx.getArguments()[0], ctx.getMethodInfo().getCommand().name(), ctx.getMethodInfo().getCommand().emoji());
+        final User user = Utilities.getUser(ctx.getEvent(), ctx.getArguments()[0], ctx.getCommand().name(), ctx.getCommand().emoji());
         if (user == null) return;
 
         final Document blacklist = MongoDb.getInstance().getCollection("config").find(Filters.eq("document", "blacklist")).first();
