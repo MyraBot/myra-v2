@@ -37,13 +37,6 @@ public class YouTuber implements CommandHandler {
             return;
         }
 
-        // Youtuber limit reached
-        if (NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()).size() >= 100) {
-            error(ctx).setDescription(lang(ctx).get("command.notifications.youtube.error.limit"))
-                    .send();
-            return;
-        }
-
         final String query = Utilities.getString(ctx.getArguments()); // Get the arguments as one string
         YoutubeChannel channel;
         // Get channel by url
@@ -66,6 +59,13 @@ public class YouTuber implements CommandHandler {
         }
         // Add youtuber
         else {
+            // Youtuber limit reached
+            if (NotificationsYoutubeManager.getInstance().getYoutubers(ctx.getGuild()).size() >= 100) {
+                error(ctx).setDescription(lang(ctx).get("command.notifications.youtube.error.limit"))
+                        .send();
+                return;
+            }
+
             NotificationsYoutubeManager.getInstance().addYoutuber(channel.getId(), ctx.getGuild()); // Add youtuber to notifications list
             Youtube.unsubscribe(channel.getId()); // Subscribe to the channel
 

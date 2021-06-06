@@ -39,13 +39,6 @@ public class Streamer implements CommandHandler {
             return;
         }
 
-        // Streamer limit reached
-        if (NotificationsTwitchManager.getInstance().getStreamers(ctx.getGuild()).size() >= 100) {
-            error(ctx).setDescription(lang(ctx).get("command.notifications.twitch.error.limit"))
-                    .send();
-            return;
-        }
-
         // Add or remove streamer
         final JSONObject channelInformation = new Twitch().getChannel(ctx.getArguments()[0]); // Get channel information
         if (channelInformation == null) {
@@ -76,6 +69,13 @@ public class Streamer implements CommandHandler {
         }
         // Add streamer
         else {
+            // Streamer limit reached
+            if (NotificationsTwitchManager.getInstance().getStreamers(ctx.getGuild()).size() >= 100) {
+                error(ctx).setDescription(lang(ctx).get("command.notifications.twitch.error.limit"))
+                        .send();
+                return;
+            }
+
             NotificationsTwitchManager.getInstance().addStreamer(ctx.getGuild(), channelName); // Remove streamer from the database
             // Complete embed
             success.addField("\uD83D\uDD14 │ " + lang(ctx).get("command.notifications.twitch.added.name"),
