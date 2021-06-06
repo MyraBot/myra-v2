@@ -62,7 +62,7 @@ public class Config implements CommandHandler {
                 .setCommand("config clean")
                 .setEmoji("\uD83E\uDDFD")
                 .setMessage(lang(ctx).get("description.config.clean"))
-                .setFooter(lang(ctx).get("message.securityWarning"));
+                .setFooter(lang(ctx).get("info.securityWarning"));
         ctx.getChannel().sendMessage(confirmation.getEmbed().build()).queue(message -> {
             message.addReaction(CustomEmoji.GREEN_TICK.getAsEmoji()).queue(); // Add reaction
 
@@ -155,7 +155,7 @@ public class Config implements CommandHandler {
                 .setCommand("config update")
                 .setEmoji("\u2B50")
                 .setMessage(lang(ctx).get("description.config.update"))
-                .setFooter(lang(ctx).get("message.securityWarning"))
+                .setFooter(lang(ctx).get("info.securityWarning"))
                 .getEmbed();
         ctx.getChannel().sendMessage(confirmation.build()).queue(message -> {
             message.addReaction(CustomEmoji.GREEN_TICK.getAsEmoji()).queue(); // Add reaction
