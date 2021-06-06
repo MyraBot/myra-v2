@@ -6,10 +6,8 @@ import com.github.m5rian.myra.utilities.Graphic;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 import org.bson.Document;
 
 import javax.imageio.ImageIO;
@@ -38,13 +36,16 @@ public class Leveling {
 
             // There is a custom level-up channel
             if (!levelingChannel.equals("not set")) {
+                final TextChannel textChannel = guild.getTextChannelById(levelingChannel); // Get leveling channel
                 // Custom leveling channel is invalid
-                if (guild.getTextChannelById(levelingChannel) == null) {
+                if (textChannel == null) {
                     new MongoGuild(guild).getNested("leveling").setString("channel", "not set"); // Remove leveling channel
                     return;
                 }
+                // Missing permissions
+                if (!guild.getSelfMember().hasPermission(textChannel, Permission.VIEW_CHANNEL)) return;
 
-                guild.getTextChannelById(levelingChannel).sendMessage(Lang.lang(member.getGuild()).get("listener.leveling.levelUp")
+                channel.sendMessage(Lang.lang(member.getGuild()).get("listener.leveling.levelUp")
                         .replace("{$member.mention}", member.getAsMention())) // Member who leveled up
                         .addFile(Graphic.toInputStream(levelUpImage), member.getUser().getName().toLowerCase() + "_level_up.png")
                         .queue();
