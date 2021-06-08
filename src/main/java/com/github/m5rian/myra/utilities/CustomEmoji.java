@@ -23,6 +23,11 @@ public enum CustomEmoji {
     // Ticks
     GREEN_TICK("Green Tick", Config.MYRA_SERVER_ID),
     RED_TICK("Red Tick", Config.MYRA_SERVER_ID),
+    // Online status
+    ONLINE("Online", Config.MYRA_SERVER_ID),
+    DO_NOT_DISTURB("Do Not Disturb", Config.MYRA_SERVER_ID),
+    IDLE("Idle", Config.MYRA_SERVER_ID),
+    OFFLINE("Offline", Config.MYRA_SERVER_ID),
     // Other
     COIN("Coin", Config.MYRA_SERVER_ID),
     VOICE("Voice", Config.MYRA_SERVER_ID),
