@@ -12,8 +12,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class MusicAnnouncer extends AudioEventAdapter {
     private String oldMessageId;
 
@@ -28,7 +26,7 @@ public class MusicAnnouncer extends AudioEventAdapter {
             final Long guildId = PlayerManager.getGuildIdFromPlayer(player); // Get guild id of audioPlayer
             final Guild guild = DiscordBot.shardManager.getGuildById(guildId); // Get guild by id
             final String announcement = Lang.lang(guild).get("listener.music.announcer")
-                    .replace("{$emote}", CustomEmoji.VOICE.getAsEmoji()) // Voice call emote
+                    .replace("{$emote}", CustomEmoji.VOICE.getAsMention()) // Voice call emote
                     .replace("{$track.name}", track.getInfo().title) // Track title
                     .replace("{$track.url}", track.getInfo().uri) // Track url
                     .replace("{$requester.mention}", member.getAsMention()); // Requester mention

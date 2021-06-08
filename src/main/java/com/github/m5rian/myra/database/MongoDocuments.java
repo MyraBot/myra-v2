@@ -23,7 +23,7 @@ public class MongoDocuments {
 
         // Economy
         Document economy = new Document()
-                .append("currency", CustomEmoji.COIN.getAsEmoji())
+                .append("currency", CustomEmoji.COIN.getAsMention())
                 .append("shop", new Document());
         // Leveling
         Document levelingDocument = new Document()

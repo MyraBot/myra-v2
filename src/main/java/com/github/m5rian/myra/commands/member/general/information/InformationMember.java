@@ -43,7 +43,7 @@ public class InformationMember implements CommandHandler {
         }
 
         // Online status
-        final String emoji = CustomEmoji.search(member.getOnlineStatus().toString()).getAsEmoji();
+        final String emoji = CustomEmoji.search(member.getOnlineStatus().toString()).getAsMention();
         String onlineStatus;
         switch (member.getOnlineStatus().toString()) {
             case "OFFLINE" -> onlineStatus = lang(ctx).get("command.general.info.member.offline");
@@ -83,7 +83,7 @@ public class InformationMember implements CommandHandler {
 
         if (ctx.getGuild().getBoosters().contains(member)) {
             final String boostingSince = member.getTimeBoosted().atZoneSameInstant(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy hh:mm"));
-            memberInfo.addField(CustomEmoji.NITRO.getAsEmoji() + " │ " + lang(ctx).get("command.general.info.member.isBoosting"),
+            memberInfo.addField(CustomEmoji.NITRO.getAsMention() + " │ " + lang(ctx).get("command.general.info.member.isBoosting"),
                     lang(ctx).get("command.general.info.member.since") + ": " + boostingSince, true);
         }
 

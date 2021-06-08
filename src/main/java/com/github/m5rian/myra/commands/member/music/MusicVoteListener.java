@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MusicVoteListener {
     public void onMusicCommand(Message message) {
-        final Emote emote = CustomEmoji.GREEN_TICK.getAsEmote();
+        final Emote emote = CustomEmoji.GREEN_TICK.getEmote();
         message.addReaction(emote).queue();
     }
 
@@ -26,7 +26,7 @@ public class MusicVoteListener {
 
     public void onVoteAdd(GuildMessageReactionAddEvent event) {
         if (!event.getReaction().getReactionEmote().isEmote()) return;
-        final Emote emote = CustomEmoji.GREEN_TICK.getAsEmote(); // Get vote reaction emote
+        final Emote emote = CustomEmoji.GREEN_TICK.getEmote(); // Get vote reaction emote
         if (!event.getReaction().getReactionEmote().getEmote().equals(emote)) return;
 
         event.retrieveMessage().queue(message -> { // Retrieve message

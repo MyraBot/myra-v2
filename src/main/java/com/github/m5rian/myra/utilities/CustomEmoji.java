@@ -32,6 +32,7 @@ public enum CustomEmoji {
     COIN("Coin", Config.MYRA_SERVER_ID),
     VOICE("Voice", Config.MYRA_SERVER_ID),
     NITRO("Nitro", Config.MYRA_SERVER_ID),
+    CATALAN("Catalan", Config.MYRA_SERVER_ID),
     UNKNOWN("unknown", "0");
 
     private final String name;
@@ -42,11 +43,11 @@ public enum CustomEmoji {
         this.serverId = serverId;
     }
 
-    public Emote getAsEmote() {
+    public Emote getEmote() {
         return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
     }
 
-    public String getAsEmoji() {
+    public String getAsMention() {
         return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getAsMention();
     }
 
@@ -54,7 +55,7 @@ public enum CustomEmoji {
         return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getImageUrl();
     }
 
-    public String getAsReactionEmote() {
+    public String getCodepoints() {
         return "R" + DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
     }
 

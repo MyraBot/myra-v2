@@ -8,11 +8,12 @@ import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.UserBadge;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.List;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class InformationUser implements CommandHandler {
 
@@ -38,7 +39,7 @@ public class InformationUser implements CommandHandler {
         // Badges
         final StringBuilder badges = new StringBuilder(); // Create string for all badges
         final List<UserBadge> badgesList = new MongoUser(user).getBadges(); // Get badges of user
-        badgesList.forEach(badge -> badges.append(CustomEmoji.search(badge.getName()).getAsEmoji())); // Add all badges to string
+        badgesList.forEach(badge -> badges.append(CustomEmoji.search(badge.getName()).getAsMention())); // Add all badges to string
         if (!badges.equals(""))
             userInfo.addField("\uD83C\uDFC5 │ " + lang(ctx).get("command.general.info.user.badges"), badges.toString(), false);
         // account creation

@@ -1,6 +1,5 @@
 package com.github.m5rian.myra.commands.member;
 
-import ch.qos.logback.core.db.dialect.MsSQLDialect;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -28,7 +27,7 @@ public class Leaderboard implements CommandHandler {
     // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
     final String[] emojis = {
             "RE:U+1F3C6", // Leveling (🏆)
-            CustomEmoji.COIN.getAsReactionEmote(), // Balance
+            CustomEmoji.COIN.getCodepoints(), // Balance
             "RE:U+1F4DE" // Voice call
     };
 
@@ -47,7 +46,7 @@ public class Leaderboard implements CommandHandler {
         ctx.getChannel().sendMessage(loading.getEmbed().build()).queue(message -> {
             // Add reactions
             message.addReaction("\uD83C\uDFC6").queue(); // Add level emoji
-            message.addReaction(CustomEmoji.COIN.getAsEmote()).queue(); // Add balance emote
+            message.addReaction(CustomEmoji.COIN.getEmote()).queue(); // Add balance emote
             message.addReaction("\uD83D\uDCDE").queue(); // Voice call emoji
 
             final MessageEmbed levelLeaderboard = renderLeaderboard(type.LEVEL, ctx.getGuild()).build(); // Get level leaderboard

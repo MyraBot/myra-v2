@@ -64,11 +64,11 @@ public class Config implements CommandHandler {
                 .setMessage(lang(ctx).get("description.config.clean"))
                 .setFooter(lang(ctx).get("info.securityWarning"));
         ctx.getChannel().sendMessage(confirmation.getEmbed().build()).queue(message -> {
-            message.addReaction(CustomEmoji.GREEN_TICK.getAsEmoji()).queue(); // Add reaction
+            message.addReaction(CustomEmoji.GREEN_TICK.getEmote()).queue(); // Add reaction
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e -> e.getUserIdLong() == ctx.getAuthor().getIdLong() &&
-                            e.getReactionEmote().toString().equals(CustomEmoji.GREEN_TICK.getAsReactionEmote()))
+                            e.getReactionEmote().toString().equals(CustomEmoji.GREEN_TICK.getCodepoints()))
                     .setAction(e -> {
                         final int memberCount = e.getGuild().getMemberCount(); // Get guild member count
                         Listeners.unavailableGuilds.add(e.getGuild().getId()); // Add Guild to unavailable guilds
@@ -158,11 +158,11 @@ public class Config implements CommandHandler {
                 .setFooter(lang(ctx).get("info.securityWarning"))
                 .getEmbed();
         ctx.getChannel().sendMessage(confirmation.build()).queue(message -> {
-            message.addReaction(CustomEmoji.GREEN_TICK.getAsEmoji()).queue(); // Add reaction
+            message.addReaction(CustomEmoji.GREEN_TICK.getEmote()).queue(); // Add reaction
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e -> e.getUserIdLong() == ctx.getAuthor().getIdLong() &&
-                            e.getReactionEmote().toString().equals(CustomEmoji.GREEN_TICK.getAsReactionEmote()))
+                            e.getReactionEmote().toString().equals(CustomEmoji.GREEN_TICK.getCodepoints()))
                     .setAction(e -> {
                         Listeners.unavailableGuilds.add(e.getGuild().getId()); // Add Guild to unavailable guilds
 
