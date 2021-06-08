@@ -47,7 +47,7 @@ public class WelcomeImageRender {
         final Graphics graphics = background.getGraphics();
         final Graphics2D graphics2D = (Graphics2D) graphics;
         //enable anti aliasing
-        Graphic.enableAntiAliasing(graphics);
+        Graphic.enableAntiAliasing(graphics2D);
         //choose format
         if (background.getHeight() > background.getWidth()) {
             portrait(background, user, graphics, graphics2D, font);

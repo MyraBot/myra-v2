@@ -12,17 +12,16 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class Graphic {
+    public static final FontRenderContext FONT_RENDER_CONTEXT = new FontRenderContext(null, true, true);
+
     /**
      * Enable anti aliasing.
      *
-     * @param g The Graphics Object.
+     * @param graphics2D The {@link Graphics2D} object of the current image.
      */
-    public static void enableAntiAliasing(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(
-                RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON
-        );
+    public static void enableAntiAliasing(Graphics2D graphics2D) {
+        graphics2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
     }
 
 /*    //enable anti aliasing for Graphics 2D

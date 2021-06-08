@@ -1,11 +1,9 @@
 package com.github.m5rian.myra.listeners.leveling;
 
-import com.github.m5rian.myra.database.guild.LevelingRole;
-import com.github.m5rian.myra.database.guild.Nested;
+import com.github.m5rian.myra.database.guild.*;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.Graphic;
 import com.github.m5rian.myra.utilities.language.Lang;
-import com.github.m5rian.myra.database.guild.MongoGuild;
-import com.github.m5rian.myra.database.guild.member.GuildMember;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import org.bson.Document;
@@ -13,12 +11,9 @@ import org.bson.Document;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.*;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Leveling {
 
@@ -73,7 +68,7 @@ public class Leveling {
         Graphics graphics = background.getGraphics(); // Create graphics object from background
         Graphics2D graphics2D = (Graphics2D) graphics; // Create graphics2D object from background
 
-        Graphic.enableAntiAliasing(graphics); //Enable anti aliasing
+        Graphic.enableAntiAliasing(graphics2D); //Enable anti aliasing
         // Load font
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("default.ttf"); // Get font as InputStream
         Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream); // Create font

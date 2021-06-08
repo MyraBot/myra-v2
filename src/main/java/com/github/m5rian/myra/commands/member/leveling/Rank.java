@@ -1,29 +1,30 @@
 package com.github.m5rian.myra.commands.member.leveling;
 
-import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.jdaCommandHandler.*;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.listeners.leveling.Leveling;
-import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import com.github.m5rian.myra.utilities.Graphic;
-import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
+import com.github.m5rian.myra.utilities.EmbedMessage.*;
+import com.github.m5rian.myra.utilities.*;
 import net.dv8tion.jda.api.entities.Member;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
+import java.util.Objects;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Rank implements CommandHandler {
+    public static final Integer imageWidth = 500; // Width of rank card
+    public static final Integer imageHeight = 150; // Height of rank card
+
+
     @CommandEvent(
-            name = "rank"
+            name = "rank",
+            aliases = {"level"}
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
@@ -47,28 +48,21 @@ public class Rank implements CommandHandler {
 
         // Member is bot
         if (member.getUser().isBot()) {
-            new Error(ctx.getEvent())
-                    .setCommand("rank")
-                    .setEmoji("\uD83C\uDFC5")
-                    .setMessage(lang(ctx).get("command.leveling.rank.error.bot"))
-                    .send();
+            error(ctx).setDescription(lang(ctx).get("command.leveling.rank.error.bot")).send();
             return;
         }
 
         final GuildMember getMember = new MongoGuild(member.getGuild()).getMembers().getMember(member); // Get member in database
-        final String backgroundUrl = getMember.getRankBackground();
-        BufferedImage background;
-        // No background set
-        if (backgroundUrl.equals("default")) {
-            background = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("defaultRank.png"));
-        }
-        // Custom background
-        else {
-            background = ImageIO.read(new URL(backgroundUrl));
+        final String backgroundUrl = getMember.getRankBackground(); // Get current rank background
+
+        final BufferedImage background;
+        switch (backgroundUrl) {
+            case "default" -> background = ImageIO.read(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("rank/Default-Background.png")));
+            default -> background = ImageIO.read(new URL(backgroundUrl));
         }
 
         final String level = String.valueOf(getMember.getLevel()); // Get level
-        final BufferedImage rankCard = rankCard(member, background); // Get rank card
+        final BufferedImage rankCard = renderRankCard(member, background); // Get rank card
 
         // Send rank card
         ctx.getChannel()
@@ -79,88 +73,60 @@ public class Rank implements CommandHandler {
                 .queue();
     }
 
-    public BufferedImage rankCard(Member member, BufferedImage background) throws IOException, FontFormatException {
-        final GuildMember getMember = new MongoGuild(member.getGuild()).getMembers().getMember(member); // Get member in database
 
-        // Get variables
-        String level = String.valueOf(getMember.getLevel());
-        long xp = getMember.getXp();
-        int requiredXpForNextLevel = Leveling.requiredXpForNextLevel(member.getGuild(), member);
-        int rank = getMember.getRank();
+    public static BufferedImage renderRankCard(Member member, BufferedImage background) throws IOException, FontFormatException {
+        final GuildMember guildMember = new MongoGuild(member.getGuild()).getMembers().getMember(member);
+        final String level = String.valueOf(guildMember.getLevel());
+        final String xp = String.valueOf(guildMember.getXp());
+        final String rank = String.valueOf(guildMember.getRank());
+        final String messages = String.valueOf(guildMember.getMessages());
 
-        BufferedImage avatar = Graphic.getAvatar(member.getUser().getEffectiveAvatarUrl()); // Get rank background
-        avatar = Graphic.resizeSquaredImage(avatar, 0.5f); // Resize avatar
-        //graphics
-        Graphics graphics = background.getGraphics();
-        Graphics2D graphics2D = (Graphics2D) graphics;
+        // Background
+        final ImageEditor backgroundEditor = new ImageEditor(background);
+        final Color accentColour = backgroundEditor.getCommonColour(); // Get most used colour in image
 
-        Graphic.enableAntiAliasing(graphics);// Enable anti aliasing
-        //load font
-        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("default.ttf");
-        Font font = Font.createFont(Font.TRUETYPE_FONT, inputStream);
-        //draw avatar
-        graphics2D.drawImage(
-                avatar,
-                Graphic.imageCenter('X', avatar, background) - 125,
-                Graphic.imageCenter('Y', avatar, background),
-                null);
-        //draw circle around avatar
-        graphics2D.setColor(Color.white);
-        graphics2D.setStroke(new BasicStroke(
-                2.5f,
-                BasicStroke.CAP_ROUND,
-                BasicStroke.JOIN_ROUND
-        ));
-        graphics2D.drawOval(
-                Graphic.imageCenter('X', avatar, background) - 125,
-                Graphic.imageCenter('Y', avatar, background),
-                avatar.getWidth(), avatar.getHeight()
-        );
-// Level
-        //adjust font size
-        font = font.deriveFont(15f);
-        graphics.setFont(font);
-        //draw 'level'
-        graphics.drawString("level:",
-                Graphic.textCenter('X', level, font, background) - 50,
-                Graphic.textCenter('Y', level, font, background) - 15
-        );
-        //adjust font size
-        font = font.deriveFont(50f);
-        graphics.setFont(font);
-        //draw level
-        graphics.drawString(level,
-                Graphic.textCenter('X', level, font, background) - 40,
-                Graphic.textCenter('Y', level, font, background) + 50
-        );
-// Xp
-        //adjust font size
-        font = font.deriveFont(15f);
-        graphics.setFont(font);
-        //draw 'xp'
-        graphics.drawString("xp:",
-                Graphic.textCenter('X', "xp:", font, background) + 30,
-                Graphic.textCenter('Y', "xp:", font, background)
-        );
-        //draw xp
-        graphics.drawString(xp + " / " + requiredXpForNextLevel,
-                Graphic.textCenter('X', "xp:", font, background) + 75,
-                Graphic.textCenter('Y', "xp:", font, background)
-        );
-// Rank
-        //adjust font size
-        font = font.deriveFont(15f);
-        graphics.setFont(font);
-        //draw 'rank'
-        graphics.drawString("rank:",
-                Graphic.textCenter('X', "rank:", font, background) + 35,
-                Graphic.textCenter('Y', "rank:", font, background) + 25
-        );
-        //draw rank
-        graphics.drawString("#" + rank,
-                Graphic.textCenter('X', "rank:", font, background) + 85,
-                Graphic.textCenter('Y', "rank:", font, background) + 25
-        );
-        return background;
+        final int start = 20; // Start of xp bar in pixels
+        final int end = 334; // End of xp bars in pixels
+        final int length = end - start; // Length of xp bar in pixels
+
+        final long xpOfNextLevel = Leveling.getXpFromLevel(guildMember.getLevel() + 1); // Get xp of the next level
+        final long xpCurrent = guildMember.getXp(); // Get current xp of member
+        final double percentage = (double) xpCurrent / xpOfNextLevel;
+        final double barLength = length * percentage; // Get length of bar
+
+        backgroundEditor.drawStroke(20, 132 - 2, 334, 132 - 2, 6f, Color.WHITE); // Xp bar background
+        backgroundEditor.drawStroke(20, 132 - 2, (float) (start + barLength), 132 - 2, 6f, accentColour); // Xp bar value
+
+        backgroundEditor.applyGrayscaleMaskToAlpha(ImageIO.read(Rank.class.getClassLoader().getResourceAsStream("rank/Mask-Background.png"))); // Apply mask
+        // Avatar
+        final BufferedImage avatar = ImageIO.read(new URL(member.getUser().getEffectiveAvatarUrl()));
+        final ImageEditor avatarEditor = new ImageEditor(avatar).resize(75, 75); // Resize to right size
+        avatarEditor.applyGrayscaleMaskToAlpha(ImageIO.read(Rank.class.getClassLoader().getResourceAsStream("rank/profile-picture-mask.png"))); // Apply mask
+
+        // Create font
+        final Font font = Font.createFont(Font.TRUETYPE_FONT, Rank.class.getClassLoader().getResourceAsStream("fonts/rubik/Rubik-Regular.ttf"));
+
+        // Draw avatar
+        backgroundEditor.drawImage(avatarEditor.getBufferedImage(),
+                25,
+                Graphic.imageCenter('Y', avatarEditor.getBufferedImage(), background));
+
+        backgroundEditor.setFont(font); // Set font
+        // Draw titles
+        backgroundEditor.setFontSize(15f);
+        backgroundEditor.drawLeftString(member.getEffectiveName(), 26, 45, 250); // User name
+        backgroundEditor.drawString("Level", 150, imageHeight / 2, 100); // Level
+        backgroundEditor.drawString("Xp", 250, imageHeight / 2, 100); // Xp
+        backgroundEditor.drawString("Rank", imageWidth - 77, 45, 100); // Rank
+        backgroundEditor.drawString("Messages", imageWidth - 77, imageHeight - 45, 100); // Message count
+        // Draw variables
+        backgroundEditor.setFontSize(30f);
+        backgroundEditor.drawString(level, 150, imageHeight / 2 + 35, 100); // Level
+        backgroundEditor.drawString(xp, 250, imageHeight / 2 + 35, 100); // Xp
+        backgroundEditor.drawString(rank, imageWidth - 77, 80, 100); // Rank
+        backgroundEditor.drawString(messages, imageWidth - 77, imageHeight - 5, 100); // Message count
+
+        return backgroundEditor.getBufferedImage();
     }
+
 }

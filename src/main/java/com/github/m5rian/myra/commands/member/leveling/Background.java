@@ -1,34 +1,28 @@
 package com.github.m5rian.myra.commands.member.leveling;
 
-import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.jdaCommandHandler.*;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
-import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.EmbedMessage.Success;
-import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import com.github.m5rian.myra.utilities.Img;
-import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
+import com.github.m5rian.myra.utilities.EmbedMessage.*;
+import com.github.m5rian.myra.utilities.ImageEditor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Background implements CommandHandler {
     private final String[] emojis = {
             "\u2705", // Checkmark
             "\uD83D\uDEAB" // Barrier
     };
-
 
     @CommandEvent(
             name = "edit rank",
@@ -73,23 +67,19 @@ public class Background implements CommandHandler {
         }
 
         final BufferedImage backgroundRaw = ImageIO.read(new URL(ctx.getArguments()[0])); // Get image from Url
-
-        final BufferedImage rankBackground = new Img(backgroundRaw).resize(350, 100).getBufferedImage(); // Resize background
-        final Img rank = new Img(new Rank().rankCard(ctx.getMember(), rankBackground)); // Get rank card
-
-        final Img background = new Img(backgroundRaw).resize(350, 100); // Resize background
-
-        ctx.getChannel().sendFile(background.getInputStream(), "background.png").queue();
-        ctx.getChannel().sendFile(rank.getInputStream(), "rank.png").queue();
-        ctx.getChannel().sendFile(background.getInputStream(), "background.png").queue();
+        final ImageEditor backgroundEditor = new ImageEditor(backgroundRaw).resizeSmart(Rank.imageWidth, Rank.imageHeight); // Resize background
+        final InputStream background = backgroundEditor.getInputStream(); // Get InputStream from only the rank background
+        final BufferedImage rankCard = Rank.renderRankCard(ctx.getMember(), backgroundEditor.getBufferedImage()); // Get rank card as input stream
 
         // Confirmation
-        Success confirmation = new Success(ctx.getEvent())
-                .setCommand("edit rank")
-                .setMessage(lang(ctx).get("command.leveling.edit.rank.message.confirmation")
+        final String rankPreviewFileName = "rank_card_" + ctx.getAuthor().getId() + ".png";
+        final EmbedBuilder confirmation = info(ctx)
+                .setDescription(lang(ctx).get("command.leveling.edit.rank.message.confirmation")
                         .replace("{$currency}", db.getNested("economy").getString("currency"))) // Guild currency
-                .setImage("attachment://rank.png");
-        ctx.getChannel().sendFile(rank.getInputStream(), "rank.png").embed(confirmation.getEmbed().build()).queue(message -> {
+                .setImage("attachment://" + rankPreviewFileName)
+                .getEmbed();
+
+        ctx.getChannel().sendMessage(confirmation.build()).addFile(new ImageEditor(rankCard).getInputStream(), rankPreviewFileName).queue(message -> {
             // Add reactions to message
             message.addReaction(emojis[0]).queue(); // Checkmark
             message.addReaction(emojis[1]).queue(); // Barrier
@@ -102,34 +92,27 @@ public class Background implements CommandHandler {
                     .setAction(e -> {
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reaction emoji
 
-                        // Checkmark
+                        // Confirm purchase
                         if (reaction.equals(emojis[0])) {
                             final GuildMember dbMember = db.getMembers().getMember(e.getMember()); // Get member in database
                             dbMember.setBalance(dbMember.getBalance() - 10000); // Update balance
-                            // Send success
-                            EmbedBuilder success = new EmbedBuilder()
-                                    .setAuthor("edit rank", null, ctx.getAuthor().getEffectiveAvatarUrl())
-                                    .setColor(Utilities.blue)
+
+                            // Success
+                            final String rankBackgroundFileName = "rank_background_" + ctx.getAuthor().getId() + ".png";
+                            final EmbedBuilder success = info(ctx)
                                     .setDescription(lang(ctx).get("command.leveling.edit.rank.message.success"))
-                                    .setImage("attachment://background.png");
-                            try {
-                                e.getChannel().sendFile(background.getInputStream(), "background.png").embed(success.build()).queue(msg -> {
-                                    dbMember.setRankBackground(msg.getEmbeds().get(0).getImage().getUrl()); // Save new image in database
-                                });
-                            } catch (IOException ioException) {
-                                ioException.printStackTrace();
-                            }
+                                    .setImage("attachment://" + rankBackgroundFileName)
+                                    .getEmbed();
+
+                            ctx.getChannel().sendMessage(success.build()).addFile(background, rankBackgroundFileName).queue(msg -> {
+                                dbMember.setRankBackground(msg.getEmbeds().get(0).getImage().getUrl()); // Save new image in database
+                            });
                         }
 
-                        // Barrier
+                        // Cancel purchase
                         else if (reaction.equals(emojis[1])) {
-                            // Send cancel success
-                            new Success(ctx.getEvent())
-                                    .setCommand("edit rank")
-                                    .setEmoji("\uD83D\uDDBC")
-                                    .setAvatar(e.getUser().getEffectiveAvatarUrl())
-                                    .setMessage(lang(ctx).get("command.leveling.edit.rank.message.canceled"))
-                                    .send();
+                            info(ctx).setDescription(lang(ctx).get("command.leveling.edit.rank.message.canceled")).send();
+                            message.clearReactions().queue();
                         }
                     })
                     .setTimeout(30L, TimeUnit.SECONDS)
