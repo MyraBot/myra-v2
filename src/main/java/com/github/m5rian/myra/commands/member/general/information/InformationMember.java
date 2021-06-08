@@ -7,13 +7,14 @@ import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class InformationMember implements CommandHandler {
 
@@ -42,7 +43,7 @@ public class InformationMember implements CommandHandler {
         }
 
         // Online status
-        final CustomEmoji emoji = CustomEmoji.search(member.getOnlineStatus().toString());
+        final String emoji = CustomEmoji.search(member.getOnlineStatus().toString()).getAsEmoji();
         String onlineStatus;
         switch (member.getOnlineStatus().toString()) {
             case "OFFLINE" -> onlineStatus = lang(ctx).get("command.general.info.member.offline");
