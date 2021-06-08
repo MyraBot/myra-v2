@@ -40,34 +40,24 @@ public class EconomySet implements CommandHandler {
         final Member member = Utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "economy set", "\uD83D\uDC5B");
         if (member == null) return;
 
-        // Input balance aren't numbers
-        if (!ctx.getArguments()[1].matches("\\d+")) {
-            new Error(ctx.getEvent())
-                    .setCommand("economy set")
-                    .setEmoji("\uD83D\uDC5B")
-                    .setMessage("error.invalid")
-                    .send();
-            return;
-        }
-
         final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
         long balance = db.getMembers().getMember(member).getBalance(); // Get current balance
-        final long input = Long.parseLong(ctx.getArguments()[1].substring(1)); // Get input number without operator
-        // Add balance
-        if (ctx.getArguments()[1].matches("[+]\\d+")) balance += input;
-            // Subtract balance
-        else if (ctx.getArguments()[1].matches("[-]\\d+")) balance -= input;
-            // Set balance
-        else if (ctx.getArguments()[1].matches("\\d+")) balance = input;
 
-            // Invalid operator
+        // Add balance
+        if (ctx.getArguments()[1].matches("\\+\\d+")) {
+            balance += Long.parseLong(ctx.getArguments()[1].substring(1)); // Get input number without operator
+        }
+        // Subtract balance
+        else if (ctx.getArguments()[1].matches("-\\d+")) {
+            balance -= Long.parseLong(ctx.getArguments()[1].substring(1)); // Get input number without operator
+        }
+        // Set balance
+        else if (ctx.getArguments()[1].matches("\\d+")) {
+            balance = Long.parseLong(ctx.getArguments()[1]); // Get input number
+        }
+        // Invalid operator
         else {
-            new Error(ctx.getEvent())
-                    .setCommand("economy set")
-                    .setEmoji("\uD83D\uDC5B")
-                    .setMessage(Lang.lang(ctx).get("error.invalid.operator"))
-                    .setFooter("Please use `+` to add money, `-` to subtract money or leave the operators out to set an exact amount of money")
-                    .send();
+            error(ctx).setMessage(Lang.lang(ctx).get("error.invalid")).send();
             return;
         }
 
