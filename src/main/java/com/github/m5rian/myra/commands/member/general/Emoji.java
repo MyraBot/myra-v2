@@ -25,6 +25,7 @@ public class Emoji implements CommandHandler {
                             .setEmoji("\u2049")
                             .setDescription(lang(ctx).get("description.general.emoji")))
                     .send();
+            return;
         }
 
         // Invalid character
