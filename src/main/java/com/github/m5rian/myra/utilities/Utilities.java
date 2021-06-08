@@ -566,4 +566,10 @@ public class Utilities {
         return table.toString();
     }
 
+    public static String toCodepoints(String string) {
+        final StringBuilder codepoints = new StringBuilder();
+        string.codePoints().mapToObj(Integer::toHexString).forEach(s -> codepoints.append("U+").append(s));
+        return codepoints.toString();
+    }
+
 }

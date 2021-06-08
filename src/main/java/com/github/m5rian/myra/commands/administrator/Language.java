@@ -7,18 +7,13 @@ import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class Language implements CommandHandler {
-    private final String[] reactions = {
-            "\uD83C\uDDEC\uD83C\uDDE7", // England
-            "\uD83C\uDDEB\uD83C\uDDF7", // France
-            "\uD83C\uDDEA\uD83C\uDDF8" // Catalonia
-    };
-
     @CommandEvent(
             name = "language",
             aliases = {"languages", "lang", "langs"},
@@ -26,29 +21,44 @@ public class Language implements CommandHandler {
             description = "Change the language for your server"
     )
     public void onLanguageCommand(CommandContext ctx) {
-        final EmbedBuilder embed = info(ctx).setDescription("""
-                \uD83C\uDDEC\uD83C\uDDE7 English
-                \uD83C\uDDEB\uD83C\uDDF7 French
-                \uD83C\uDDEA\uD83C\uDDF8 Catalonian""")
-                .getEmbed();
+        final EmbedBuilder embed = info(ctx).getEmbed(); // Create embed
+        Arrays.asList(Lang.Country.values()).forEach(lang -> embed.appendDescription(lang.getFlag() + " " + lang.getNativeName() + "\n"));
+
         ctx.getChannel().sendMessage(embed.build()).queue(message -> {
-            message.addReaction(reactions[0]).queue();
-            message.addReaction(reactions[1]).queue();
-            message.addReaction(reactions[2]).queue();
+            Arrays.asList(Lang.Country.values()).forEach(lang -> {
+                // Language has a custom emote
+                if (lang.getCodepoints().startsWith("RE:")) {
+                    final Emote emote = ctx.getEvent().getJDA().getEmoteById(lang.getCodepoints().replaceAll("\\D", ""));
+                    message.addReaction(emote).queue();
+                }
+                // Language has a normal emoji
+                else {
+                    message.addReaction(lang.getFlag()).queue();
+                }
+            });
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e -> !e.getUser().isBot()
                             && e.getMessageIdLong() == message.getIdLong()
-                            && e.getUserIdLong() == ctx.getAuthor().getIdLong()
-                            && Arrays.asList(reactions).contains(e.getReactionEmote().getEmoji()))
+                            && e.getUserIdLong() == ctx.getAuthor().getIdLong())
+                    //&& Lang.Country.getFlagsAsCodepoints().contains(e.getReactionEmote().toString()))
                     .setAction(e -> {
-                        final String reaction = e.getReactionEmote().getEmoji();
 
+                        final String reaction;
+                        if (e.getReactionEmote().isEmote()) reaction = e.getReactionEmote().getEmote().toString();
+                        else reaction = e.getReactionEmote().getAsCodepoints();
+
+                        System.out.println(reaction);
+                        for (Lang.Country lang : Lang.Country.values()) {
+                            System.out.println(lang.getCodepoints());
+                        }
 
                         Lang.Country language;
                         switch (reaction) {
-                            case "\uD83C\uDDEB\uD83C\uDDF7" -> language = Lang.Country.FRENCH;
-                            case "\uD83C\uDDEA\uD83C\uDDF8" -> language = Lang.Country.CATALAN;
+                            case "U+1f1ebU+1f1f7" -> language = Lang.Country.FRENCH;
+                            case "E:Catalan(851830307405299714)" -> language = Lang.Country.CATALAN;
+                            case "U+1f1eeU+1f1f9" -> language = Lang.Country.ITALIAN;
+                            case "U+1f1e9U+1f1ea" -> language = Lang.Country.GERMAN;
 
                             default -> language = Lang.Country.ENGLISH;
                         }

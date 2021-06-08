@@ -2,15 +2,14 @@ package com.github.m5rian.myra.utilities.language;
 
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.utilities.CustomEmoji;
+import com.github.m5rian.myra.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * @author Marian
@@ -19,16 +18,35 @@ import java.util.ResourceBundle;
  */
 public class Lang {
     public enum Country {
-        ENGLISH("en_UK", "English"),
-        FRENCH("fr", "French"),
-        CATALAN("ca", "Catalan");
+        ENGLISH("en_UK", "English", "English", "\uD83C\uDDEC\uD83C\uDDE7"),
+        FRENCH("fr", "French", "Français", "\uD83C\uDDEB\uD83C\uDDF7"),
+        CATALAN("ca", "Catalan", "Català", CustomEmoji.CATALAN),
+        ITALIAN("it", "Italian", "Italia", "\uD83C\uDDEE\uD83C\uDDF9"),
+        GERMAN("de", "German", "Deutsch", "\uD83C\uDDE9\uD83C\uDDEA");
 
         private final String id;
         private final String name;
+        private final String nativeName;
+        private final String emoji;
+        private final CustomEmoji customEmoji;
+        private final boolean isEmote;
 
-        Country(String id, String name) {
+        Country(String id, String name, String nativeName, String flag) {
             this.id = id;
             this.name = name;
+            this.nativeName = nativeName;
+            this.emoji = flag;
+            this.customEmoji = null;
+            this.isEmote = false;
+        }
+
+        Country(String id, String name, String nativeName, CustomEmoji flag) {
+            this.id = id;
+            this.name = name;
+            this.nativeName = nativeName;
+            this.emoji = null;
+            this.customEmoji = flag;
+            this.isEmote = true;
         }
 
         public String getId() {
@@ -39,6 +57,20 @@ public class Lang {
             return this.name;
         }
 
+        public String getNativeName() {
+            return this.nativeName;
+        }
+
+        public String getFlag() {
+            if (this.isEmote) return this.customEmoji.getAsMention();
+            else return this.emoji;
+        }
+
+        public String getCodepoints() {
+            if (this.isEmote) return this.customEmoji.getCodepoints();
+            else return Utilities.toCodepoints(this.emoji);
+        }
+
         public static Country getById(String id) {
             for (Country language : Country.values()) {
                 if (language.getId().equals(id)) {
@@ -46,6 +78,15 @@ public class Lang {
                 }
             }
             return ENGLISH;
+        }
+
+        public static List<String> getFlagsAsCodepoints() {
+            List<String> codepoints = new ArrayList<>();
+            for (Country lang : Country.values()) {
+                if (lang.isEmote) codepoints.add(lang.customEmoji.getCodepoints());
+                else codepoints.add(Utilities.toCodepoints(lang.emoji));
+            }
+            return codepoints;
         }
     }
 
