@@ -48,11 +48,6 @@ public class Language implements CommandHandler {
                         if (e.getReactionEmote().isEmote()) reaction = e.getReactionEmote().getEmote().toString();
                         else reaction = e.getReactionEmote().getAsCodepoints();
 
-                        System.out.println(reaction);
-                        for (Lang.Country lang : Lang.Country.values()) {
-                            System.out.println(lang.getCodepoints());
-                        }
-
                         Lang.Country language;
                         switch (reaction) {
                             case "U+1f1ebU+1f1f7" -> language = Lang.Country.FRENCH;
