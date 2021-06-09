@@ -3,6 +3,7 @@ package com.github.m5rian.myra.commands.administrator;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class Language implements CommandHandler {
+
     @CommandEvent(
             name = "language",
             aliases = {"languages", "lang", "langs"},
@@ -21,13 +23,15 @@ public class Language implements CommandHandler {
             description = "Change the language for your server"
     )
     public void onLanguageCommand(CommandContext ctx) {
+        if (ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).isMember(ctx.getAuthor()) && !ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).getMemberById(ctx.getMember().getIdLong()).getRoles().stream().anyMatch(role -> role.getId().equals(Config.MYRA_TRANSLATOR_ROLE))) return;
+
         final EmbedBuilder embed = info(ctx).getEmbed(); // Create embed
         Arrays.asList(Lang.Country.values()).forEach(lang -> embed.appendDescription(lang.getFlag() + " " + lang.getNativeName() + "\n"));
 
         ctx.getChannel().sendMessage(embed.build()).queue(message -> {
             Arrays.asList(Lang.Country.values()).forEach(lang -> {
                 // Language has a custom emote
-                if (lang.getCodepoints().startsWith("RE:")) {
+                if (lang.hasCustomFlag()) {
                     final Emote emote = ctx.getEvent().getJDA().getEmoteById(lang.getCodepoints().replaceAll("\\D", ""));
                     message.addReaction(emote).queue();
                 }

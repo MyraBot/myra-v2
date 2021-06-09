@@ -24,13 +24,6 @@ import java.util.concurrent.TimeUnit;
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Leaderboard implements CommandHandler {
-    // I needed to use this weird format on the normal emoji, because otherwise I wouldn't be able to use the Arrays.stream thing below in the conditions of the event waiter
-    final String[] emojis = {
-            "RE:U+1F3C6", // Leveling (🏆)
-            CustomEmoji.COIN.getCodepoints(), // Balance
-            "RE:U+1F4DE" // Voice call
-    };
-
     @CommandEvent(
             name = "leaderboard",
             aliases = {"lb", "top"}
@@ -55,17 +48,22 @@ public class Leaderboard implements CommandHandler {
 
             message.editMessage(levelLeaderboard).queue(); // Display by default level leaderboard
 
+            final String[] emojis = {
+                    Config.REACTION_PREFIX + Utilities.toCodepoints("\uD83C\uDFC6"), // Leveling
+                    Config.REACTION_PREFIX + CustomEmoji.COIN.getCodepoints(), // Balance
+                    Config.REACTION_PREFIX + Utilities.toCodepoints("\uD83D\uDCDE") // Voice call
+            };
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e -> !e.getUser().isBot()
                             && e.getUserIdLong() == ctx.getMember().getIdLong()
                             && e.getMessageIdLong() == message.getIdLong()
-                            && Arrays.asList(emojis).stream().anyMatch(emoji -> emoji.equalsIgnoreCase(e.getReactionEmote().toString())))
+                            && Arrays.asList(emojis).contains(e.getReactionEmote().toString()))
                     .setAction(e -> {
                         message.editMessage(loading.getEmbed().build()).queue(); // Edit to loading message
-                        final String reaction = e.getReactionEmote().toString().toUpperCase(); // Get reacted reaction emote
+                        final String reaction = e.getReactionEmote().toString(); // Get reacted reaction emote
 
                         // Balance leaderboard
-                        if (e.getReactionEmote().isEmote()) message.editMessage(balanceLeaderboard).queue();
+                        if (reaction.equals(emojis[1])) message.editMessage(balanceLeaderboard).queue();
                             // Level leaderboard
                         else if (reaction.equals(emojis[0])) message.editMessage(levelLeaderboard).queue();
                             // Voice leaderboard

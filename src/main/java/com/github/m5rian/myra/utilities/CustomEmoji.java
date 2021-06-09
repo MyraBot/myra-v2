@@ -56,7 +56,7 @@ public enum CustomEmoji {
     }
 
     public String getCodepoints() {
-        return "R" + DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).toString().substring(2);
     }
 
     public static CustomEmoji search(String query) {

@@ -71,6 +71,10 @@ public class Lang {
             else return Utilities.toCodepoints(this.emoji);
         }
 
+        public boolean hasCustomFlag() {
+            return this.isEmote;
+        }
+
         public static Country getById(String id) {
             for (Country language : Country.values()) {
                 if (language.getId().equals(id)) {

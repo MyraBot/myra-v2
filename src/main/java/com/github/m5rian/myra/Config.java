@@ -34,6 +34,8 @@ public class Config {
     public static final String MYRA_BUG_WEBHOOK = "https://discord.com/api/v8/webhooks/849948508760834058/F-jHtylLUFEfnKYNyJynVEvKZ5M-2LIsAMH4VN0s1gdCBzOLSYRHFCkWy4WmUOHHgz-7";
     public static final String MYRA_FEATURE_WEBHOOK = "https://discord.com/api/v8/webhooks/788769270384558120/A_6jJ1gstVcqih6lD8pTIAereQBhTJRn9vtbljqevVQ4uiOXAEXPTWZBh6n99ZJJrwPd";
 
+    public static final String REACTION_PREFIX = "RE:";
+
     public static Long startUp;
     public static final Integer ECONOMY_MAX = 1000000000;
 
