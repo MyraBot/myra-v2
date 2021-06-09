@@ -110,7 +110,6 @@ public class Listeners extends ListenerAdapter {
     //JDA Events
     public void onReady(@Nonnull ReadyEvent event) {
         try {
-            Registration.register(); // Register commands and listeners
             new MongoDbUpdate().updateGuilds(event); // Add missing guilds to the database
 
             new Reminder().onReady(event); // Load reminders
