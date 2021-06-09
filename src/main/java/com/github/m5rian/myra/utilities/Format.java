@@ -89,9 +89,10 @@ public class Format {
             switch (i) {
                 case 0 -> output.append(lang(guild).get("word.timeunit.month" + suffix));
                 case 1 -> output.append(lang(guild).get("word.timeunit.week" + suffix));
-                case 2 -> output.append(lang(guild).get("word.timeunit.hour" + suffix));
-                case 3 -> output.append(lang(guild).get("word.timeunit.minute" + suffix));
-                case 4 -> output.append(lang(guild).get("word.timeunit.second" + suffix));
+                case 2 -> output.append(lang(guild).get("word.timeunit.day" + suffix));
+                case 3 -> output.append(lang(guild).get("word.timeunit.hour" + suffix));
+                case 4 -> output.append(lang(guild).get("word.timeunit.minute" + suffix));
+                case 5 -> output.append(lang(guild).get("word.timeunit.second" + suffix));
             }
 
         }
