@@ -1,5 +1,7 @@
 package com.github.m5rian.myra.utilities;
 
+import net.dv8tion.jda.api.entities.Guild;
+
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -7,6 +9,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Format {
 
@@ -40,9 +44,62 @@ public class Format {
         return String.format("%02dd %02dh %02dmin %02ds", days, hours, minutes, seconds);
     }
 
-    public static String toTime(long millis) {
+    public static String toTime(long millis, Guild guild) {
+        List<Long> times = new ArrayList<>() {{
+            long seconds = millis / 1000;
 
-        List<Time> times = new ArrayList<>() {{
+            final long months = seconds / 2629743;
+            seconds -= months * 2629743;
+
+            final long weeks = seconds / 604800;
+            seconds -= weeks * 604800;
+
+            final long days = seconds / 86400;
+            seconds -= days * 86400;
+
+            final long hours = seconds / 3600;
+            seconds -= hours * 3600;
+
+            final long minutes = seconds / 60;
+            seconds -= minutes * 60;
+
+            add(months);
+            add(weeks);
+            add(days);
+            add(hours);
+            add(minutes);
+            add(seconds);
+        }};
+
+        StringBuilder output = new StringBuilder();
+        final String wordAnd = lang(guild).get("word.and");
+        for (int i = 0; i < times.size(); i++) {
+            final long duration = times.get(i);
+
+            if (duration == 0) continue;
+            if (output.toString().contains(wordAnd)) break;
+            if (output.length() > 0) output.append(" and ");
+
+            output.append(duration).append(" ");  // Append duration
+
+            String suffix = "s";
+            if (duration == 1) suffix = "";
+
+            // Append time unit
+            switch (i) {
+                case 0 -> output.append(lang(guild).get("word.timeunit.month" + suffix));
+                case 1 -> output.append(lang(guild).get("word.timeunit.week" + suffix));
+                case 2 -> output.append(lang(guild).get("word.timeunit.hour" + suffix));
+                case 3 -> output.append(lang(guild).get("word.timeunit.minute" + suffix));
+                case 4 -> output.append(lang(guild).get("word.timeunit.second" + suffix));
+            }
+
+        }
+
+        if (output.length() == 0) output.append(lang(guild).get("word.none"));
+        return output.toString();
+
+        /*List<Time> times = new ArrayList<>() {{
             Time seconds = new Time("seconds", millis / 1000);
 
             Time months = new Time("months", seconds.duration / 2629743);
@@ -73,13 +130,13 @@ public class Format {
             if (time.duration == 0) continue; // Duration is 0
             if (output.toString().contains("and")) continue; // There are already at least 2 values
 
-            if (!output.toString().equals("")) output.append(" and ");
-            if (time.duration != 1) output.append(time.duration).append(" ").append(time.timeUnit);
-            else output.append(time.duration).append(" ").append(time.timeUnit).substring(0, output.length() - 1);
+            if (!output.toString().equals("")) output += duration + " and ");
+            if (time.duration != 1) output += duration + time.duration).append(" ").append(time.timeUnit);
+            else output += duration + time.duration).append(" ").append(time.timeUnit).substring(0, output.length() - 1);
         }
-        if (output.isEmpty()) output.append("none");
+        if (output.isEmpty()) output += duration + "none");
 
-        return output.toString();
+        return output.toString();*/
     }
 
     public static class Time {

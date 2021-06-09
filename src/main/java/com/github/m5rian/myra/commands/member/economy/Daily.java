@@ -5,17 +5,15 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.jdaCommandHandler.commandMessages.CommandMessage;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.APIs.DiscordBoats;
 import com.github.m5rian.myra.utilities.APIs.TopGG;
 import com.github.m5rian.myra.utilities.Format;
+import com.github.m5rian.myra.utilities.language.Lang;
 
 import java.util.concurrent.TimeUnit;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Daily implements CommandHandler {
 
@@ -40,7 +38,7 @@ public class Daily implements CommandHandler {
             // Send message
             info(ctx).setColour(ctx.getMember().getColor())
                     .setDescription(Lang.lang(ctx).get("command.economy.daily.wait")
-                            .replace("{$time}", Format.toTime(nextBonusIn)))
+                            .replace("{$time}", Format.toTime(nextBonusIn, ctx.getGuild())))
                     .send();
         }
         // Claim reward

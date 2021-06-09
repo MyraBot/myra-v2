@@ -8,9 +8,10 @@ import com.github.m5rian.myra.utilities.APIs.TopGG;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Resources;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class InformationBot implements CommandHandler {
 
@@ -33,7 +34,7 @@ public class InformationBot implements CommandHandler {
                         "**CPU:** " + resources.getCpuLoad() + "\n" +
                                 "**RAM:** " + resources.getRAMUsage() + "mb"
                         , true)
-                .addField("\u23F1 │ " + lang(ctx).get("command.general.info.bot.uptime"), Format.toTime(uptime), true)
+                .addField("\u23F1 │ " + lang(ctx).get("command.general.info.bot.uptime"), Format.toTimeExact(uptime), true)
                 .addField("\uD83E\uDDF5 │ " + lang(ctx).get("command.general.info.bot.threads"), resources.getRunningThreads(), true)
                 .addField("\uD83D\uDDC2 │ " + lang(ctx).get("command.general.info.bot.shards"), String.valueOf(jda.getShardManager().getShardsTotal()), true)
                 .addField("\uD83D\uDDDC │ " + lang(ctx).get("command.general.info.bot.guilds"), String.valueOf(jda.getGuilds().size()), true)

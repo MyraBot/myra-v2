@@ -121,7 +121,7 @@ public class Leaderboard implements CommandHandler {
             final String value; // Store value to display
             switch (type) {
                 case BALANCE -> value = Format.number(member.getBalance()); // Balance
-                case VOICE -> value = Format.toTime(member.getVoiceCallTime()); // Voice call time
+                case VOICE -> value = Format.toTime(member.getVoiceCallTime(), guild); // Voice call time
 
                 default -> value = String.valueOf(member.getLevel()); // Level
             }
