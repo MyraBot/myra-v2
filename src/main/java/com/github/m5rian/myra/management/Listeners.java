@@ -54,6 +54,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Listeners extends ListenerAdapter {
+    private boolean acceptEvents = false;
     public final static List<String> unavailableGuilds = new ArrayList<>(); // Guilds which shouldn't receive events
     private final static Logger LOGGER = LoggerFactory.getLogger(Listeners.class);
     private final static String onlineInfo = "Bot online!";
@@ -128,6 +129,7 @@ public class Listeners extends ListenerAdapter {
             new UnicornChange().change();
             LOGGER.info(onlineInfo);
             Config.startUp = System.currentTimeMillis();
+            this.acceptEvents = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -255,6 +257,8 @@ public class Listeners extends ListenerAdapter {
     //Guild Member Update Events
     public void onGuildMemberUpdate(@Nonnull GuildMemberUpdateEvent event) {
         try {
+            if (!this.acceptEvents) return;
+
             userUpdates.onUpdate(event.getUser());
         } catch (Exception e) {
             e.printStackTrace();
