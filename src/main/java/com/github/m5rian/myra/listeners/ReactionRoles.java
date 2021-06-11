@@ -24,7 +24,7 @@ public class ReactionRoles {
         if (rr.stream().noneMatch(document -> document.getString("message").equals(event.getMessageId())))
             return; // Message isn't a reaction role
         if (rr.stream().noneMatch(document -> {
-            if (event.getReactionEmote().isEmote()) {
+            if (event.getReactionEmote().isEmoji()) {
                 return document.getString("emoji").equals(event.getReactionEmote().getEmoji());
             }
             else {
