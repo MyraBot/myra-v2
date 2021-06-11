@@ -6,6 +6,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.exceptions.HierarchyException;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -21,7 +23,14 @@ public class ReactionRoles {
 
         if (rr.stream().noneMatch(document -> document.getString("message").equals(event.getMessageId())))
             return; // Message isn't a reaction role
-        if (rr.stream().noneMatch(document -> document.getString("emoji").equals(event.getReactionEmote().getEmoji())))
+        if (rr.stream().noneMatch(document -> {
+            if (event.getReactionEmote().isEmote()) {
+                return document.getString("emoji").equals(event.getReactionEmote().getEmoji());
+            }
+            else {
+                return document.getString("emoji").equals(event.getReactionEmote().getEmote().toString());
+            }
+        }))
             return; // Emoji isn't a reaction role emoji
 
         final List<Document> boundReactionRoles = new ArrayList<>(); // Create list for all reaction roles which are bound to the message
@@ -53,7 +62,8 @@ public class ReactionRoles {
             case "normal":
                 // Verify reaction
             case "verify":
-                guild.addRoleToMember(member, role).queue(); // Add role to member
+                guild.addRoleToMember(member, role).queue(null, new ErrorHandler() // Add role to member
+                        .ignore(HierarchyException.class)); // Ignore role hierarchy error
                 break;
 
             // Unique reaction
