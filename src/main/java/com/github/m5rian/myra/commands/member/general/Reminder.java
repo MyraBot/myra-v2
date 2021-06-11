@@ -5,7 +5,6 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
@@ -16,8 +15,7 @@ import org.bson.Document;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.m5rian.myra.utilities.language.Lang.defaultLang;
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
+import static com.github.m5rian.myra.utilities.language.Lang.*;
 
 
 public class Reminder implements CommandHandler {
@@ -43,17 +41,6 @@ public class Reminder implements CommandHandler {
 
 
         final String reason = ctx.getArgumentsRaw().split("\\s+", 2)[1]; // Get remind reason
-        final String durationRaw = ctx.getArguments()[0]; // Get duration
-        // Duration doesn't match [numberLetters]
-        if (!durationRaw.matches("[0-9]+[a-zA-z]+")) {
-            new Error(ctx.getEvent())
-                    .setCommand("reminder")
-                    .setEmoji("\u23F0")
-                    .setMessage(lang(ctx).get("error.invalidTime"))
-                    .send();
-            return;
-        }
-
         final Utilities.Duration duration = Utilities.getDuration(ctx, ctx.getArguments()[0], ctx.getArguments()[1]); // Get duration
         if (duration == null) return;
 
