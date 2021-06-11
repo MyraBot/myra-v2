@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
     implementation group: 'net.dv8tion', name: 'JDA', version: '4.2.1_255' // JDA
-    implementation group: 'com.github.m5rian', name: 'JdaCommandHandler', version: '0.3.3' // JDA Command handler
+    implementation group: 'com.github.m5rian', name: 'JdaCommandHandler', version: '0.3.4' // JDA Command handler
     implementation group: 'com.github.sedmelluq', name: 'lavaplayer', version: '1.3.74' // Lava player
     implementation group: 'com.github.natanbc', name: 'lavadsp', version: '0.7.7' // Lavadsp (Lava player filters)
     implementation group: 'org.mongodb', name: 'mongodb-driver-sync', version: '4.2.3' // MongoDB
