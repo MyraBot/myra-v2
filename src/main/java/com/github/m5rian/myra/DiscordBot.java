@@ -101,12 +101,6 @@ import java.util.List;
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class DiscordBot {
-    public static ShardManager shardManager;
-
-    private final static String TOKEN = "NzE4NDQ0NzA5NDQ1NjMyMTIy.Xto9xg.ScXvpTLGPkMBp0EP-mlLUCErI8Y";
-    private final static String LOADING_STATUS = "loading bars fill";
-    private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
-
     public static final DefaultCommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
             .setDefaultPrefix(Config.DEFAULT_PREFIX)
             .setVariablePrefix(guild -> new MongoGuild(guild).getString("prefix"))
@@ -267,8 +261,31 @@ public class DiscordBot {
                     .setDefaultEmbed(ctx -> new EmbedBuilder()
                             .setAuthor(ctx.getCommand().name(), null, ctx.getAuthor().getEffectiveAvatarUrl())
                             .setColor(Utilities.gray))
-                    .addUsageAsField((ctx, command) -> new MessageEmbed.Field("`" + ctx.getPrefix() + command.name() + " " + String.join(" ", command.args()) + "`", command.emoji() + " │ " + lang(ctx).get(command.description()), false)))
+                    .addUsageAsField((ctx, command) -> {
+                        try {
+                            lang(ctx).get(command.description());
+                        }catch (Exception e) {
+                            System.out.println(command.name());
+                        }
+                        final String description = lang(ctx).get(command.description())
+                                .replace("{$myra.name}", ctx.getBotMember().getEffectiveName())
+                                .replace("{$guild.currency}", new MongoGuild(ctx.getGuild()).getNested("economy").getString("currency"));
+
+                        // Command has no arguments
+                        if (command.args().length == 0) {
+                            return new MessageEmbed.Field("`" + ctx.getPrefix() + command.name() + "`", command.emoji() + " │ " + description, false);
+                        }
+                        // Command has arguments
+                        else {
+                            return new MessageEmbed.Field("`" + ctx.getPrefix() + command.name() + " " + String.join(" ", command.args()) + "`", command.emoji() + " │ " + description, false);
+                        }
+
+                    }))
             .build();
+    private final static String TOKEN = "NzE4NDQ0NzA5NDQ1NjMyMTIy.Xto9xg.ScXvpTLGPkMBp0EP-mlLUCErI8Y";
+    private final static String LOADING_STATUS = "loading bars fill";
+    private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
+    public static ShardManager shardManager;
 
     /**
      * The {@link MemberCachePolicy} says what to do when we get a member through an event.
