@@ -110,57 +110,6 @@ public class Utilities {
         return new Duration(durationInMilliseconds, duration, timeUnit);
     }
 
-    public static class Duration {
-        private final long durationInMillis;
-        private final long duration;
-        private final TimeUnit timeUnit;
-
-        Duration(long durationInMillis, long duration, TimeUnit timeUnit) {
-            this.durationInMillis = durationInMillis;
-            this.duration = duration;
-            this.timeUnit = timeUnit;
-        }
-
-        public long getMillis() {
-            return this.durationInMillis;
-        }
-
-        public long getDuration() {
-            return duration;
-        }
-
-        public TimeUnit getTimeUnit() {
-            return timeUnit;
-        }
-
-        public String getTimeUnitAsName(Guild guild) {
-            final String timeUnit;
-            // Duration is exactly 1
-            if (this.duration == 1) {
-                switch (this.timeUnit) {
-                    case SECONDS -> timeUnit = lang(guild).get("word.timeunit.second");
-                    case MINUTES -> timeUnit = lang(guild).get("word.timeunit.minute");
-                    case HOURS -> timeUnit = lang(guild).get("word.timeunit.hour");
-                    case DAYS -> timeUnit = lang(guild).get("word.timeunit.day");
-                    default -> timeUnit = lang(guild).get("word.invalid");
-                }
-            }
-            // Duration isn't 1
-            else {
-                switch (this.timeUnit) {
-                    case SECONDS -> timeUnit = lang(guild).get("word.timeunit.seconds");
-                    case MINUTES -> timeUnit = lang(guild).get("word.timeunit.minutes");
-                    case HOURS -> timeUnit = lang(guild).get("word.timeunit.hours");
-                    case DAYS -> timeUnit = lang(guild).get("word.timeunit.days");
-                    default -> timeUnit = lang(guild).get("word.invalid");
-                }
-            }
-
-            return timeUnit;
-        }
-
-    }
-
     /**
      * Generate a new invite link for the bot.
      *
@@ -243,13 +192,15 @@ public class Utilities {
         // Member given by id or mention
         if (providedMember.startsWith("<@") || providedMember.matches("\\d+")) {
             member = event.getGuild().retrieveMemberById(providedMember.replaceAll("[<@!>]", "")).complete();
-        } else if (!event.getGuild().getMembersByEffectiveName(providedMember, true).isEmpty()) {
+        }
+        // Member is given by name (needs to be cached though)
+        else if (!event.getGuild().getMembersByEffectiveName(providedMember, true).isEmpty()) {
             member = event.getGuild().getMembersByEffectiveName(providedMember, true).get(0);
         }
 
         // No role given
         if (member == null) {
-            error(event.getTextChannel(), command, commandEmoji, "No user given", "Please enter the id or mention the user", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getTextChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.notGiven.header"), lang(event.getGuild()).get("error.retrieving.member.notGiven.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         return member;
@@ -268,6 +219,11 @@ public class Utilities {
         User user;
         final JDA jda = event.getJDA();
 
+        // Role is mentioned
+        if (providedUser.startsWith("<@&")) {
+            error(event.getChannel(), command, commandEmoji, "No user given", "Please mention a member, not a role", event.getAuthor().getEffectiveAvatarUrl());
+            return null;
+        }
         // User given by id or mention
         if (providedUser.startsWith("<@") || providedUser.matches("\\d+")) {
             user = jda.retrieveUserById(providedUser.replaceAll("[<@!>]", "")).complete();
@@ -278,7 +234,7 @@ public class Utilities {
         }
         // No User given
         else {
-            error(event.getChannel(), command, commandEmoji, "No user given", "Please enter the id or mention the user", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getTextChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.notGiven.header"), lang(event.getGuild()).get("error.retrieving.member.notGiven.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         return user;
@@ -298,7 +254,7 @@ public class Utilities {
 
         // Role is mentioned
         if (providedUser.startsWith("<@&")) {
-            error(event.getChannel(), command, commandEmoji, "No user given", "Please mention a member, not a role", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.notGiven.header"), lang(event.getGuild()).get("error.retrieving.member.isRole.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         // Role given by id or mention
@@ -311,24 +267,24 @@ public class Utilities {
         }
         // No role given
         else {
-            error(event.getChannel(), command, commandEmoji, "No user found", "Be sure the user is in the server", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getTextChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.notFound.header"), lang(event.getGuild()).get("error.retrieving.member.notFound.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
 
         //can't modify yourself
         if (member.equals(event.getMember())) {
-            error(event.getChannel(), command, commandEmoji, "Can't " + command + " the mentioned user", "You can't " + command + " yourself", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.missingPerms.header").replace("{$command.name}", command), lang(event.getGuild()).get("error.retrieving.member.missingPerms.yourself.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         //can't modify the owner
         else if (member.isOwner()) {
-            error(event.getChannel(), command, commandEmoji, "Can't " + command + " the mentioned user", "You can't " + command + " the owner of the server", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.missingPerms.header").replace("{$command.name}", command), lang(event.getGuild()).get("error.retrieving.member.missingPerms.owner.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         //if user has a higher or equal role than you
         if (!member.getRoles().isEmpty()) {
             if (member.getRoles().get(0).getPosition() > event.getGuild().getMember(event.getJDA().getSelfUser()).getRoles().get(0).getPosition()) {
-                error(event.getChannel(), command, commandEmoji, "Can't " + command + " " + member.getEffectiveName(), "I can't " + command + " a member with a higher or equal role than me", event.getAuthor().getEffectiveAvatarUrl());
+                error(event.getChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.missingPerms.roleHierarchy.header").replace("{$command.name}", command).replace("{$member.name}", member.getEffectiveName()), lang(event.getGuild()).get("error.retrieving.member.missingPerms.roleHierarchy.error").replace("{$command.name}", command), event.getAuthor().getEffectiveAvatarUrl());
                 return null;
             }
         }
@@ -357,13 +313,13 @@ public class Utilities {
         }
         // No role given
         else {
-            error(event.getTextChannel(), command, commandEmoji, "No channel given", "Please enter the id or mention the channel", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getTextChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.channel.notGiven.header"), lang(event.getGuild()).get("error.retrieving.channel.notGiven.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
 
         // No role found
         if (channel == null) {
-            error(event.getTextChannel(), command, commandEmoji, "No channel found", "The given channel doesn't exist", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getTextChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.channel.notFound.header"), lang(event.getGuild()).get("error.retrieving.channel.notFound.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         return channel;
@@ -392,7 +348,7 @@ public class Utilities {
 
         // No role found
         if (role == null) {
-            error(event.getTextChannel(), command, commandEmoji, "No role found", "I couldn't find the specified role", event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getTextChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.role.notFound.header"), lang(event.getGuild()).get("error.retrieving.role.notFound.error"), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         return role;
@@ -498,7 +454,6 @@ public class Utilities {
         return null;
     }
 
-
     /**
      * Finds a library's pom.properties file.
      *
@@ -558,10 +513,12 @@ public class Utilities {
     public static String getVersions(String pattern, Class... classes) {
         final StringBuilder table = new StringBuilder();
         for (Class<?> clazz : classes) {
-            if (clazz.getCanonicalName().startsWith("com.myra.dev.marian")) table.append(String.format(pattern, "Myra", getProperties().getProperty("version")));
+            if (clazz.getCanonicalName().startsWith("com.myra.dev.marian"))
+                table.append(String.format(pattern, "Myra", getProperties().getProperty("version")));
             if (clazz.getCanonicalName().startsWith("net.dv8tion.jda")) table.append(String.format(pattern, "JDA", JDAInfo.VERSION));
             if (clazz.getCanonicalName().startsWith("com.github.natanbc")) table.append(String.format(pattern, "LavaDsp", DspInfo.VERSION));
-            else table.append(String.format(pattern, getPropertyFile(clazz).getProperty("artifactId"), getPropertyFile(clazz).getProperty("version")));
+            else
+                table.append(String.format(pattern, getPropertyFile(clazz).getProperty("artifactId"), getPropertyFile(clazz).getProperty("version")));
         }
         return table.toString();
     }
@@ -570,6 +527,57 @@ public class Utilities {
         final StringBuilder codepoints = new StringBuilder();
         string.codePoints().mapToObj(Integer::toHexString).forEach(s -> codepoints.append("U+").append(s));
         return codepoints.toString();
+    }
+
+    public static class Duration {
+        private final long durationInMillis;
+        private final long duration;
+        private final TimeUnit timeUnit;
+
+        Duration(long durationInMillis, long duration, TimeUnit timeUnit) {
+            this.durationInMillis = durationInMillis;
+            this.duration = duration;
+            this.timeUnit = timeUnit;
+        }
+
+        public long getMillis() {
+            return this.durationInMillis;
+        }
+
+        public long getDuration() {
+            return duration;
+        }
+
+        public TimeUnit getTimeUnit() {
+            return timeUnit;
+        }
+
+        public String getTimeUnitAsName(Guild guild) {
+            final String timeUnit;
+            // Duration is exactly 1
+            if (this.duration == 1) {
+                switch (this.timeUnit) {
+                    case SECONDS -> timeUnit = lang(guild).get("word.timeunit.second");
+                    case MINUTES -> timeUnit = lang(guild).get("word.timeunit.minute");
+                    case HOURS -> timeUnit = lang(guild).get("word.timeunit.hour");
+                    case DAYS -> timeUnit = lang(guild).get("word.timeunit.day");
+                    default -> timeUnit = lang(guild).get("word.invalid");
+                }
+            }
+            // Duration isn't 1
+            else {
+                switch (this.timeUnit) {
+                    case SECONDS -> timeUnit = lang(guild).get("word.timeunit.seconds");
+                    case MINUTES -> timeUnit = lang(guild).get("word.timeunit.minutes");
+                    case HOURS -> timeUnit = lang(guild).get("word.timeunit.hours");
+                    case DAYS -> timeUnit = lang(guild).get("word.timeunit.days");
+                    default -> timeUnit = lang(guild).get("word.invalid");
+                }
+            }
+
+            return timeUnit;
+        }
+
     }
 
 }
