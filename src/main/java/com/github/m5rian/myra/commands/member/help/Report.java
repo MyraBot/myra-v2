@@ -10,6 +10,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
+
 public class Report implements CommandHandler {
 
     @CommandEvent(
@@ -49,6 +51,6 @@ public class Report implements CommandHandler {
         report.send(); // Send report as a webhook
 
         // Send success
-        info(ctx).setDescription("Your bug report was successfully reported").send();
+        info(ctx).setDescription(lang(ctx).get("command.report.info")).send();
     }
 }
