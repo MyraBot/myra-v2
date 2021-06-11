@@ -11,7 +11,10 @@ public class Avatar implements CommandHandler {
 
     @CommandEvent(
             name = "avatar",
-            aliases = {"av", "profile picture", "pp", "profile image"}
+            aliases = {"av", "profile picture", "pp", "profile image"},
+            args = "(user)",
+            emoji = "\uD83D\uDDBC",
+            description = "description.general.avatar"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Get user

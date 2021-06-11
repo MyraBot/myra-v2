@@ -13,8 +13,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class Help implements CommandHandler {
     private final String[] emojis = {
             "\u2709\uFE0F", // ✉️
@@ -23,7 +21,9 @@ public class Help implements CommandHandler {
 
     @CommandEvent(
             name = "help",
-            aliases = {"help me"}
+            aliases = {"help me"},
+            emoji = "\uD83E\uDDF0",
+            description = "description.help.help"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments
@@ -52,7 +52,7 @@ public class Help implements CommandHandler {
                             && e.getMessageIdLong() == message.getIdLong()
                             && Arrays.asList(emojis).contains(e.getReactionEmote().getEmoji()))
                     .setAction(e -> {
-                        final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getUser()); // Get embeds
+                        final CommandEmbeds embed = new CommandEmbeds(ctx); // Get embeds
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 
                         // Invite bot

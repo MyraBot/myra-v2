@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.commands.moderation.ban;
 
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -18,7 +19,11 @@ public class Unban implements CommandHandler {
     @CommandEvent(
             name = "unban",
             aliases = {"unbean"},
-            requires = Moderator.class
+            args = {"<user>"},
+            emoji = "\uD83D\uDD13",
+            description = "description.mod.unban",
+            requires = Moderator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

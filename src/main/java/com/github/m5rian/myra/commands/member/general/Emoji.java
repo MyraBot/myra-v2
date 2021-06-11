@@ -13,7 +13,10 @@ public class Emoji implements CommandHandler {
 
     @CommandEvent(
             name = "character",
-            aliases = {"char", "emoji"}
+            aliases = {"char", "emoji"},
+            args = {"<character/emoji>"},
+            emoji = "\u2049",
+            description = "description.general.emoji"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

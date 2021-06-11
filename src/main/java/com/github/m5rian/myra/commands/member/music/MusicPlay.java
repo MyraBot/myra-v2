@@ -20,13 +20,14 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 @SuppressWarnings("ConstantConditions") // Requires '.enableCache(CacheFlag.VOICE_STATE)' to be not null
 public class MusicPlay implements CommandHandler {
     @CommandEvent(
             name = "play",
             aliases = {"p"},
+            args = {"<song>"},
+            emoji = "\uD83D\uDCBF",
+            description = "description.music.play",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

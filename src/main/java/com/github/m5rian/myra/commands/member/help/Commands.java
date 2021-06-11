@@ -24,11 +24,13 @@ public class Commands implements CommandHandler {
 
     @CommandEvent(
             name = "commands",
-            aliases = {"command"}
+            aliases = {"command"},
+            emoji = "\uD83D\uDCC3",
+            description = "description.help.commands"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Menu
-        ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(), ctx.getAuthor()).commands().build()).queue(message -> {
+        ctx.getChannel().sendMessage(new CommandEmbeds(ctx).commands().build()).queue(message -> {
             // Add reactions
             message.addReaction(emojis[0]).queue(); // Help
             message.addReaction(emojis[1]).queue(); // General
@@ -46,7 +48,7 @@ public class Commands implements CommandHandler {
                             && Arrays.asList(emojis).contains(e.getReactionEmote().getEmoji())) // Match emoji
                     .setAction(e -> {
                         final String prefix = new MongoGuild(e.getGuild()).getString("prefix"); // Get Prefix
-                        final CommandEmbeds embed = new CommandEmbeds(e.getGuild(), e.getUser()); // Get Embeds
+                        final CommandEmbeds embed = new CommandEmbeds(ctx); // Get Embeds
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 
                         // Help commands

@@ -15,7 +15,10 @@ public class Calculate implements CommandHandler {
 
     @CommandEvent(
             name = "calculate",
-            aliases = {"cal"}
+            aliases = {"cal"},
+            args = {"<number 1>", "<operator>", "<number 2>"},
+            emoji = "\uD83E\uDDEE",
+            description = "description.general.calculate"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

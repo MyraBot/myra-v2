@@ -4,11 +4,11 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.APIs.LavaPlayer.PlayerManager;
+import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import java.util.ArrayList;
@@ -16,13 +16,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class MusicShuffle implements CommandHandler {
 
     @CommandEvent(
             name = "shuffle",
             aliases = {"random", "randomize"},
+            emoji = "\uD83C\uDFB2",
+            description = "description.music.shuffle",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

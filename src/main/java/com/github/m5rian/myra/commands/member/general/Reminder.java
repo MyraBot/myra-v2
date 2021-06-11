@@ -23,7 +23,10 @@ import static com.github.m5rian.myra.utilities.language.Lang.lang;
 public class Reminder implements CommandHandler {
     @CommandEvent(
             name = "reminder",
-            aliases = {"remind"}
+            aliases = {"remind"},
+            args = {"duration", "time unit", "reminder description"},
+            emoji = "\u23F0",
+            description = "description.general.reminder"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

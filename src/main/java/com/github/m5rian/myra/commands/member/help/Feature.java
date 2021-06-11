@@ -18,7 +18,10 @@ import java.util.concurrent.TimeUnit;
 public class Feature implements CommandHandler {
     @CommandEvent(
             name = "feature",
-            aliases = {"submit"}
+            aliases = {"submit"},
+            emoji = "\uD83D\uDCCC",
+            description = "description.help.feature",
+            args = {"<feature description>"}
     )
     public void execute(final CommandContext ctx) throws Exception {
         // Command usage

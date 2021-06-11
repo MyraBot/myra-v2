@@ -16,7 +16,7 @@ public class MusicHelp implements CommandHandler {
     public void execute(CommandContext ctx) throws Exception {
         // No arguments
         if (ctx.getArguments().length == 0) {
-            ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(), ctx.getAuthor()).music().build()).queue();
+            ctx.getChannel().sendMessage(new CommandEmbeds(ctx).music().build()).queue();
         }
     }
 }

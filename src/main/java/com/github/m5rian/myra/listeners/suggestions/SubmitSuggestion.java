@@ -3,21 +3,22 @@ package com.github.m5rian.myra.listeners.suggestions;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.language.Lang;
-import com.github.m5rian.myra.database.guild.MongoGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.time.Instant;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class SubmitSuggestion implements CommandHandler {
 
     @CommandEvent(
-            name = "suggest"
+            name = "suggest",
+            args = {"<suggestion>"},
+            emoji = "\uD83D\uDDF3",
+            description = "description.suggest"
     )
     public void execute(CommandContext ctx) throws Exception {
         MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database

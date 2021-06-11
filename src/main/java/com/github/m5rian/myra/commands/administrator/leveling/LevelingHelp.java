@@ -6,13 +6,16 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class LevelingHelp implements CommandHandler {
 
     @CommandEvent(
             name = "leveling",
+            emoji = "\uD83C\uDFC6",
+            description = "description.leveling",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

@@ -18,6 +18,9 @@ public class Prefix implements CommandHandler {
 
     @CommandEvent(
             name = "prefix",
+            args = {"<prefix>"},
+            emoji = "\uD83D\uDCCC",
+            description = "description.prefix",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

@@ -5,16 +5,16 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.utilities.APIs.TopGG;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
+import com.github.m5rian.myra.utilities.language.Lang;
 
 public class Vote implements CommandHandler {
 
     @CommandEvent(
             name = "vote",
-            aliases = {"v", "top.gg"}
+            aliases = {"v", "top.gg"},
+            emoji = "\uD83D\uDDF3",
+            description = "description.help.vote"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments

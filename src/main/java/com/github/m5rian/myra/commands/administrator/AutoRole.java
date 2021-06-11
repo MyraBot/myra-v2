@@ -9,18 +9,22 @@ import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.List;
 
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
+
 public class AutoRole implements CommandHandler {
 
     @CommandEvent(
             name = "autorole",
             aliases = {"auto role", "defaultrole", "default role", "joinrole", "join role"},
+            args = {"<role>"},
+            emoji = "\uD83D\uDCDD",
+            description = "description.autorole",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

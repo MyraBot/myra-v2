@@ -14,7 +14,10 @@ public class Report implements CommandHandler {
 
     @CommandEvent(
             name = "report",
-            aliases = {"bug"}
+            aliases = {"bug"},
+            emoji = "\uD83D\uDC1B",
+            description = "description.help.report",
+            args = "<bug description>"
     )
     public void execute(final CommandContext ctx) throws Exception {
         // Command usage

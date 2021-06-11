@@ -9,15 +9,19 @@ import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.TextChannel;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class LogChannel implements CommandHandler {
 
     @CommandEvent(
             name = "log channel",
             aliases = {"logging channel", "logs channel"},
+            args = {"<channel>"},
+            emoji = "\uD83E\uDDFE",
+            description = "description.logChannel",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

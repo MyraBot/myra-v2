@@ -1,5 +1,6 @@
 package com.github.m5rian.myra.commands.moderation.ban;
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -27,7 +28,11 @@ public class Tempban implements CommandHandler {
     @CommandEvent(
             name = "tempban",
             aliases = {"tempbean"},
-            requires = Moderator.class
+            args = {"<member>", "<duration>", "<time unit>", "(reason)"},
+            emoji = "\u23F1\uFE0F",
+            description = "description.mod.tempban",
+            requires = Moderator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

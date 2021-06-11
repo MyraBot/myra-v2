@@ -7,13 +7,17 @@ import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import net.dv8tion.jda.api.entities.Member;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Time implements CommandHandler {
 
     @CommandEvent(
-            name = "time"
+            name = "time",
+            args = "(member)",
+            emoji = "\u231A",
+            description = "description.leveling.time"
     )
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length > 1) return; // Check for no arguments

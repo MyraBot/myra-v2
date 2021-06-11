@@ -4,22 +4,22 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.APIs.LavaPlayer.PlayerManager;
+import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.LoadingBar;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class MusicInformation implements CommandHandler {
 
     @CommandEvent(
             name = "track information",
             aliases = {"track info", "music information", "music info", "track", "song", "song information", "song info", "current", "current playing"},
+            emoji = "\uD83D\uDDD2",
+            description = "description.music.trackInformation",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

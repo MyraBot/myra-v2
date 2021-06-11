@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.commands.moderation;
 
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -8,15 +9,20 @@ import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Moderator;
 import net.dv8tion.jda.api.entities.Member;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Kick implements CommandHandler {
     @CommandEvent(
             name = "kick",
             aliases = {"kek"},
-            requires = Moderator.class
+            args = {"<member>"},
+            emoji = "\uD83D\uDCE4",
+            description = "description.mod.kick",
+            requires = Moderator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

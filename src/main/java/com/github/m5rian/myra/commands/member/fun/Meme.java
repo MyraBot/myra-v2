@@ -11,7 +11,9 @@ public class Meme implements CommandHandler {
 
 @CommandEvent(
         name = "meme",
-        aliases = {"memes"}
+        aliases = {"memes"},
+        emoji = "\uD83E\uDD2A",
+        description = "description.fun.meme"
 )
     public void execute(CommandContext ctx) throws Exception {
         try {

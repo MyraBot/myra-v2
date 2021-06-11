@@ -5,18 +5,18 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.utilities.APIs.LavaPlayer.GuildMusicManager;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.APIs.LavaPlayer.PlayerManager;
+import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Utilities;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
+import com.github.m5rian.myra.utilities.language.Lang;
 
 public class MusicStop implements CommandHandler {
 
     @CommandEvent(
             name = "stop",
+            emoji = "\u23F9",
+            description = "description.music.stop",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

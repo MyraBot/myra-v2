@@ -26,7 +26,9 @@ import static com.github.m5rian.myra.utilities.language.Lang.lang;
 public class Leaderboard implements CommandHandler {
     @CommandEvent(
             name = "leaderboard",
-            aliases = {"lb", "top"}
+            aliases = {"lb", "top"},
+            emoji = "\uD83E\uDD47",
+            description = "description.leaderboard"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Create loading embed
@@ -62,10 +64,13 @@ public class Leaderboard implements CommandHandler {
                         message.editMessage(loading.getEmbed().build()).queue(); // Edit to loading message
                         final String reaction = e.getReactionEmote().toString(); // Get reacted reaction emote
 
-                        // Balance leaderboard
-                        if (reaction.equals(emojis[1])) message.editMessage(balanceLeaderboard).queue();
-                            // Level leaderboard
-                        else if (reaction.equals(emojis[0])) message.editMessage(levelLeaderboard).queue();
+                        System.out.println(reaction);
+                        System.out.println(emojis[1]);
+
+                        // Level leaderboard
+                        if (reaction.equals(emojis[0])) message.editMessage(levelLeaderboard).queue();
+                            // Balance leaderboard
+                        else if (reaction.equals(emojis[1])) message.editMessage(balanceLeaderboard).queue();
                             // Voice leaderboard
                         else if (reaction.equals(emojis[2])) message.editMessage(voiceLeaderboard).queue();
 

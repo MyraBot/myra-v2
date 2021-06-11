@@ -7,14 +7,17 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class NotificationsHelp implements CommandHandler {
 
     @CommandEvent(
             name = "notifications",
             aliases = {"notification"},
+            emoji = "\uD83D\uDD14",
+            description = "description.notifications",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

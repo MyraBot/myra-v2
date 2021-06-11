@@ -22,7 +22,10 @@ public class TextFormatter implements CommandHandler {
 
     @CommandEvent(
             name = "format",
-            aliases = {"font"}
+            aliases = {"font"},
+            args = {"<text>"},
+            emoji = "\uD83D\uDDDA",
+            description = "description.fun.format"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

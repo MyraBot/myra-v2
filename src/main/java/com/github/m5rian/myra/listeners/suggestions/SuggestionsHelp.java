@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.listeners.suggestions;
 
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -9,13 +10,14 @@ import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class SuggestionsHelp implements CommandHandler {
 
     @CommandEvent(
             name = "suggestions",
-            requires = Administrator.class
+            emoji = "\uD83D\uDDF3",
+            description = "description.suggestions",
+            requires = Administrator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         //usage

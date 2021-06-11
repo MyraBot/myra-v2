@@ -4,13 +4,13 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.Config;
+import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.language.Lang;
-import com.github.m5rian.myra.Config;
-import com.github.m5rian.myra.database.guild.MongoGuild;
-import com.github.m5rian.myra.database.guild.member.GuildMember;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,6 +28,9 @@ public class BlackJack implements CommandHandler {
     @CommandEvent(
             name = "blackjack",
             aliases = {"bj"},
+            args = {"<bet>"},
+            emoji = "\uD83C\uDCCF",
+            description = "description.economy.blackjack",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

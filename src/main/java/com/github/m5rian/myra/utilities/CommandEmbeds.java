@@ -1,185 +1,201 @@
 package com.github.m5rian.myra.utilities;
 
+import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.Config;
+import com.github.m5rian.myra.commands.administrator.*;
+import com.github.m5rian.myra.commands.administrator.leveling.LevelingHelp;
+import com.github.m5rian.myra.commands.administrator.notifications.NotificationsHelp;
+import com.github.m5rian.myra.commands.administrator.reactionRoles.ReactionRolesHelp;
+import com.github.m5rian.myra.commands.administrator.welcome.WelcomeHelp;
+import com.github.m5rian.myra.commands.member.Leaderboard;
+import com.github.m5rian.myra.commands.member.economy.*;
+import com.github.m5rian.myra.commands.member.economy.blackjack.BlackJack;
+import com.github.m5rian.myra.commands.member.fun.Meme;
+import com.github.m5rian.myra.commands.member.fun.TextFormatter;
+import com.github.m5rian.myra.commands.member.general.Avatar;
+import com.github.m5rian.myra.commands.member.general.Calculate;
+import com.github.m5rian.myra.commands.member.general.Emoji;
+import com.github.m5rian.myra.commands.member.general.Reminder;
+import com.github.m5rian.myra.commands.member.general.information.InformationHelp;
+import com.github.m5rian.myra.commands.member.help.*;
+import com.github.m5rian.myra.commands.member.leveling.Background;
+import com.github.m5rian.myra.commands.member.leveling.Rank;
+import com.github.m5rian.myra.commands.member.leveling.Time;
+import com.github.m5rian.myra.commands.member.music.*;
+import com.github.m5rian.myra.commands.moderation.Clear;
+import com.github.m5rian.myra.commands.moderation.Kick;
+import com.github.m5rian.myra.commands.moderation.ModerationHelp;
+import com.github.m5rian.myra.commands.moderation.Nick;
+import com.github.m5rian.myra.commands.moderation.ban.Ban;
+import com.github.m5rian.myra.commands.moderation.ban.Tempban;
+import com.github.m5rian.myra.commands.moderation.ban.Unban;
+import com.github.m5rian.myra.commands.moderation.mute.Mute;
+import com.github.m5rian.myra.commands.moderation.mute.MuteRole;
+import com.github.m5rian.myra.commands.moderation.mute.Tempmute;
+import com.github.m5rian.myra.commands.moderation.mute.Unmute;
+import com.github.m5rian.myra.listeners.Someone;
+import com.github.m5rian.myra.listeners.suggestions.SubmitSuggestion;
+import com.github.m5rian.myra.listeners.suggestions.SuggestionsHelp;
 import com.github.m5rian.myra.utilities.language.Lang;
-import com.github.m5rian.myra.database.guild.MongoGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.User;
 
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
-public class CommandEmbeds {
+public class CommandEmbeds implements CommandHandler {
     // Variables
-    private final JDA jda;
-    private final Guild guild;
-    private final User author;
-    private final String prefix;
+    private final CommandContext ctx;
 
     // Constructor
-    public CommandEmbeds(Guild guild, User author) {
-        this.jda = guild.getJDA();
-        this.guild = guild;
-        this.author = author;
-        this.prefix = new MongoGuild(guild).getString("prefix");
+    public CommandEmbeds(CommandContext ctx) {
+        this.ctx = ctx;
     }
 
     //commands list
     public EmbedBuilder commands() {
         return new EmbedBuilder()
-                .setAuthor("commands", null, author.getEffectiveAvatarUrl())
+                .setAuthor("commands", null, ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.gray)
-                .addField("`help`", "\uD83D\uDCD6 │ " + Lang.lang(this.guild).get("category.help"), false)
-                .addField("`general`", "\uD83C\uDF88 │ " + Lang.lang(this.guild).get("category.general"), false)
-                .addField("`fun`", "\uD83D\uDD79 │ " + Lang.lang(this.guild).get("category.fun"), false)
-                .addField("`leveling`", "\uD83C\uDFC6 │ " + Lang.lang(this.guild).get("category.leveling"), false)
-                .addField("`economy`", "\uD83D\uDCB0 │ " + Lang.lang(this.guild).get("category.economy"), false)
-                .addField("`music`", "\uD83D\uDCFB │ " + Lang.lang(this.guild).get("category.music"), false)
-                .addField("`moderation`", "\uD83D\uDD28 │ " + Lang.lang(this.guild).get("category.moderation"), false)
-                .addField("`administrator`", "\uD83D\uDD29 │ " + Lang.lang(this.guild).get("category.administration"), false);
+                .addField("`help`", "\uD83D\uDCD6 │ " + Lang.lang(this.ctx.getGuild()).get("category.help"), false)
+                .addField("`general`", "\uD83C\uDF88 │ " + Lang.lang(this.ctx.getGuild()).get("category.general"), false)
+                .addField("`fun`", "\uD83D\uDD79 │ " + Lang.lang(this.ctx.getGuild()).get("category.fun"), false)
+                .addField("`leveling`", "\uD83C\uDFC6 │ " + Lang.lang(this.ctx.getGuild()).get("category.leveling"), false)
+                .addField("`economy`", "\uD83D\uDCB0 │ " + Lang.lang(this.ctx.getGuild()).get("category.economy"), false)
+                .addField("`music`", "\uD83D\uDCFB │ " + Lang.lang(this.ctx.getGuild()).get("category.music"), false)
+                .addField("`moderation`", "\uD83D\uDD28 │ " + Lang.lang(this.ctx.getGuild()).get("category.moderation"), false)
+                .addField("`administrator`", "\uD83D\uDD29 │ " + Lang.lang(this.ctx.getGuild()).get("category.administration"), false);
     }
 
     // Help
     public EmbedBuilder help() {
-        return new EmbedBuilder()
-                .setAuthor("help", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "help`", "\uD83E\uDDF0 │ " + Lang.lang(this.guild).get("description.help.help"), false)
-                .addField("`" + prefix + "commands`", "\uD83D\uDCC3 │ " + Lang.lang(this.guild).get("description.help.commands"), false)
-                .addField("`" + prefix + "invite`", "\u2709\uFE0F │ " + Lang.lang(this.guild).get("description.help.invite"), false)
-                .addField("`" + prefix + "support`", "\u26A0\uFE0F │ " + Lang.lang(this.guild).get("description.help.support"), false)
-                .addField("`" + prefix + "ping`", "\uD83C\uDFD3 │ " + Lang.lang(this.guild).get("description.help.ping"), false)
-                .addField("`" + prefix + "report <bug>`", "\uD83D\uDC1B │ " + Lang.lang(this.guild).get("description.help.report"), false)
-                .addField("`" + prefix + "feature <feature description>`", "\uD83D\uDCCC │ " + Lang.lang(this.guild).get("description.help.feature"), false)
-                .addField("`" + prefix + "vote`", "\uD83D\uDDF3 │ " + Lang.lang(this.guild).get("description.help.vote"), false);
+        return usage(this.ctx).addUsages(
+                Help.class,
+                Commands.class,
+                Invite.class,
+                Support.class,
+                Ping.class,
+                Report.class,
+                Feature.class,
+                Vote.class)
+                .getEmbed();
     }
 
 
     //general
     public EmbedBuilder general() {
-        return new EmbedBuilder()
-                .setAuthor("general", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "calculate <number 1 <operator> <number 2>`", "\uD83E\uDDEE │ " + Lang.lang(this.guild).get("description.general.calculate"), false)
-                .addField("`" + prefix + "avatar @user`", "\uD83D\uDDBC │ " + Lang.lang(this.guild).get("description.general.avatar"), false)
-                .addField("`" + prefix + "information`", "\uD83D\uDDD2 │ " + Lang.lang(this.guild).get("description.general.info"), false)
-                .addField("`" + prefix + "reminder <duration><time unit> <description>`", "\u23F0 │ " + Lang.lang(this.guild).get("description.general.reminder"), false)
-                .addField("`" + prefix + "suggest`", "\uD83D\uDDF3 │ " + Lang.lang(this.guild).get("description.suggest"), false)
-                .addField("`" + prefix + "character`", "\u2049 │ " + Lang.lang(this.guild).get("description.general.emoji"), false);
+        return usage(this.ctx).addUsages(
+                Calculate.class,
+                Avatar.class,
+                InformationHelp.class,
+                Reminder.class,
+                SubmitSuggestion.class,
+                Emoji.class)
+                .getEmbed();
     }
 
     //fun
     public EmbedBuilder fun() {
-        return new EmbedBuilder()
-                .setAuthor("fun", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "meme`", "\uD83E\uDD2A │ " + Lang.lang(this.guild).get("description.fun.meme"), false)
-                .addField("`" + prefix + "format <text>`", "\uD83D\uDDDA │ " + Lang.lang(this.guild).get("description.fun.format"), false);
+        return usage(this.ctx).addUsages(
+                Meme.class,
+                TextFormatter.class)
+                .getEmbed();
     }
 
     //leveling
     public EmbedBuilder leveling() {
-        return new EmbedBuilder()
-                .setAuthor("leveling", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "rank <user>`", "\uD83C\uDFC5 │ " + Lang.lang(this.guild).get("description.leveling.rank"), false)
-                .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ " + Lang.lang(this.guild).get("description.leaderboard"), false)
-                .addField("`" + prefix + "time <user>`", "\u231A │ " + Lang.lang(this.guild).get("description.leveling.time"), false)
-                .addField("`" + prefix + "edit rank <url>`", "\uD83D\uDDBC " + Lang.lang(this.guild).get("description.leveling.edit.rank"), false);
+        return usage(this.ctx).addUsages(
+                Rank.class,
+                Leaderboard.class,
+                Time.class,
+                Background.class)
+                .getEmbed();
     }
 
     //leveling
     public EmbedBuilder economy() {
-        final String currency = new MongoGuild(guild).getNested("economy").getString("currency"); // Get server currency
-        final String myraName = this.guild.getSelfMember().getEffectiveName(); // Get Myra's current name
-
-        return new EmbedBuilder()
-                .setAuthor("economy", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "leaderboard`", "\uD83E\uDD47 │ " + Lang.lang(this.guild).get("description.leaderboard"), false)
-                .addField("`" + prefix + "balance <user>`", currency + " │ " + Lang.lang(this.guild).get("description.economy.balance").replace("{$currency}", currency), false)
-                .addField("`" + prefix + "daily`", "\uD83E\uDD47 │ " + Lang.lang(this.guild).get("description.economy.daily"), false)
-                .addField("`" + prefix + "streak`", "\uD83D\uDCCA │ " + Lang.lang(this.guild).get("description.economy.streak"), false)
-                .addField("`" + prefix + "fish`", "\uD83C\uDFA3 │ " + Lang.lang(this.guild).get("description.economy.fish"), false)
-                .addField("`" + prefix + "blackjack <bet>`", "\uD83C\uDCCF │ " + Lang.lang(this.guild).get("description.economy.blackjack").replace("{$myra}", myraName), false)
-                .addField("`" + prefix + "give <user> <balance>`", "\uD83D\uDCB8 │ " + Lang.lang(this.guild).get("description.economy.give"), false)
-                .addField("`" + prefix + "buy <role>`", "\uD83D\uDED2 │ " + Lang.lang(this.guild).get("description.economy.buy"), false);
+        return usage(this.ctx).addUsages(
+                Leaderboard.class,
+                Balance.class,
+                Daily.class,
+                Streak.class,
+                Fish.class,
+                BlackJack.class,
+                Give.class,
+                Buy.class)
+                .getEmbed();
     }
 
     //music
     public EmbedBuilder music() {
-        return new EmbedBuilder()
-                .setAuthor("music", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "join`", "\uD83D\uDCE5 │ " + Lang.lang(this.guild).get("description.music.join"), false)
-                .addField("`" + prefix + "disconnect`", "\uD83D\uDCE4 │ " + Lang.lang(this.guild).get("description.music.disconnect"), false)
-                .addField("`" + prefix + "play <song>`", "\uD83D\uDCBF │ " + Lang.lang(this.guild).get("description.music.play"), false)
-                .addField("`" + prefix + "stop`", "\u23F9 │ " + Lang.lang(this.guild).get("description.music.stop"), false)
-                .addField("`" + prefix + "skip`", "\u23ED\uFE0F │ " + Lang.lang(this.guild).get("description.music.skip"), false)
-                .addField("`" + prefix + "clear queue`", "\uD83D\uDDD1 │ " + Lang.lang(this.guild).get("description.music.clearQueue"), false)
-                .addField("`" + prefix + "shuffle`", "\uD83C\uDFB2 │ " + Lang.lang(this.guild).get("description.music.shuffle"), false)
-                .addField("`" + prefix + "track information`", "\uD83D\uDDD2 │ " + Lang.lang(this.guild).get("description.music.trackInformation"), false)
-                .addField("`" + prefix + "queue`", "\uD83D\uDCC3 │ " + Lang.lang(this.guild).get("description.music.queue"), false)
-                .setFooter(Lang.lang(this.guild).get("command.music.info.platforms"));
+        return usage(this.ctx).addUsages(
+                MusicJoin.class,
+                MusicLeave.class,
+                MusicPlay.class,
+                MusicStop.class,
+                MusicClearQueue.class,
+                MusicShuffle.class,
+                MusicInformation.class,
+                MusicQueue.class)
+                .setFooter(Lang.lang(this.ctx).get("command.music.info.platforms"))
+                .getEmbed();
     }
 
     //moderation
     public EmbedBuilder moderation() {
-        return new EmbedBuilder()
-                .setAuthor("moderation", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "moderation`", "\uD83D\uDD28 │ " + Lang.lang(this.guild).get("description.mod.mod"), false)
-                .addField("`" + prefix + "clear <amount>`", "\uD83D\uDDD1 │ " + Lang.lang(this.guild).get("description.mod.clear"), false)
-                .addField("`" + prefix + "kick <user>`", "\uD83D\uDCE4 │ " + Lang.lang(this.guild).get("description.mod.kick"), false)
-                .addField("`" + prefix + "nick <user>`", "\uD83D\uDD75 │ " + Lang.lang(this.guild).get("description.mod.nick"), false)
-                .addField("`" + prefix + "mute role <role>`", "\uD83D\uDCDD │ " + Lang.lang(this.guild).get("description.mod.mute"), false)
-                .addField("`" + prefix + "unmute <user>`", "\uD83D\uDD08 │ " + Lang.lang(this.guild).get("description.mod.unmute"), false)
-                .addField("`" + prefix + "tempmute <user> <duration><time unit> <reason>`", "\u23F1\uFE0F │ " + Lang.lang(this.guild).get("description.mod.tempmute"), false)
-                .addField("`" + prefix + "mute <user>`", "\uD83D\uDD07 │ " + Lang.lang(this.guild).get("description.mod.mute"), false)
-                .addField("`" + prefix + "unban <user>`", "\uD83D\uDD13 │ " + Lang.lang(this.guild).get("description.mod.unban"), false)
-                .addField("`" + prefix + "tempban <user> <duration><time unit> <reason>`", "\u23F1\uFE0F │ " + Lang.lang(this.guild).get("description.mod.tempban"), false)
-                .addField("`" + prefix + "ban <user> <reason>`", "\uD83D\uDD12 │ " + Lang.lang(this.guild).get("description.mod.ban"), false);
+        return usage(this.ctx).addUsages(
+                ModerationHelp.class,
+                Clear.class,
+                Kick.class,
+                Nick.class,
+                MuteRole.class,
+                Unmute.class,
+                Tempmute.class,
+                Mute.class,
+                Unban.class,
+                Tempban.class,
+                Ban.class)
+                .getEmbed();
     }
 
     //administrator
     public EmbedBuilder administrator() {
-        return new EmbedBuilder()
-                .setAuthor("administrator", null, author.getEffectiveAvatarUrl())
-                .setColor(Utilities.gray)
-                .addField("`" + prefix + "prefix <prefix>`", "\uD83D\uDCCC │ " + Lang.lang(this.guild).get("description.prefix"), false)
-                .addField("`" + prefix + "toggle <command>`", "\uD83D\uDD11 │ " + Lang.lang(this.guild).get("description.toggle"), false)
-                .addField("`" + prefix + "config`", "\u2699 │ " + Lang.lang(this.guild).get("description.config"), false)
-                .addField("`" + prefix + "say <message>`", "\uD83D\uDCAC │ " + Lang.lang(this.guild).get("description.say"), false)
-                .addField("`@someone`", "\uD83C\uDFB2 │ " + Lang.lang(this.guild).get("description.someone"), false)
-                .addField("`" + prefix + "log channel`", "\uD83E\uDDFE │ " + Lang.lang(this.guild).get("description.logChannel"), false)
-                .addField("`" + prefix + "autorole <role>`", "\uD83D\uDCDD │ " + Lang.lang(this.guild).get("description.autorole"), false)
-                .addField("`" + prefix + "welcome`", "\uD83D\uDC4B │ " + Lang.lang(this.guild).get("description.welcome"), false)
-                .addField("`" + prefix + "notifications`", "\uD83D\uDD14 │ " + Lang.lang(this.guild).get("description.notifications"), false)
-                .addField("`" + prefix + "suggestions`", "\uD83D\uDDF3 │ " + Lang.lang(this.guild).get("description.suggestions"), false)
-                .addField("`" + prefix + "leveling`", "\uD83C\uDFC6 │ " + Lang.lang(this.guild).get("description.leveling"), false)
-                .addField("`" + prefix + "economy`", "\uD83D\uDCB0 │ " + Lang.lang(this.guild).get("description.leveling"), false)
-                .addField("`" + prefix + "global chat <channel>`", "\uD83C\uDF10 │ " + Lang.lang(this.guild).get("description.globalChat"), false)
-                .addField("`" + prefix + "reaction roles`", "\uD83C\uDF80 │ " + Lang.lang(this.guild).get("description.reactionRoles"), false)
-                .addField("`" + prefix + "music voting`", "\uD83D\uDDF3 │ " + Lang.lang(this.guild).get("description.music.voting"), false);
+        return usage(this.ctx).addUsages(
+                Prefix.class,
+                Toggle.class,
+                com.github.m5rian.myra.commands.administrator.Config.class,
+                Say.class,
+                Someone.class,
+                LogChannel.class,
+                AutoRole.class,
+                WelcomeHelp.class,
+                NotificationsHelp.class,
+                SuggestionsHelp.class,
+                LevelingHelp.class,
+                EconomyHelp.class,
+                GlobalChatChannel.class,
+                ReactionRolesHelp.class,
+                MusicVotingToggle.class)
+                .forbidCommands("onMemberPurge", "onMemberUpdate") // Ignored commands
+                .addInlineField("`@someone`", "\uD83C\uDFB2 │ " + lang(this.ctx).get("description.someone"))
+                .getEmbed();
     }
 
 
     //support server
     public EmbedBuilder supportServer() {
         return new EmbedBuilder()
-                .setAuthor("support", Config.MARIANS_DISCORD_INVITE, author.getEffectiveAvatarUrl())
+                .setAuthor("support", Config.MARIANS_DISCORD_INVITE, this.ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.blue)
-                .setThumbnail(jda.getGuildById(Config.MARIAN_SERVER_ID).getIconUrl())
-                .setDescription("\u26A0\uFE0F │ " + Lang.lang(this.guild).get("command.help.help.support").replace("{$url}", Config.MARIANS_DISCORD_INVITE));
+                .setThumbnail(this.ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).getIconUrl())
+                .setDescription("\u26A0\uFE0F │ " + Lang.lang(this.ctx).get("command.help.help.support").replace("{$url}", Config.MARIANS_DISCORD_INVITE));
     }
 
     //invite bot
     public EmbedBuilder inviteJda() {
         return new EmbedBuilder()
-                .setAuthor("invite", Utilities.inviteJda(jda), author.getEffectiveAvatarUrl())
+                .setAuthor("invite", Utilities.inviteJda(this.ctx.getEvent().getJDA()), this.ctx.getAuthor().getEffectiveAvatarUrl())
                 .setColor(Utilities.blue)
-                .setThumbnail(jda.getSelfUser().getEffectiveAvatarUrl())
-                .setDescription("\u2709\uFE0F │ " + Lang.lang(this.guild).get("command.help.help.invite").replace("{$url}", Utilities.inviteJda(this.jda)));
+                .setThumbnail(ctx.getEvent().getJDA().getSelfUser().getEffectiveAvatarUrl())
+                .setDescription("\u2709\uFE0F │ " + Lang.lang(this.ctx.getGuild()).get("command.help.help.invite").replace("{$url}", Utilities.inviteJda(this.ctx.getEvent().getJDA())));
     }
 }

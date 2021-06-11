@@ -9,16 +9,19 @@ import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
+
 public class GlobalChatChannel implements CommandHandler {
 
     @CommandEvent(
             name = "global chat",
+            emoji = "\uD83C\uDF10",
+            description = "description.globalChat",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

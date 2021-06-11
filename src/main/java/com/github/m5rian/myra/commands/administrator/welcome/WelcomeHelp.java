@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.commands.administrator.welcome;
 
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -9,13 +10,14 @@ import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class WelcomeHelp implements CommandHandler {
 
     @CommandEvent(
             name = "welcome",
-            requires = Administrator.class
+            emoji = "\uD83D\uDC4B",
+            description = "description.welcome",
+            requires = Administrator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         // Check for no arguments

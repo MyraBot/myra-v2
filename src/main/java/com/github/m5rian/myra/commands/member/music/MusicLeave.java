@@ -4,13 +4,11 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 
 import java.util.concurrent.TimeUnit;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class MusicLeave implements CommandHandler {
     @SuppressWarnings("ConstantConditions")
@@ -18,6 +16,8 @@ public class MusicLeave implements CommandHandler {
     @CommandEvent(
             name = "leave",
             aliases = {"disconnect"},
+            emoji = "\uD83D\uDCE4",
+            description = "description.music.disconnect",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

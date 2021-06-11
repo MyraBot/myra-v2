@@ -19,6 +19,8 @@ public class Daily implements CommandHandler {
 
     @CommandEvent(
             name = "daily",
+            emoji = "\uD83E\uDD47",
+            description = "description.economy.daily",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.commands.moderation;
 
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -18,7 +19,11 @@ public class Nick implements CommandHandler {
     @CommandEvent(
             name = "nick",
             aliases = {"nickname", "change nickname"},
-            requires = Moderator.class
+            args = {"<member>", "<nickname>"},
+            emoji = "\uD83D\uDD75",
+            description = "description.mod.nick",
+            requires = Moderator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

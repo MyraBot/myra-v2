@@ -6,14 +6,14 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.commands.member.economy.administrator.shop.ShopRolesManager;
-import com.github.m5rian.myra.database.guild.ShopRolesDocument;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.Utilities;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.ShopRolesDocument;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
+import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Format;
+import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -22,12 +22,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class Buy implements CommandHandler {
 
     @CommandEvent(
             name = "buy",
+            args = {"<role>"},
+            emoji = "\uD83D\uDED2",
+            description = "description.economy.buy",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

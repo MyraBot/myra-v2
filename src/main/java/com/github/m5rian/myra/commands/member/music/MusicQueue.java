@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
-
 public class MusicQueue implements CommandHandler {
 
     @CommandEvent(
             name = "queue",
             aliases = {"songs", "tracks"},
+            emoji = "\uD83D\uDCC3",
+            description = "description.music.queue",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

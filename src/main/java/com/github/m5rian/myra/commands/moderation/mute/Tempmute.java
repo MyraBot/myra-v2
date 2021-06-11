@@ -1,5 +1,6 @@
 package com.github.m5rian.myra.commands.moderation.mute;
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -29,7 +30,8 @@ public class Tempmute implements CommandHandler {
             args = {"<member>", "<duration>", "<timeunit>", "(reason)"},
             emoji = "\uD83D\uDD07",
             description = "description.mod.tempmute",
-            requires = Moderator.class
+            requires = Moderator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

@@ -16,7 +16,10 @@ public class Balance implements CommandHandler {
 
     @CommandEvent(
             name = "balance",
-            aliases = {"bal", "money"}
+            aliases = {"bal", "money"},
+            args = {"(member)"},
+            emoji = "{$guild.currency}",
+            description = "description.economy.balance"
     )
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length > 0 && ctx.getArguments()[0].equalsIgnoreCase("set")) return; // "economy set" is meant

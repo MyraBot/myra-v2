@@ -1,29 +1,26 @@
 package com.github.m5rian.myra.commands.administrator;
 
-import com.github.m5rian.jdaCommandHandler.*;
-import com.github.m5rian.myra.database.guild.Nested;
-import com.github.m5rian.myra.DiscordBot;
-import com.github.m5rian.myra.commands.member.help.Help;
+import com.github.m5rian.jdaCommandHandler.Channel;
+import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.guild.MongoGuild;
-import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.EmbedMessage.Success;
-import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import com.github.m5rian.myra.utilities.Format;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
+import com.github.m5rian.myra.database.guild.Nested;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
-
-import java.util.Arrays;
-import java.util.Map;
 
 public class Toggle implements CommandHandler {
 
     @CommandEvent(
             name = "toggle",
+            args = {"<command/category>"},
+            emoji = "\uD83D\uDD11",
+            description = "description.toggle",
             requires = Administrator.class,
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
+        error(ctx).setDescription("hey man! This command is currently broken. Please try again in a few days. I'm sorry").send();
+        /*
         // Command usage
         if (ctx.getArguments().length == 0) {
             new CommandUsage(ctx.getEvent())
@@ -93,7 +90,8 @@ public class Toggle implements CommandHandler {
         } else command = ctx.getArguments()[0];
 
         // Go throw every command
-        for (Map.Entry<MethodInfo, CommandEvent> entry : DiscordBot.COMMAND_SERVICE.getCommands().entrySet()) {
+        for (Map.Entry<MethodInfo, CommandEvent> entry : DiscordBot.COMMAND_SERVICE.getCommands()akg702
+                .entrySet()) {
 
             // If a alias or name matches the given command
             if (Arrays.stream(entry.getValue().aliases()).anyMatch(command::equalsIgnoreCase) || command.equalsIgnoreCase(entry.getValue().name())) {
@@ -125,7 +123,7 @@ public class Toggle implements CommandHandler {
                 .setCommand("toggle")
                 .setEmoji("\uD83D\uDD11")
                 .setMessage(lang(ctx).get("command.toggle.error.notFound"))
-                .send();
+                .send();*/
     }
 
     private boolean toggleLeveling(MongoGuild db) {

@@ -11,10 +11,12 @@ public class ModerationHelp implements CommandHandler {
     @CommandEvent(
             name = "moderation",
             aliases = {"mod"},
+            emoji = "\uD83D\uDD28",
+            description = "description.mod.mod",
             requires = Moderator.class
     )
     public void execute(CommandContext ctx) throws Exception {
         // Send message
-        ctx.getChannel().sendMessage(new CommandEmbeds(ctx.getGuild(), ctx.getAuthor()).moderation().build()).queue();
+        ctx.getChannel().sendMessage(new CommandEmbeds(ctx).moderation().build()).queue();
     }
 }

@@ -1,5 +1,6 @@
 package com.github.m5rian.myra.commands.member.economy;
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -12,7 +13,11 @@ import net.dv8tion.jda.api.entities.Member;
 public class Streak implements CommandHandler {
 
     @CommandEvent(
-            name = "streak"
+            name = "streak",
+            args = {"(member)"},
+            emoji = "\uD83D\uDCCA",
+            description = "description.economy.streak",
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length > 1) return; // Check for no arguments

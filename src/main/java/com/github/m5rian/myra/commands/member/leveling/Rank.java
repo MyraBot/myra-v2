@@ -24,7 +24,10 @@ public class Rank implements CommandHandler {
 
     @CommandEvent(
             name = "rank",
-            aliases = {"level"}
+            aliases = {"level"},
+            args = "(member)",
+            emoji = "\uD83C\uDFC5",
+            description = "description.leveling.rank"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

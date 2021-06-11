@@ -1,15 +1,16 @@
 package com.github.m5rian.myra.commands.member.economy;
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.CommandCooldown;
+import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.util.Arrays;
@@ -20,7 +21,10 @@ public class Fish implements CommandHandler {
     private final int maxCatch = 25;
 
     @CommandEvent(
-            name = "fish"
+            name = "fish",
+            emoji = "\uD83C\uDFA3",
+            description = "description.economy.fish",
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments

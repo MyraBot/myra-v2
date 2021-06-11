@@ -19,7 +19,10 @@ public class Give implements CommandHandler {
 
     @CommandEvent(
             name = "give",
-            aliases = {"transfer", "pay"}
+            aliases = {"transfer", "pay"},
+            args = {"<user>", "<balance>"},
+            emoji = "\uD83D\uDCB8",
+            description = "description.economy.give"
     )
     public void execute(CommandContext ctx) throws Exception {
         // Usage

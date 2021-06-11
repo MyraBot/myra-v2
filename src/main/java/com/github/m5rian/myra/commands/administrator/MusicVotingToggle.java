@@ -6,14 +6,17 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class MusicVotingToggle implements CommandHandler {
 
     @CommandEvent(
             name = "music voting",
             aliases = {"music vote"},
+            emoji = "\uD83D\uDDF3",
+            description = "description.music.voting",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

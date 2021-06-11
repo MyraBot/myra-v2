@@ -1,5 +1,6 @@
 package com.github.m5rian.myra.commands.moderation.mute;
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -18,7 +19,11 @@ public class Unmute implements CommandHandler {
 
     @CommandEvent(
             name = "unmute",
-            requires = Moderator.class
+            args = {"<member>"},
+            emoji = "\uD83D\uDD08",
+            description = "description.mod.unmute",
+            requires = Moderator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage

@@ -6,6 +6,7 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
+
 import static com.github.m5rian.myra.utilities.language.Lang.*;
 
 public class InformationHelp implements CommandHandler {
@@ -13,6 +14,8 @@ public class InformationHelp implements CommandHandler {
     @CommandEvent(
             name = "information",
             aliases = {"info"},
+            emoji = "\uD83D\uDDD2",
+            description = "description.general.info",
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {

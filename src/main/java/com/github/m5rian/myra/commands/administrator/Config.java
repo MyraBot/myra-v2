@@ -5,7 +5,6 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
-import com.mongodb.client.MongoCursor;
 import com.github.m5rian.myra.management.Listeners;
 import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
@@ -13,6 +12,7 @@ import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.UserBadge;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
+import com.mongodb.client.MongoCursor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -23,14 +23,15 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
+import static com.mongodb.client.model.Filters.*;
 
 public class Config implements CommandHandler {
 
     @CommandEvent(
             name = "config",
+            emoji = "\u2699",
+            description = "description.config",
             requires = Administrator.class,
             channel = Channel.GUILD
     )

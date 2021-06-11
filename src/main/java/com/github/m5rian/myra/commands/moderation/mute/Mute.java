@@ -20,6 +20,9 @@ public class Mute implements CommandHandler {
 
     @CommandEvent(
             name = "mute",
+            args = {"<user>", "(reason)"},
+            emoji = "\uD83D\uDCDD",
+            description = "description.mod.mute",
             requires = Moderator.class,
             channel = Channel.GUILD
     )

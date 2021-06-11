@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.commands.moderation;
 
 
+import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
@@ -17,7 +18,11 @@ public class Clear implements CommandHandler {
     @CommandEvent(
             name = "clear",
             aliases = {"purge", "delete"},
-            requires = Moderator.class
+            args = {"<amount>"},
+            emoji = "\uD83D\uDDD1",
+            description = "description.mod.clear",
+            requires = Moderator.class,
+            channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArgumentsRaw().equalsIgnoreCase("queue")) return; // "Clear queue" is meant
