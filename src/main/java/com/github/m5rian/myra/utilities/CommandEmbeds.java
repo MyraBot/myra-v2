@@ -175,7 +175,7 @@ public class CommandEmbeds implements CommandHandler {
                 GlobalChatChannel.class,
                 ReactionRolesHelp.class,
                 MusicVotingToggle.class)
-                .forbidCommands("onMemberPurge", "onMemberUpdate") // Ignored commands
+                .forbidCommands("onMemberPurge", "onMemberUpdate", "onMee6LevelingTransfer") // Ignored commands
                 .addInlineField("`@someone`", "\uD83C\uDFB2 │ " + lang(this.ctx).get("description.someone"))
                 .getEmbed();
     }

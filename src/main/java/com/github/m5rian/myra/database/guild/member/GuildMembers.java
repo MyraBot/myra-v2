@@ -28,13 +28,26 @@ public class GuildMembers {
     }
 
     /**
-     * Get a document a {@link GuildMembers#guild} member.
-     *
      * @param member The member you want to get the document from.
      * @return Returns a {@link GuildMember} object.
      */
     public GuildMember getMember(Member member) {
         return new GuildMember(mongoDb, guild, member);
+    }
+
+    /**
+     * @param memberId The member id you want to get the document from.
+     * @return Returns a {@link GuildMember} object.
+     */
+    public GuildMember getMember(String memberId) {
+        Member member = null;
+        try {
+            member = this.guild.retrieveMemberById(memberId).complete(); // Retrieve member
+        } catch (Exception ignored) {
+
+        }
+        return new GuildMember(mongoDb, guild, member);
+
     }
 
     /**
@@ -55,11 +68,9 @@ public class GuildMembers {
         // Sort leaderboard
         if (type.equals(LeaderboardType.LEVEL)) { // Sort by level
             leaderboard.sort(Comparator.comparing(LeaderboardMember::getXp).reversed()); // Sort list
-        }
-        else if (type.equals(LeaderboardType.BALANCE)) { // Sort list by balance
+        } else if (type.equals(LeaderboardType.BALANCE)) { // Sort list by balance
             leaderboard.sort(Comparator.comparing(LeaderboardMember::getBalance).reversed()); // Sort list
-        }
-        else if (type.equals(LeaderboardType.VOICE)) { // Sort list by voice call time
+        } else if (type.equals(LeaderboardType.VOICE)) { // Sort list by voice call time
             leaderboard.sort(Comparator.comparing(LeaderboardMember::getVoiceCallTime).reversed()); // Sort list
         }
 

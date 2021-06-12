@@ -4,14 +4,23 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.jdaCommandHandler.commandMessages.CommandMessage;
 import com.github.m5rian.myra.database.MongoDb;
+import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
+import com.github.m5rian.myra.database.guild.member.GuildMembers;
+import com.github.m5rian.myra.listeners.leveling.Leveling;
+import com.github.m5rian.myra.listeners.leveling.VoiceCall;
 import com.github.m5rian.myra.management.Listeners;
+import com.github.m5rian.myra.utilities.APIs.mee6.Mee6;
+import com.github.m5rian.myra.utilities.APIs.mee6.Mee6User;
 import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.UserBadge;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
+import com.github.m5rian.myra.utilities.permissions.Marian;
 import com.mongodb.client.MongoCursor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
@@ -20,6 +29,8 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -231,6 +242,97 @@ public class Config implements CommandHandler {
                         }).start());
 
                         databaseAction.start(); // Start member clearing
+                    })
+                    .setTimeout(30, TimeUnit.SECONDS)
+                    .setTimeoutAction(() -> message.clearReactions().queue())
+                    .load();
+        });
+    }
+
+    @CommandEvent(
+            name = "config mee6",
+            emoji = "\uD83C\uDFC6",
+            description = "description.config.mee6",
+            requires = Marian.class,
+            channel = Channel.GUILD
+    )
+    public void onMee6LevelingTransfer(CommandContext ctx) {
+        // Confirmation
+        final EmbedBuilder confirmation = info(ctx)
+                .setDescription(lang(ctx).get("description.config.mee6"))
+                .setFooter(lang(ctx).get("info.securityWarning"))
+                .getEmbed();
+        ctx.getChannel().sendMessage(confirmation.build()).queue(message -> {
+            message.addReaction(CustomEmoji.GREEN_TICK.getEmote()).queue(); // Add reaction
+
+            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
+                    .setCondition(e -> e.getUserIdLong() == ctx.getAuthor().getIdLong() &&
+                            e.getReactionEmote().toString().equals("RE:" + CustomEmoji.GREEN_TICK.getCodepoints()))
+                    .setAction(e -> {
+                        Listeners.unavailableGuilds.add(e.getGuild().getId()); // Add Guild to unavailable guilds
+
+                        final GuildMembers guildMembers = new MongoGuild(ctx.getGuild()).getMembers();
+                        final List<Mee6User> mee6Members = new Mee6(ctx.getGuild()).getUsers();
+
+                        final AtomicLong updated = new AtomicLong(0); // Amount of already passed documents
+
+                        final String progressTemplate = lang(ctx).get("command.config.update.progress");
+                        final CommandMessage progress = info(ctx)
+                                .setDescription(progressTemplate.replace("{$percent}", "0"))
+                                .addTimestamp();
+
+                        // Database clearing thread
+                        final Thread transferAction = new Thread(() -> {
+
+                            mee6Members.forEach(member -> {
+                                final GuildMember guildMember = guildMembers.getMember(member.getUserId()); // Get guild from member
+                                if (!guildMember.isBot()) {
+                                    final Integer mee6Xp = member.getXp();
+                                    final int voiceXp = VoiceCall.getXp(guildMember.getVoiceTime());
+
+                                    final long xp = mee6Xp + voiceXp;
+                                    guildMember.setXp(xp); // Update xp
+                                    guildMember.setLevel(Leveling.getLevelFromXp(xp));
+                                    guildMember.setMessageCount(member.getMessageCount());
+
+                                    updated.getAndAdd(1);
+                                }
+                            });
+
+                            // Send success message
+                            info(ctx)
+                                    .setDescription(lang(ctx).get("command.config.update.success")
+                                            .replace("{$updatedMembers}", String.valueOf(updated)))
+                                    .addTimestamp()
+                                    .send();
+                            Listeners.unavailableGuilds.remove(e.getGuild().getId()); // Make guild available again
+                        }, "Member updater " + ctx.getGuild().getId());
+
+
+                        final Thread thread = new Thread(() -> {
+                            ctx.getChannel().sendMessage(progress.getEmbed().build()).queue(progressMessage -> {
+                                final Timer timer = new Timer();
+                                timer.schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        // Transferring action is still going
+                                        if (transferAction.isAlive()) {
+                                            final long percentage = updated.get() * 100 / mee6Members.size(); // Calculate percentage
+                                            final String description = progressTemplate.replace("{$percent}", String.valueOf(percentage));
+                                            progressMessage.editMessage(progress.setDescription(description).getEmbed().build()).queue(); // Edit message
+                                        }
+                                        // Transferring is done
+                                        else {
+                                            timer.cancel();
+                                            timer.purge();
+                                        }
+                                    }
+                                }, 0, 5000);
+                            });
+                        }, "Message updater " + ctx.getGuild().getId());
+
+                        transferAction.start();
+                        thread.start();
                     })
                     .setTimeout(30, TimeUnit.SECONDS)
                     .setTimeoutAction(() -> message.clearReactions().queue())
