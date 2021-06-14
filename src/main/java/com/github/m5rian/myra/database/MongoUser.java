@@ -2,6 +2,7 @@ package com.github.m5rian.myra.database;
 
 import com.github.m5rian.myra.utilities.UserBadge;
 import com.github.m5rian.myra.utilities.Utilities;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
@@ -12,25 +13,70 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class MongoUser {
     private final MongoDb mongoDb = MongoDb.getInstance();
-    private final User user;
+    private final JDA jda;
+    private final String userId;
     private boolean bot = false;
+    private boolean unavailable = false;
     private Document document;
 
+    public MongoUser(JDA jda, String userId) {
+        this.jda = jda;
+        this.userId = userId;
+
+        // Retrieve user
+        jda.retrieveUserById(this.userId).queue(user -> {
+                    // User is bot
+                    if (user.isBot()) {
+                        this.bot = true;
+                    }
+                    // User isn't a bot
+                    else {
+                        // User hasn't a user document
+                        if (mongoDb.getCollection("users").find(eq("userId", user.getId())).first() == null) {
+                            final Document userDocument = MongoDocuments.createUserDocument(user); // Create document for user
+                            mongoDb.getCollection("users").insertOne(userDocument); // Insert document
+                        }
+                        this.document = mongoDb.getCollection("users").find(eq("userId", user.getId())).first(); // Get user document
+                    }
+                },
+                error -> this.unavailable = true);
+    }
+
     public MongoUser(User user) {
-        this.user = user;
+        this.jda = user.getJDA();
+        this.userId = user.getId();
 
         // User is bot
         if (user.isBot()) {
             this.bot = true;
-            return;
         }
+        // User isn't a bot
+        else {
+            // User hasn't a user document
+            if (mongoDb.getCollection("users").find(eq("userId", user.getId())).first() == null) {
+                final Document userDocument = MongoDocuments.createUserDocument(user); // Create document for user
+                mongoDb.getCollection("users").insertOne(userDocument); // Insert document
+            }
+            this.document = mongoDb.getCollection("users").find(eq("userId", user.getId())).first(); // Get user document
+        }
+    }
 
-        // User hasn't a user document
-        if (mongoDb.getCollection("users").find(eq("userId", user.getId())).first() == null) {
-            final Document userDocument = MongoDocuments.createUserDocument(user); // Create document for user
-            mongoDb.getCollection("users").insertOne(userDocument); // Insert document
-        }
-        this.document = mongoDb.getCollection("users").find(eq("userId", user.getId())).first(); // Get user document
+    public void updateUserData() {
+        if (this.bot || this.unavailable) return;
+
+        this.jda.retrieveUserById(userId).queue(user -> {
+            document.replace("name", user.getName()); // Set name
+            document.replace("discriminator", user.getDiscriminator()); // Set discriminator
+            document.replace("avatar", user.getEffectiveAvatarUrl()); // Set avatar
+            final List<UserBadge> badges = UserBadge.getUserBadges(user);
+            final List<String> badgesString = new ArrayList<>(); // Create list for all badges as string
+            for (UserBadge badge : badges) {
+                badgesString.add(badge.getName()); // Add badge
+            }
+            document.replace("badges", badgesString); // Set badges
+
+            mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), document); // Update database
+        });
     }
 
     /**
@@ -39,7 +85,7 @@ public class MongoUser {
      * @return Returns the name of the user.
      */
     public String getName() {
-        return (bot ? null : document.getString("name"));
+        return (bot || unavailable ? null : document.getString("name"));
     }
 
     /**
@@ -51,7 +97,7 @@ public class MongoUser {
         if (bot) return;
 
         document.replace("name", name); // Set name
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), document); // Update database
     }
 
     /**
@@ -60,7 +106,7 @@ public class MongoUser {
      * @return Returns the discriminator of the user.
      */
     public String getDiscriminator() {
-        return (bot ? null : document.getString("discriminator"));
+         return (bot || unavailable ? null : document.getString("discriminator"));
     }
 
     /**
@@ -72,7 +118,7 @@ public class MongoUser {
         if (bot) return;
 
         document.replace("discriminator", discriminator); // Set discriminator
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), document); // Update database
     }
 
     /**
@@ -81,7 +127,7 @@ public class MongoUser {
      * @return Returns the avatar of the user.
      */
     public String getAvatar() {
-        return (bot ? null : document.getString("avatar"));
+         return (bot || unavailable ? null : document.getString("avatar"));
     }
 
     /**
@@ -93,7 +139,7 @@ public class MongoUser {
         if (bot) return;
 
         document.replace("avatar", avatar); // Set avatar
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), document); // Update database
     }
 
     /**
@@ -117,7 +163,7 @@ public class MongoUser {
     /**
      * Set the badges of the user.
      *
-     * @param badges All badges of {@link MongoUser#user}.
+     * @param badges All badges of the user.
      */
     public void setBadges(List<UserBadge> badges) {
         if (bot) return;
@@ -127,7 +173,7 @@ public class MongoUser {
             badgesString.add(badge.getName()); // Add badge
         }
         document.replace("badges", badgesString); // Set badges
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), document); // Update database
     }
 
     /**
@@ -136,7 +182,7 @@ public class MongoUser {
      * @return Returns the xp of the user.
      */
     public Integer getXp() {
-        return (bot ? null : document.getInteger("xp"));
+         return (bot || unavailable ? null : document.getInteger("xp"));
     }
 
     /**
@@ -148,14 +194,14 @@ public class MongoUser {
         if (bot) return; // User is bot
 
         document.replace("xp", Utilities.getBsonLong(document, "xp") + xpToAdd); // Add xp
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.user.getId()), document); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), document); // Update database
     }
 
     /**
      * @return Returns the amount of messages a user wrote.
      */
     public Integer getMessages() {
-        return (bot ? null : document.getInteger("messages"));
+         return (bot || unavailable ? null : document.getInteger("messages"));
     }
 
     /**
@@ -165,7 +211,7 @@ public class MongoUser {
         if (bot) return; // User is bot
 
         document.replace("messages", document.getInteger("messages") + 1); // Add one message
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", user.getId()), document); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), document); // Update database
     }
 
 }

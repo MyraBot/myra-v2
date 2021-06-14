@@ -11,6 +11,7 @@ import com.github.m5rian.myra.commands.moderation.ban.Tempban;
 import com.github.m5rian.myra.commands.moderation.mute.MutePermissions;
 import com.github.m5rian.myra.commands.moderation.mute.Tempmute;
 import com.github.m5rian.myra.database.MongoDbUpdate;
+import com.github.m5rian.myra.database.MongoUser;
 import com.github.m5rian.myra.listeners.*;
 import com.github.m5rian.myra.listeners.leveling.LevelingListener;
 import com.github.m5rian.myra.listeners.leveling.VoiceCall;
@@ -58,8 +59,6 @@ public class Listeners extends ListenerAdapter {
     public final static List<String> unavailableGuilds = new ArrayList<>(); // Guilds which shouldn't receive events
     private final static Logger LOGGER = LoggerFactory.getLogger(Listeners.class);
     private final static String onlineInfo = "Bot online!";
-    // User events
-    private final UserUpdates userUpdates = new UserUpdates();
 
     //Combined Message Events (Combines Guild and Private message into 1 event)
     private final GlobalChat globalChat = new GlobalChat();
@@ -259,7 +258,7 @@ public class Listeners extends ListenerAdapter {
         try {
             if (!this.acceptEvents) return;
 
-            userUpdates.onUpdate(event.getUser());
+            new MongoUser(event.getUser()).updateUserData();
         } catch (Exception e) {
             e.printStackTrace();
         }
