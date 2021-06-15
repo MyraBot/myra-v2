@@ -8,6 +8,8 @@ import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.GuildChannel;
 
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
@@ -35,7 +37,9 @@ public class Say implements CommandHandler {
             return;
         }
 
-        ctx.getEvent().getMessage().delete().queue(); // Delete command usage
+        if (ctx.getBotMember().hasPermission((GuildChannel) ctx.getChannel(), Permission.MESSAGE_MANAGE)) {
+            ctx.getEvent().getMessage().delete().queue(); // Delete command usage
+        }
         ctx.getChannel().sendMessage(ctx.getArgumentsRaw()).queue(); // Send message
     }
 }
