@@ -23,12 +23,10 @@ public class MusicTimeout {
 
         // In the voice call are still members
         if (members != 0) {
-            System.out.println("stopping timeout");
             timeoutQueue.remove(guild.getIdLong()); // Remove guild from the timeout queue
         }
         // No member is in the voice call
         if (members == 0) {
-            System.out.println("started timeout");
             timeoutQueue.add(guild.getIdLong()); // Add guild to timeout queue
 
             Utilities.TIMER.schedule(() -> {
