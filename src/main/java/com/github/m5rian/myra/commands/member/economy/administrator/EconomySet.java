@@ -20,6 +20,9 @@ public class EconomySet implements CommandHandler {
     @CommandEvent(
             name = "economy set",
             aliases = {"balance set", "bal set", "money set"},
+            args = {"<user>", "<balance>"},
+            emoji = "\uD83D\uDC5B",
+            description = "description.economySet",
             requires = Administrator.class
     )
     public void execute(CommandContext ctx) throws Exception {

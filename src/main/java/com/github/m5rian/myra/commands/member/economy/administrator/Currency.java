@@ -14,6 +14,9 @@ public class Currency implements CommandHandler {
 
     @CommandEvent(
             name = "economy currency",
+            args = {"<currency>"},
+            emoji = "\\\uD83D\uDCB1",
+            description = "description.economy.currency",
             requires = Administrator.class
     )
     public void execute(CommandContext ctx) throws Exception {
@@ -24,7 +27,7 @@ public class Currency implements CommandHandler {
             new CommandUsage(ctx.getEvent())
                     .setCommand("economy currency")
                     .addUsages(new Usage()
-                            .setUsage("economy currency <emoji>")
+                            .setUsage("economy currency <currency>")
                             .setEmoji(db.getNested("economy").getString("currency"))
                             .setDescription(Lang.lang(ctx).get("description.economy.currency")))
                     .send();
