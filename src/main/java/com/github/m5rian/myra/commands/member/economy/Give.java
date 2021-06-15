@@ -51,8 +51,8 @@ public class Give implements CommandHandler {
             return;
         }
 
-        final GuildMember dbRecipient = new MongoGuild(ctx.getGuild()).getMembers().getMember(recipient); // Get member in database
-        final GuildMember dbAuthor = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get author in database
+        final GuildMember dbRecipient = MongoGuild.get(ctx.getGuild()).getMembers().getMember(recipient); // Get member in database
+        final GuildMember dbAuthor = MongoGuild.get(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get author in database
         final int amount = Integer.parseInt(ctx.getArguments()[1]); // Money to transfer
 
         // User is bot
@@ -90,7 +90,7 @@ public class Give implements CommandHandler {
                     .setMessage(Lang.lang(ctx).get("command.economy.give.message.success")
                             .replace("{$giver}", ctx.getMember().getAsMention()) // Member who gifts money
                             .replace("{$balance}", Format.number(Integer.parseInt(ctx.getArguments()[1]))) // Amount of transferred money
-                            .replace("{$currency}", new MongoGuild(ctx.getGuild()).getNested("economy").getString("currency")))
+                            .replace("{$currency}", MongoGuild.get(ctx.getGuild()).getNested("economy").getString("currency")))
                     .send();
         }
     }

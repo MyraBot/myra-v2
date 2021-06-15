@@ -40,7 +40,7 @@ public class WelcomeChannel implements CommandHandler {
         final TextChannel channel = Utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "welcome channel", "\uD83D\uDCC1");
         if (channel == null) return;
 
-        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         final String currentChannelId = db.getNested("welcome").getString("welcomeChannel"); // Get current welcome channel
         // Success
         Success success = new Success(ctx.getEvent())

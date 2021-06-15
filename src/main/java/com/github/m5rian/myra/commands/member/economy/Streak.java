@@ -29,7 +29,7 @@ public class Streak implements CommandHandler {
             if (member == null) return;
         }
 
-        final Integer streak = new MongoGuild(ctx.getGuild()).getMembers().getMember(member).getDailyStreak(); // Get streak
+        final Integer streak = MongoGuild.get(ctx.getGuild()).getMembers().getMember(member).getDailyStreak(); // Get streak
         new Success(ctx.getEvent())
                 .setCommand("streak")
                 .setEmoji("\uD83D\uDCCA")

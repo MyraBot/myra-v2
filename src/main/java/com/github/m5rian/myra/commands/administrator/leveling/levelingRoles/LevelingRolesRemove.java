@@ -40,7 +40,7 @@ public class LevelingRolesRemove implements CommandHandler {
         Role role = Utilities.getRole(ctx.getEvent(), ctx.getArguments()[0], "leveling roles remove", "\uD83C\uDFC5");
         if (role == null) return;
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         db.getLeveling().removeLevelingRole(role); // Remove role from database
         final Document roleDocument = db.getLeveling().getLevelingRole(role.getId()); // Get leveling role from the database
 

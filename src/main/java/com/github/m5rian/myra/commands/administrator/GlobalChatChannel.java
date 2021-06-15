@@ -41,7 +41,7 @@ public class GlobalChatChannel implements CommandHandler {
         final TextChannel channel = Utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "global chat", "\uD83C\uDF10"); // Get text channel
         if (channel == null) return;
 
-        final String webhookUrl = new MongoGuild(ctx.getGuild()).getString("globalChat"); // Get current webhook url
+        final String webhookUrl = MongoGuild.get(ctx.getGuild()).getString("globalChat"); // Get current webhook url
 
         Success success = new Success(ctx.getEvent())
                 .setCommand("global chat")
@@ -74,7 +74,7 @@ public class GlobalChatChannel implements CommandHandler {
                 }
                 // Remove global chat
                 else {
-                    new MongoGuild(ctx.getGuild()).setNull("globalChat"); // Update database
+                    MongoGuild.get(ctx.getGuild()).setNull("globalChat"); // Update database
                     webhook.delete().queue(); // Delete webhook
                     success.setMessage(lang(ctx).get("command.globalChat.channel.info.removed")).send();
                 }
@@ -86,7 +86,7 @@ public class GlobalChatChannel implements CommandHandler {
     private void createWebhook(TextChannel channel) {
         channel.createWebhook("global chat").queue(webhook -> {
             final String url = webhook.getUrl(); // Get webhook url
-            new MongoGuild(channel.getGuild()).setString("globalChat", url); // Update database
+            MongoGuild.get(channel.getGuild()).setString("globalChat", url); // Update database
         });
     }
 }

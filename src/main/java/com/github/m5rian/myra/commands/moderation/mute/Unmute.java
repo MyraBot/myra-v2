@@ -42,7 +42,7 @@ public class Unmute implements CommandHandler {
         final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], "Unmute", "\uD83D\uDD08"); // Get member
         if (member == null) return;
 
-        final String muteRoleId = new MongoGuild(ctx.getGuild()).getString("muteRole"); // Get mute role id
+        final String muteRoleId = MongoGuild.get(ctx.getGuild()).getString("muteRole"); // Get mute role id
         // No mute role set
         if (muteRoleId.equals("not set")) {
             new Error(ctx.getEvent())

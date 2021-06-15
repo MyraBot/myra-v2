@@ -30,7 +30,7 @@ public class Fish implements CommandHandler {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
 
         if (!CommandCooldown.getInstance().addCommand(ctx, "fish", 5)) return; //Check for cooldown
-        final GuildMember db = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get Member in database
+        final GuildMember db = MongoGuild.get(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get Member in database
         // Balance limit would be reached
         if (db.getBalance() + maxCatch > Config.ECONOMY_MAX) {
             new Error(ctx.getEvent())

@@ -23,7 +23,7 @@ public class EasterEggs {
 
     public void onMessage(MessageReceivedEvent event) {
         final String rawMessage = event.getMessage().getContentRaw(); // Get message
-        final String prefix = new MongoGuild(event.getGuild()).getString("prefix"); // Get prefix
+        final String prefix = MongoGuild.get(event.getGuild()).getString("prefix"); // Get prefix
 
         // Chocolate
         if (rawMessage.toLowerCase().contains("i like chocolate")) {

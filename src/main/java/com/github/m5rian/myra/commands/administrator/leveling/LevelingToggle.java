@@ -17,7 +17,7 @@ public class LevelingToggle implements CommandHandler {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return;
 
-        MongoGuild db = new MongoGuild(ctx.getGuild());
+        MongoGuild db = MongoGuild.get(ctx.getGuild());
         db.getListenerManager().toggle("leveling", "\uD83C\uDFC6", ctx.getEvent());
     }
 }

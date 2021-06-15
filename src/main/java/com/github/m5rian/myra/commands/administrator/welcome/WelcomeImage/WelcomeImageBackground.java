@@ -63,7 +63,7 @@ public class WelcomeImageBackground implements CommandHandler {
             return;
         }
 
-        new MongoGuild(ctx.getGuild()).getNested("welcome").setString("welcomeImageBackground", ctx.getArguments()[0]); // Save new url in database
+        MongoGuild.get(ctx.getGuild()).getNested("welcome").setString("welcomeImageBackground", ctx.getArguments()[0]); // Save new url in database
 
         new Success(ctx.getEvent())
                 .setCommand("welcome image background")

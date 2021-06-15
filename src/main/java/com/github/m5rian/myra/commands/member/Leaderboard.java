@@ -99,19 +99,19 @@ public class Leaderboard implements CommandHandler {
         switch (type) {
             // Balance
             case BALANCE -> {
-                leaderboardMembers = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
+                leaderboardMembers = MongoGuild.get(guild).getMembers().getLeaderboard(LeaderboardType.BALANCE);
                 leaderboard.setDescription(String.format("%s%n", lang(guild).get("command.leaderboard.balance")
                         .replace("{$guild.name}", guild.getName())));
             }
             // Voice call time
             case VOICE -> {
-                leaderboardMembers = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
+                leaderboardMembers = MongoGuild.get(guild).getMembers().getLeaderboard(LeaderboardType.VOICE);
                 leaderboard.setDescription(String.format("%s%n", lang(guild).get("command.leaderboard.voice")
                         .replace("{$guild.name}", guild.getName())));
             }
             // Level
             default -> {
-                leaderboardMembers = new MongoGuild(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
+                leaderboardMembers = MongoGuild.get(guild).getMembers().getLeaderboard(LeaderboardType.LEVEL);
                 leaderboard.setDescription(String.format("%s%n", lang(guild).get("command.leaderboard.level")
                         .replace("{$guild.name}", guild.getName())));
             }

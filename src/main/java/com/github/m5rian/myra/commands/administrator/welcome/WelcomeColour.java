@@ -40,7 +40,7 @@ public class WelcomeColour implements CommandHandler {
             final Color color = Color.decode(ctx.getArguments()[0]); // try to decode colour
             final String hex = Integer.toHexString(color.getRGB()).substring(2); // Get hex from colour
 
-            new MongoGuild(ctx.getGuild()).getNested("welcome").setString("welcomeColour", hex); // Save in database
+            MongoGuild.get(ctx.getGuild()).getNested("welcome").setString("welcomeColour", hex); // Save in database
             //success
             new Success(ctx.getEvent())
                     .setCommand("welcome colour")

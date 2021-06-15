@@ -271,7 +271,7 @@ public class Config implements CommandHandler {
                     .setAction(e -> {
                         Listeners.unavailableGuilds.add(e.getGuild().getId()); // Add Guild to unavailable guilds
 
-                        final GuildMembers guildMembers = new MongoGuild(ctx.getGuild()).getMembers();
+                        final GuildMembers guildMembers = MongoGuild.get(ctx.getGuild()).getMembers();
                         final List<Mee6User> mee6Members = new Mee6(ctx.getGuild()).getUsers();
 
                         final AtomicLong updated = new AtomicLong(0); // Amount of already passed documents

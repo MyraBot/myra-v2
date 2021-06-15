@@ -76,7 +76,7 @@ public class LevelingSet implements CommandHandler {
 
         final Integer level = Integer.parseInt(ctx.getArguments()[1]); // Get provided level
         // Update database
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         db.getMembers().getMember(member).setLevel(level); // Update level
         db.getMembers().getMember(member).setXp(Leveling.getXpFromLevel(level)); // Update xp
 
@@ -90,6 +90,6 @@ public class LevelingSet implements CommandHandler {
                         .replace("{$level}", String.valueOf(level))) // New level
                 .send();
         // Check for leveling roles
-        Leveling.updateLevelingRoles(ctx.getGuild(), member, new MongoGuild(ctx.getGuild()).getMembers().getMember(member));
+        Leveling.updateLevelingRoles(ctx.getGuild(), member, MongoGuild.get(ctx.getGuild()).getMembers().getMember(member));
     }
 }

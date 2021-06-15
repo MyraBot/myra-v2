@@ -40,7 +40,7 @@ public class MusicClearQueue implements CommandHandler {
 
         final long inVc = ctx.getMember().getVoiceState().getChannel().getMembers().stream().filter(member -> !member.getUser().isBot()).count(); // Get people in voice call without bots
         // Music voting is active
-        if (inVc > 4 && new MongoGuild(ctx.getGuild()).getBoolean("musicVoting")) {
+        if (inVc > 4 && MongoGuild.get(ctx.getGuild()).getBoolean("musicVoting")) {
             new MusicVoteListener().onMusicCommand(ctx.getEvent().getMessage()); // Start voting
         }
         // Directly clear queue

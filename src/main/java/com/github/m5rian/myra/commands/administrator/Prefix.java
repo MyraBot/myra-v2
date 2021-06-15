@@ -48,7 +48,7 @@ public class Prefix implements CommandHandler {
 
 
         // Change the prefix
-        new MongoGuild(ctx.getGuild()).setString("prefix", ctx.getArguments()[0]); // Change prefix
+        MongoGuild.get(ctx.getGuild()).setString("prefix", ctx.getArguments()[0]); // Change prefix
         // Success information
         Success success = new Success(ctx.getEvent())
                 .setCommand("prefix")

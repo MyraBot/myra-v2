@@ -36,7 +36,7 @@ public class TwitchNotification {
                 final Iterator<Guild> guilds = event.getJDA().getGuilds().iterator(); // Create an iterator for the guilds
                 while (guilds.hasNext()) { // Loop through every guild
                     final Guild guild = guilds.next(); // Get next guild
-                    MongoGuild db = new MongoGuild(guild); // Get database
+                    MongoGuild db = MongoGuild.get(guild); // Get database
 
                     // Get variables
                     List<String> streamers = NotificationsTwitchManager.getInstance().getStreamers(guild); // Get all streamers

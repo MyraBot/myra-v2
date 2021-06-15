@@ -13,7 +13,7 @@ public class AutoroleAssign {
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         final Guild guild = event.getGuild(); // Get guild
 
-        final MongoGuild db = new MongoGuild(guild); // Get database
+        final MongoGuild db = MongoGuild.get(guild); // Get database
         List<String> autoRoles = db.getList("autoRole", String.class);
         // Add all roles to member
         autoRoles.forEach(roleId -> {

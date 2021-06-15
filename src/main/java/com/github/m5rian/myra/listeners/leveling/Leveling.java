@@ -26,7 +26,7 @@ public class Leveling {
             db.setLevel(newLevel); // Update level in database
             final Guild guild = member.getGuild(); // Get guild
             // Level up message
-            final String levelingChannel = new MongoGuild(guild).getNested("leveling").getString("channel"); // Get leveling channel
+            final String levelingChannel = MongoGuild.get(guild).getNested("leveling").getString("channel"); // Get leveling channel
             final BufferedImage levelUpImage = getLevelUpImage(member, newLevel); // Get level up image
 
             // There is a custom level-up channel
@@ -34,7 +34,7 @@ public class Leveling {
                 final TextChannel textChannel = guild.getTextChannelById(levelingChannel); // Get leveling channel
                 // Custom leveling channel is invalid
                 if (textChannel == null) {
-                    new MongoGuild(guild).getNested("leveling").setString("channel", "not set"); // Remove leveling channel
+                    MongoGuild.get(guild).getNested("leveling").setString("channel", "not set"); // Remove leveling channel
                     return;
                 }
                 // Missing permissions
@@ -105,7 +105,7 @@ public class Leveling {
     }
 
     public static void updateLevelingRoles(Guild guild, Member member, GuildMember dbMember) {
-        final Nested guildLeveling = new MongoGuild(guild).getNested("leveling"); // Get leveling document
+        final Nested guildLeveling = MongoGuild.get(guild).getNested("leveling"); // Get leveling document
         final Document levelingRolesDocument = guildLeveling.get("roles", Document.class); // Get leveling roles
 
         // Create list of leveling roles documents
@@ -195,7 +195,7 @@ public class Leveling {
 
     //return missing xp
     public static Integer requiredXpForNextLevel(Guild guild, Member member) {
-        int currentLevel = new MongoGuild(guild).getMembers().getMember(member).getLevel();
+        int currentLevel = MongoGuild.get(guild).getMembers().getMember(member).getLevel();
         //define variable
         double xp;
         //parabola

@@ -23,7 +23,7 @@ public class LevelingRolesList implements CommandHandler {
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
-        List<LevelingRole> rolesList = new MongoGuild(ctx.getGuild()).getLeveling().getLevelingRoles(); // Get leveling roles
+        List<LevelingRole> rolesList = MongoGuild.get(ctx.getGuild()).getLeveling().getLevelingRoles(); // Get leveling roles
         rolesList.sort(Comparator.comparing(LevelingRole::getLevel).reversed()); // Sort roles
         StringBuilder roles = new StringBuilder(); // Add all roles to String
 

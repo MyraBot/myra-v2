@@ -44,7 +44,7 @@ public class Tempmute implements CommandHandler {
         final Member member = Utilities.getModifiedMember(ctx.getEvent(), ctx.getArguments()[0], ctx.getCommand().name(), ctx.getCommand().emoji()); // Get member
         if (member == null) return;
 
-        String muteRoleId = new MongoGuild(ctx.getGuild()).getString("muteRole"); //Get mute role id
+        String muteRoleId = MongoGuild.get(ctx.getGuild()).getString("muteRole"); //Get mute role id
         if (muteRoleId.equals("not set")) { // No mute role set
             error(ctx).setDescription(lang(ctx).get("error.mute.role.none")).send();
             return;
@@ -110,7 +110,7 @@ public class Tempmute implements CommandHandler {
 
     // Unmute message
     private void unmuteMessage(User user, Guild guild, User author) {
-        final MongoGuild db = new MongoGuild(guild); // Get database
+        final MongoGuild db = MongoGuild.get(guild); // Get database
 
         // Prepare unmute message
         final Success success = new Success(null)
@@ -159,7 +159,7 @@ public class Tempmute implements CommandHandler {
                 }
 
                 // No mute role set
-                if (new MongoGuild(guild).getString("muteRole").equals("not set")) {
+                if (MongoGuild.get(guild).getString("muteRole").equals("not set")) {
                     // No mute role set
                     new Error(null)
                             .setCommand("tempban")
@@ -170,7 +170,7 @@ public class Tempmute implements CommandHandler {
                             .send();
                     continue;
                 }
-                guild.removeRoleFromMember(document.getString("userId"), guild.getRoleById(new MongoGuild(guild).getString("muteRole"))).queue(); // Remove role
+                guild.removeRoleFromMember(document.getString("userId"), guild.getRoleById(MongoGuild.get(guild).getString("muteRole"))).queue(); // Remove role
                 unmuteMessage(user, guild, event.getJDA().getUserById(document.getString("moderatorId"))); // Send unmute message
                 MongoDb.getInstance().getCollection("unmutes").deleteOne(document); // Delete document
             }
@@ -183,7 +183,7 @@ public class Tempmute implements CommandHandler {
                         MongoDb.getInstance().getCollection("unmutes").deleteOne(document); //delete document
                     }
                     //unmute
-                    guild.removeRoleFromMember(document.getString("userId"), guild.getRoleById(new MongoGuild(guild).getString("muteRole"))).queue();
+                    guild.removeRoleFromMember(document.getString("userId"), guild.getRoleById(MongoGuild.get(guild).getString("muteRole"))).queue();
                     unmuteMessage(user, guild, event.getJDA().getUserById(document.getString("moderatorId"))); /// Send unmute message
                     MongoDb.getInstance().getCollection("unmutes").deleteOne(document); // Delete document
                 }, document.getLong("unmuteTime") - System.currentTimeMillis(), TimeUnit.MILLISECONDS);

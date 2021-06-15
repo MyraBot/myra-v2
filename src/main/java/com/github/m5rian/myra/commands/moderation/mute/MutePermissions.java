@@ -13,7 +13,7 @@ public class MutePermissions {
         // Bot doesn't have MANAGE CHANNEL permission
         if (!event.getGuild().getSelfMember().hasPermission(event.getChannel(), Permission.MANAGE_CHANNEL)) return;
 
-        final String roleId = new MongoGuild(event.getGuild()).getString("muteRole");
+        final String roleId = MongoGuild.get(event.getGuild()).getString("muteRole");
         if (roleId.equals("not set")) return;
         final Role muteRole = event.getGuild().getRoleById(roleId);
         if (muteRole == null) return;

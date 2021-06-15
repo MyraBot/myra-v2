@@ -29,13 +29,13 @@ public class GlobalChat {
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.isFromGuild()) return;
 
-        final String guildWebhookUrl = new MongoGuild(event.getGuild()).getString("globalChat"); // Get global chat webhook url
+        final String guildWebhookUrl = MongoGuild.get(event.getGuild()).getString("globalChat"); // Get global chat webhook url
         if (guildWebhookUrl == null) return;
 
         final WebhookInformation guildWebhookInformation = new WebhookInformation(guildWebhookUrl); // Get webhook information
         // Invalid webhook
         if (!guildWebhookInformation.isValid) {
-            new MongoGuild(event.getGuild()).setString("globalChat", null); // Remove global chat
+            MongoGuild.get(event.getGuild()).setString("globalChat", null); // Remove global chat
             return;
         }
         if (!guildWebhookInformation.getChannelId().equals(event.getChannel().getId())) return; // Wrong channel
@@ -71,7 +71,7 @@ public class GlobalChat {
     }
 
     public void messageEdited(GuildMessageUpdateEvent event) throws IOException {
-        final String guildWebhookUrl = new MongoGuild(event.getGuild()).getString("globalChat"); // Get global chat webhook url
+        final String guildWebhookUrl = MongoGuild.get(event.getGuild()).getString("globalChat"); // Get global chat webhook url
         if (guildWebhookUrl == null) return;
 
         final WebhookInformation guildWebhookInformation = new WebhookInformation(guildWebhookUrl); // Get webhook information

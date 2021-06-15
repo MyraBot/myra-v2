@@ -47,7 +47,7 @@ public class Commands implements CommandHandler {
                             && e.getUserIdLong() == ctx.getAuthor().getIdLong() // Same author
                             && Arrays.asList(emojis).contains(e.getReactionEmote().getEmoji())) // Match emoji
                     .setAction(e -> {
-                        final String prefix = new MongoGuild(e.getGuild()).getString("prefix"); // Get Prefix
+                        final String prefix = MongoGuild.get(e.getGuild()).getString("prefix"); // Get Prefix
                         final CommandEmbeds embed = new CommandEmbeds(ctx); // Get Embeds
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 

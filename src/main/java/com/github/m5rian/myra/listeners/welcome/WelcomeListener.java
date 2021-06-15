@@ -10,7 +10,7 @@ import java.io.InputStream;
 public class WelcomeListener {
 
     public void welcome(GuildMemberJoinEvent event) throws Exception {
-        MongoGuild db = new MongoGuild(event.getGuild()); // Get database
+        MongoGuild db = MongoGuild.get(event.getGuild()); // Get database
 
         // Get welcome channel
         if (db.getNested("welcome").getString("welcomeChannel").equals("not set")) return; // Return if no welcome channel is set

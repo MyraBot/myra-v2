@@ -16,7 +16,7 @@ public class SuggestionsToggle implements CommandHandler {
         // Check for no arguments
         if (ctx.getArguments().length == 0) {
             // Toggle feature
-            new MongoGuild(ctx.getGuild()).getListenerManager().toggle("suggestions", "\uD83D\uDDF3", ctx.getEvent());
+            MongoGuild.get(ctx.getGuild()).getListenerManager().toggle("suggestions", "\uD83D\uDDF3", ctx.getEvent());
         }
     }
 }

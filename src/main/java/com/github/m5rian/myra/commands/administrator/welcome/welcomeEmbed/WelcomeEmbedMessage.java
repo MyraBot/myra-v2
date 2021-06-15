@@ -35,7 +35,7 @@ public class WelcomeEmbedMessage implements CommandHandler {
             return;
         }
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         db.getNested("welcome").setString("welcome", ctx.getArgumentsRaw()); // Update database
         // Success
         Success success = new Success(ctx.getEvent())

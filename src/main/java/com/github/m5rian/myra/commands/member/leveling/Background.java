@@ -48,7 +48,7 @@ public class Background implements CommandHandler {
             return;
         }
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         // Not enough money
         if (db.getMembers().getMember(ctx.getMember()).getBalance() < 10000) {
             new Error(ctx.getEvent())

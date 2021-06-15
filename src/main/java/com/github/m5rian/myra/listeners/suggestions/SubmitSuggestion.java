@@ -21,7 +21,7 @@ public class SubmitSuggestion implements CommandHandler {
             description = "description.suggest"
     )
     public void execute(CommandContext ctx) throws Exception {
-        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         // Feature is disabled
         if (!db.getListenerManager().check("suggestions")) return;
 

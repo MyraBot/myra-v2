@@ -42,7 +42,7 @@ public class MuteRole implements CommandHandler {
         final Role role = Utilities.getRole(ctx.getEvent(), ctx.getArguments()[0], "mute role", "\uD83D\uDD07");
         if (role == null) return;
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         final String currentRole = db.getString("muteRole"); // Get current mute role id
 
         final Success success = new Success(ctx.getEvent())

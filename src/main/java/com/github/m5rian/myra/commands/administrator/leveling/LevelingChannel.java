@@ -37,7 +37,7 @@ public class LevelingChannel implements CommandHandler {
         final TextChannel channel = Utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "leveling channel", "\uD83E\uDDFE");
         if (channel == null) return;
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); //  Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); //  Get database
         final String channelId = db.getNested("leveling").getString("channel"); // Get leveling channel id
 
         Success success = new Success(ctx.getEvent())

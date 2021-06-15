@@ -36,7 +36,7 @@ public class WelcomeDirectMessageMessage implements CommandHandler {
             return;
         }
 
-        new MongoGuild(ctx.getGuild()).getNested("welcome").setString("welcomeDirectMessage", ctx.getArgumentsRaw()); // Update database
+        MongoGuild.get(ctx.getGuild()).getNested("welcome").setString("welcomeDirectMessage", ctx.getArgumentsRaw()); // Update database
 
         Success success = new Success(ctx.getEvent())
                 .setCommand("welcome direct message")

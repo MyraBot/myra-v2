@@ -153,7 +153,7 @@ public class Tempban implements CommandHandler {
     }
 
     private void unbanMessage(User user, Guild guild, User author) {
-        MongoGuild db = new MongoGuild(guild); // Get database
+        MongoGuild db = MongoGuild.get(guild); // Get database
 
         // Prepare message
         final Success success = new Success(null)

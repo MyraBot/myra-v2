@@ -37,7 +37,7 @@ public class NotificationsMessageTwitch implements CommandHandler {
         }
 
         // Update database
-        new MongoGuild(ctx.getGuild()).getNested("notifications").setString("twitchMessage", ctx.getArgumentsRaw());
+        MongoGuild.get(ctx.getGuild()).getNested("notifications").setString("twitchMessage", ctx.getArgumentsRaw());
         // Set success message
         new Success(ctx.getEvent())
                 .setCommand("notifications message twitch")

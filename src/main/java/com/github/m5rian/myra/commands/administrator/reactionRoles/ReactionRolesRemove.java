@@ -30,7 +30,7 @@ public class ReactionRolesRemove implements CommandHandler {
             ctx.getWaiter().waitForEvent(GuildMessageReactionRemoveEvent.class)
                     .setCondition(e -> !e.getUser().isBot() && e.getUser() == ctx.getAuthor())
                     .setAction(e -> {
-                        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+                        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
                         final List<Document> reactionRoles = db.getList("reactionRoles", Document.class); // Get reaction roles
 
                         final String reactionEmoji = e.getReactionEmote().getEmoji(); // Get emoji of removed reaction

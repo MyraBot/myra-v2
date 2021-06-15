@@ -36,7 +36,7 @@ public class NotificationsMessageYoutube implements CommandHandler {
         }
 
         // Update database
-        new MongoGuild(ctx.getGuild()).getNested("notifications").setString("youtubeMessage", ctx.getArgumentsRaw());
+        MongoGuild.get(ctx.getGuild()).getNested("notifications").setString("youtubeMessage", ctx.getArgumentsRaw());
         // Set success message
         new Success(ctx.getEvent())
                 .setCommand("notifications message youtube")

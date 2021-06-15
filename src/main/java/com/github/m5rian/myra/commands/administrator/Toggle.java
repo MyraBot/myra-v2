@@ -34,7 +34,7 @@ public class Toggle implements CommandHandler {
             return;
         }
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         final Success success = new Success(ctx.getEvent())
                 .setCommand("toggle")
                 .setEmoji("\uD83D\uDD11");

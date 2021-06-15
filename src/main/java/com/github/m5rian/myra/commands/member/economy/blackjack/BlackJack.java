@@ -92,7 +92,7 @@ public class BlackJack implements CommandHandler {
         }
         // If game isn't a test match
         if (!ctx.getArguments()[0].equals("0")) {
-            final int win = new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() + Integer.parseInt(ctx.getArguments()[0]); // Get amount of money you would ge if you win
+            final int win = MongoGuild.get(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() + Integer.parseInt(ctx.getArguments()[0]); // Get amount of money you would ge if you win
             // Balance limit would be reached
             if (win > Config.ECONOMY_MAX) {
                 new Error(ctx.getEvent())
@@ -104,7 +104,7 @@ public class BlackJack implements CommandHandler {
             }
         }
         // Not enough money
-        if (new MongoGuild(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() < Integer.parseInt(ctx.getArguments()[0])) {
+        if (MongoGuild.get(ctx.getGuild()).getMembers().getMember(ctx.getMember()).getBalance() < Integer.parseInt(ctx.getArguments()[0])) {
             new Error(ctx.getEvent())
                     .setCommand("blackjack")
                     .setEmoji("\uD83C\uDCCF")
@@ -198,7 +198,7 @@ public class BlackJack implements CommandHandler {
                         }
                         //Stay
                         else if (e.getReactionEmote().getEmoji().equals("\u23F8")) {
-                            final GuildMember dbMember = new MongoGuild(e.getGuild()).getMembers().getMember(e.getMember()); // Get database
+                            final GuildMember dbMember = MongoGuild.get(e.getGuild()).getMembers().getMember(e.getMember()); // Get database
 
                             // Add cards to the dealer until his card value is at least 17
                             while (dealer.getValue() < 17) {
@@ -287,7 +287,7 @@ public class BlackJack implements CommandHandler {
         match.setColor(player.getPlayer().getColor());
 
         // Get member in database
-        final GuildMember dbMember = new MongoGuild(guild).getMembers().getMember(player.getPlayer());
+        final GuildMember dbMember = MongoGuild.get(guild).getMembers().getMember(player.getPlayer());
         // Lost
         // Dealer and player have a value of 21
         if (dealer.getValue() == player.getValue() && dealer.getValue() == 21) {

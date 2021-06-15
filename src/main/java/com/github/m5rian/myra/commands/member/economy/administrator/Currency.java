@@ -17,7 +17,7 @@ public class Currency implements CommandHandler {
             requires = Administrator.class
     )
     public void execute(CommandContext ctx) throws Exception {
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
 
         // Command usage
         if (ctx.getArguments().length == 0) {

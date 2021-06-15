@@ -64,7 +64,7 @@ public class ShopAdd implements CommandHandler {
                 .setMessage(lang(ctx).get("command.economy.shop.add.info.success")
                         .replace("{$role}", role.getAsMention()) // Shop role
                         .replace("{$price}", ctx.getArguments()[1]) // Price of role
-                        .replace("{$currency}", new MongoGuild(ctx.getGuild()).getNested("economy").getString("currency"))) // Server currency
+                        .replace("{$currency}", MongoGuild.get(ctx.getGuild()).getNested("economy").getString("currency"))) // Server currency
                 .send();
     }
 }

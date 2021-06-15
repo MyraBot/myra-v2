@@ -22,7 +22,7 @@ public class WelcomeImageRender {
      */
     public InputStream render(Guild guild, User user) throws Exception {
         //database
-        MongoGuild db = new MongoGuild(guild);
+        MongoGuild db = MongoGuild.get(guild);
         //get welcome image background
         BufferedImage background;
         //if no background is set

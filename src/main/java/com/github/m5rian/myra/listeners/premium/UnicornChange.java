@@ -17,7 +17,7 @@ public class UnicornChange {
             while (iterator.hasNext()) {
                 final Guild guild = iterator.next(); // Get next guild
 
-                final MongoGuild db = new MongoGuild(guild); // Get database
+                final MongoGuild db = MongoGuild.get(guild); // Get database
                 if (!db.getBoolean("premium")) continue; // Check for premium
                 // Get unicorn role
                 final Long unicorn = db.getLong("unicorn"); // Get unicorn role

@@ -85,7 +85,7 @@ public class Buy implements CommandHandler {
             return;
         }
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild());
+        final MongoGuild db = MongoGuild.get(ctx.getGuild());
         final ShopRolesDocument roleInfo = find.get(); // Get right shop role
         // Sell role
         if (ctx.getMember().getRoles().contains(ctx.getGuild().getRoleById(roleInfo.getId()))) {

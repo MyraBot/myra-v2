@@ -60,7 +60,7 @@ public class LevelingRolesAdd implements CommandHandler {
             return;
         }
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         db.getLeveling().addLevelingRole(level, role); // Update database
         // Update every member
         ctx.getGuild().loadMembers().onSuccess(members -> members.forEach(member -> {

@@ -55,7 +55,7 @@ public class Rank implements CommandHandler {
             return;
         }
 
-        final GuildMember getMember = new MongoGuild(member.getGuild()).getMembers().getMember(member); // Get member in database
+        final GuildMember getMember = MongoGuild.get(member.getGuild()).getMembers().getMember(member); // Get member in database
         final String backgroundUrl = getMember.getRankBackground(); // Get current rank background
 
         final BufferedImage background;
@@ -78,7 +78,7 @@ public class Rank implements CommandHandler {
 
 
     public static BufferedImage renderRankCard(Member member, BufferedImage background) throws IOException, FontFormatException {
-        final GuildMember guildMember = new MongoGuild(member.getGuild()).getMembers().getMember(member);
+        final GuildMember guildMember = MongoGuild.get(member.getGuild()).getMembers().getMember(member);
         final String level = String.valueOf(guildMember.getLevel());
         final String xp = String.valueOf(guildMember.getXp());
         final String rank = String.valueOf(guildMember.getRank());

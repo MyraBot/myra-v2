@@ -49,7 +49,7 @@ public class AutoRole implements CommandHandler {
     }
 
     public void updateAutoRole(MessageReceivedEvent e, Role role) {
-        final MongoGuild db = new MongoGuild(e.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(e.getGuild()); // Get database
         final List<String> autoRoles = db.getList("autoRole", String.class); // Get autoroles
         Success success = new Success(e)
                 .setCommand("auto role")

@@ -62,7 +62,7 @@ public class Language implements CommandHandler {
                             default -> language = Lang.Country.ENGLISH;
                         }
 
-                        new MongoGuild(ctx.getGuild()).setString("lang", language.getId()); // Update language
+                        MongoGuild.get(ctx.getGuild()).setString("lang", language.getId()); // Update language
                         Lang.languages.put(ctx.getGuild().getId(), language); // Update language cache
 
                         info(ctx).setDescription("Changed language to " + language.getName()).send();

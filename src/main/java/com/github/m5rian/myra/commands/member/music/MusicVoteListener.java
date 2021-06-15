@@ -57,7 +57,7 @@ public class MusicVoteListener {
                                     System.out.println(votes.get());
                                     if (votes.get() < size / 2) return; // Not enough votes
 
-                                    final String prefix = new MongoGuild(event.getGuild()).getString("prefix"); // Get prefix
+                                    final String prefix = MongoGuild.get(event.getGuild()).getString("prefix"); // Get prefix
                                     final TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(event.getGuild()).scheduler;  // Get track scheduler
 
                                     final List<String> skipExecutors = CommandUtils.getCommandExecutors(MusicSkip.class.getMethod("execute", CommandContext.class)); /** Get all executors from the {@link MusicSkip} class*/

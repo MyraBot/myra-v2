@@ -11,7 +11,7 @@ import java.awt.*;
 public class WelcomeDirectMessageRender {
 
     public MessageEmbed render(Guild guild, User user) {
-        MongoGuild db = new MongoGuild(guild); // Get database
+        MongoGuild db = MongoGuild.get(guild); // Get database
         // Get variables
         final String welcomeColour = db.getNested("welcome").getString("welcomeColour");
         final String welcomeDirectMessage = db.getNested("welcome").getString("welcomeDirectMessage");

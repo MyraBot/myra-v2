@@ -12,7 +12,7 @@ import java.time.Instant;
 public class WelcomeEmbedRender {
 
     public MessageEmbed render(Guild guild, User user) {
-        final MongoGuild db = new MongoGuild(guild); // Get database
+        final MongoGuild db = MongoGuild.get(guild); // Get database
         // Get variables
         final String welcomeColour = db.getNested("welcome").getString("welcomeColour"); // Get colour
         final String welcome = db.getNested("welcome").getString("welcomeEmbedMessage"); // Get message

@@ -18,7 +18,7 @@ public class LevelingRolesUnique implements CommandHandler {
         channel = Channel.GUILD
 )
     public void execute(CommandContext ctx) throws Exception {
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         final boolean unique = !db.getNested("leveling").getBoolean("uniqueRoles"); // Get new value
         db.getNested("leveling").setBoolean("uniqueRoles", unique); // Update database
 

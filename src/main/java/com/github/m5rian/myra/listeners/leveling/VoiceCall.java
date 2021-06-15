@@ -54,7 +54,7 @@ public class VoiceCall {
             if (!activeCalls.containsKey(member.getGuild().getId())) return;
             if (!activeCalls.get(member.getGuild().getId()).containsKey(member.getId())) return;
 
-            final GuildMember dbMember = new MongoGuild(member.getGuild()).getMembers().getMember(member); // Get member in database
+            final GuildMember dbMember = MongoGuild.get(member.getGuild()).getMembers().getMember(member); // Get member in database
             if (dbMember.isBot()) return; // Member is bot account
 
             final Long currentSpokenTime = dbMember.getVoiceTime(); // Get voice call time until now
@@ -62,7 +62,7 @@ public class VoiceCall {
             dbMember.setVoiceTime(currentSpokenTime + timeSpoken); // Update voice call time
 
             // Leveling is enabled
-            if (new MongoGuild(member.getGuild()).getListenerManager().check("leveling")) {
+            if (MongoGuild.get(member.getGuild()).getListenerManager().check("leveling")) {
                 final int newXp = getXp(timeSpoken); // Get gathered xp
                 new Leveling().levelUp(member, null, dbMember, newXp); // Check for new level
 

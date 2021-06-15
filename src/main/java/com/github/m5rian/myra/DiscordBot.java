@@ -103,7 +103,7 @@ import static com.github.m5rian.myra.utilities.language.Lang.lang;
 public class DiscordBot {
     public static final DefaultCommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
             .setDefaultPrefix(Config.DEFAULT_PREFIX)
-            .setVariablePrefix(guild -> new MongoGuild(guild).getString("prefix"))
+            .setVariablePrefix(guild -> Config.CACHE_PREFIX.get(guild.getId()))
             .allowMention()
             .registerCommandClasses(
                     // Marian
@@ -269,7 +269,7 @@ public class DiscordBot {
                         }
                         final String description = lang(ctx).get(command.description())
                                 .replace("{$myra.name}", ctx.getBotMember().getEffectiveName())
-                                .replace("{$guild.currency}", new MongoGuild(ctx.getGuild()).getNested("economy").getString("currency"));
+                                .replace("{$guild.currency}", MongoGuild.get(ctx.getGuild()).getNested("economy").getString("currency"));
 
                         // Command has no arguments
                         if (command.args().length == 0) {

@@ -47,7 +47,7 @@ public class WelcomeImageFont implements CommandHandler {
                             && e.getUserIdLong() == ctx.getAuthor().getIdLong()
                             && e.getMessageIdLong() == message.getIdLong())
                     .setAction(e -> {
-                        final MongoGuild db = new MongoGuild(e.getGuild()); // Get database
+                        final MongoGuild db = MongoGuild.get(e.getGuild()); // Get database
                         final String reaction = e.getReactionEmote().getEmoji(); // Get reacted emoji
 
                         String font = "deafult";

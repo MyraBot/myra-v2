@@ -33,7 +33,7 @@ public class SuggestionsChannel implements CommandHandler {
         }
 
         //connect to database
-        MongoGuild db = new MongoGuild(ctx.getGuild());
+        MongoGuild db = MongoGuild.get(ctx.getGuild());
         // Get given channel
         TextChannel channel = Utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "suggestions", "\uD83D\uDDF3");
         if (channel == null) return;

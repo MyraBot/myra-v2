@@ -21,7 +21,7 @@ public class WelcomePreview implements CommandHandler {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
         ctx.getChannel().sendTyping().queue(); // Send typing
-        MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         // Get greetings
         final MessageEmbed privateMessage = new WelcomeDirectMessageRender().render(ctx.getGuild(), ctx.getAuthor()); // Get direct message
         final MessageEmbed embed = new WelcomeEmbedRender().render(ctx.getGuild(), ctx.getAuthor()); // Get embed message

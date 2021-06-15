@@ -18,7 +18,7 @@ public class WelcomeEmbedToggle implements CommandHandler {
         // Check for no arguments
         if (ctx.getArguments().length == 0) {
             // Toggle feature
-            new MongoGuild(ctx.getGuild()).getListenerManager().toggle("welcomeEmbed", "\uD83D\uDCC7", ctx.getEvent());
+            MongoGuild.get(ctx.getGuild()).getListenerManager().toggle("welcomeEmbed", "\uD83D\uDCC7", ctx.getEvent());
         }
     }
 }

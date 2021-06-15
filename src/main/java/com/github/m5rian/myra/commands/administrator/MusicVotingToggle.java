@@ -23,7 +23,7 @@ public class MusicVotingToggle implements CommandHandler {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return;
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         final boolean value = !db.getBoolean("musicVoting"); // Get new value
         db.setBoolean("musicVoting", value); // Update database
 

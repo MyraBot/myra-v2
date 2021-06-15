@@ -29,7 +29,7 @@ public class Time implements CommandHandler {
             if (member == null) return;
         }
 
-        final String voiceCallTime = Format.toTimeExact(new MongoGuild(ctx.getGuild()).getMembers().getMember(member).getVoiceTime());
+        final String voiceCallTime = Format.toTimeExact(MongoGuild.get(ctx.getGuild()).getMembers().getMember(member).getVoiceTime());
         new Success(ctx.getEvent())
                 .setCommand("time")
                 .setMessage(lang(ctx).get("command.leveling.time.success")

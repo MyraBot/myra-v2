@@ -146,7 +146,7 @@ public class Lang {
 
     public static void load(List<Guild> guilds) {
         for (Guild guild : guilds) {
-            final String languageId = new MongoGuild(guild).getString("lang");
+            final String languageId = MongoGuild.get(guild).getString("lang");
             languages.put(guild.getId(), Country.getById(languageId));
         }
     }

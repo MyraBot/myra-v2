@@ -24,7 +24,7 @@ public class Balance implements CommandHandler {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length > 0 && ctx.getArguments()[0].equalsIgnoreCase("set")) return; // "economy set" is meant
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         final String currency = db.getNested("economy").getString("currency"); // Get currency
         // Command usage
         if (ctx.getArguments().length > 1) {

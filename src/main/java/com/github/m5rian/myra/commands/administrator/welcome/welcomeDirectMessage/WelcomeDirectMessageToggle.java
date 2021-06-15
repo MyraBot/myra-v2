@@ -15,6 +15,6 @@ public class WelcomeDirectMessageToggle implements CommandHandler {
 )
     public void execute(CommandContext ctx) throws Exception {
         // Toggle feature
-        new MongoGuild(ctx.getGuild()).getListenerManager().toggle("welcomeDirectMessage", "\u2709\uFE0F", ctx.getEvent());
+        MongoGuild.get(ctx.getGuild()).getListenerManager().toggle("welcomeDirectMessage", "\u2709\uFE0F", ctx.getEvent());
     }
 }

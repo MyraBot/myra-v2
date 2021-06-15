@@ -1,7 +1,9 @@
 package com.github.m5rian.myra.database.guild;
 
+import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.guild.member.GuildMembers;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import org.bson.Document;
 
@@ -11,13 +13,34 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class MongoGuild {
     private final MongoDb mongoDb = MongoDb.getInstance();
-    private final Guild guild; // Current guild
+    private final JDA jda;
+    private final String guildId;
+    private final Document document;
+    /**
+     * @param jda     A {@link JDA} Object.
+     * @param guildId The guild to search for.
+     */
+    public MongoGuild(JDA jda, String guildId) {
+        this.jda = jda;
+        this.guildId = guildId;
+        this.document = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
+    }
 
     /**
      * @param guild The guild to search for.
      */
     public MongoGuild(Guild guild) {
-        this.guild = guild;
+        this.jda = guild.getJDA();
+        this.guildId = guild.getId();
+        this.document = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
+    }
+
+    public static MongoGuild get(String guildId) {
+        return Config.CACHE_GUILD.get(guildId);
+    }
+
+    public static MongoGuild get(Guild guild) {
+        return Config.CACHE_GUILD.get(guild.getId());
     }
 
     /**
@@ -25,21 +48,18 @@ public class MongoGuild {
      * @return Returns a {@link String} given by a key.
      */
     public String getString(String key) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getString(key);
+        return this.document.getString(key);
     }
 
     /**
-     * Replace a string in the guild document of {@link MongoGuild#guild}.
+     * Replace a string in the guild document.
      *
      * @param key   The key to search for.
      * @param value The new value.
      */
     public void setString(String key, String value) {
-        // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
-        updatedDocument.replace(key, value);
-        // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        this.document.replace(key, value); // Replace value
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -47,21 +67,18 @@ public class MongoGuild {
      * @return Returns the value, found by the given key.
      */
     public Long getLong(String key) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getLong(key);
+        return this.document.getLong(key);
     }
 
     /**
-     * Replace a long in the guild document of {@link MongoGuild#guild}.
+     * Replace a long in the guild document.
      *
      * @param key   The key to search for.
      * @param value The new value.
      */
     public void setLong(String key, Long value) {
-        // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
-        updatedDocument.replace(key, value);
-        // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        this.document.replace(key, value); // Replace value
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -69,21 +86,18 @@ public class MongoGuild {
      * @return Returns the value, found by the given key.
      */
     public boolean getBoolean(String key) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getBoolean(key);
+        return this.document.getBoolean(key);
     }
 
     /**
-     * Replace a boolean in the guild document of {@link MongoGuild#guild}.
+     * Replace a boolean in the guild document.
      *
      * @param key   The key to search for.
      * @param value The new value.
      */
     public void setBoolean(String key, boolean value) {
-        // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
-        updatedDocument.replace(key, value);
-        // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        this.document.replace(key, value); // Replace value
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -93,7 +107,7 @@ public class MongoGuild {
      * @return Returns the value of the given key as the specified class type.
      */
     public <T> T get(String key, Class<T> clazz) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(key, clazz);
+        return this.document.get(key, clazz);
     }
 
     /**
@@ -104,7 +118,7 @@ public class MongoGuild {
      */
 
     public <T> List<T> getList(String key, Class<T> clazz) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().getList(key, clazz);
+        return this.document.getList(key, clazz);
     }
 
     /**
@@ -115,11 +129,8 @@ public class MongoGuild {
      * @param <T>   The class type of which the list will be.
      */
     public <T> void setList(String key, List<T> value) {
-        // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
-        updatedDocument.replace(key, value);
-        // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        this.document.replace(key, value); // Replace value
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -128,21 +139,19 @@ public class MongoGuild {
      * @param key The key to find.
      */
     public void setNull(String key) {
-        // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
-        updatedDocument.replace(key, null);
+        this.document.replace(key, null); // Replace value
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document);
     }
 
     /**
-     * Get a nested object from the {@link MongoGuild#guild} document.
+     * Get a nested object from the guild document.
      *
      * @param nested The nested object key.
      * @return Returns a {@link Document}, which matches the key of nested.
      */
     public Nested getNested(String nested) {
-        return new Nested(mongoDb, guild, nested);
+        return new Nested(mongoDb, this.guildId, nested);
     }
 
     /**
@@ -151,20 +160,20 @@ public class MongoGuild {
      * @return Returns a {@link GuildMembers} object.
      */
     public GuildMembers getMembers() {
-        return new GuildMembers(mongoDb, guild);
+        return new GuildMembers(this.jda, this.guildId);
     }
 
     /**
-     * @return Returns the {@link GuildListeners} for the {@link MongoGuild#guild}.
+     * @return Returns the {@link GuildListeners} for the current guild.
      */
     public GuildListeners getListenerManager() {
-        return new GuildListeners(mongoDb, guild);
+        return new GuildListeners(mongoDb, this.guildId);
     }
 
     /**
-     * @return Returns the {@link GuildLeveling} for the {@link MongoGuild#guild
+     * @return Returns the {@link GuildLeveling} for the current guild
      */
     public GuildLeveling getLeveling() {
-        return new GuildLeveling(mongoDb, guild);
+        return new GuildLeveling(this.guildId);
     }
 }

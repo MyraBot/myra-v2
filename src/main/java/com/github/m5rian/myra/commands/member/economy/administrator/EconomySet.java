@@ -40,7 +40,7 @@ public class EconomySet implements CommandHandler {
         final Member member = Utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "economy set", "\uD83D\uDC5B");
         if (member == null) return;
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); // Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         long balance = db.getMembers().getMember(member).getBalance(); // Get current balance
 
         // Add balance

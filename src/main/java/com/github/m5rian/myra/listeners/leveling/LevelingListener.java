@@ -18,7 +18,7 @@ public class LevelingListener {
     public void onMessage(MessageReceivedEvent event) throws Exception {
         if (!event.isFromGuild()) return; // Ignore direct messages
 
-        final MongoGuild dbGuild = new MongoGuild(event.getGuild()); // Get guild from database
+        final MongoGuild dbGuild = MongoGuild.get(event.getGuild()); // Get guild from database
         final MongoUser dbUser = new MongoUser(event.getAuthor()); // Get User from database
         final GuildMember dbMember = dbGuild.getMembers().getMember(event.getMember()); // Get member from database
 

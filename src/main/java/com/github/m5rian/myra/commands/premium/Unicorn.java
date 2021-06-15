@@ -18,7 +18,7 @@ public class Unicorn implements CommandHandler {
         requires = Administrator.class
 )
     public void execute(CommandContext ctx) throws Exception {
-        final MongoGuild db = new MongoGuild(ctx.getGuild());
+        final MongoGuild db = MongoGuild.get(ctx.getGuild());
         if (!db.getBoolean("premium")) return; // Check for premium
 
         // Command usage

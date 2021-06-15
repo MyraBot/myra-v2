@@ -39,7 +39,7 @@ public class NotificationsChannel implements CommandHandler {
         final TextChannel channel = Utilities.getTextChannel(ctx.getEvent(), ctx.getArguments()[0], "notification channel", "\uD83D\uDD14");
         if (channel == null) return;
 
-        final MongoGuild db = new MongoGuild(ctx.getGuild()); //Get database
+        final MongoGuild db = MongoGuild.get(ctx.getGuild()); //Get database
         final String currentChannelId = db.getNested("notifications").getString("channel"); // Get current notification channel
         // Remove notification channel
         if (currentChannelId.equals(channel.getId())) {
