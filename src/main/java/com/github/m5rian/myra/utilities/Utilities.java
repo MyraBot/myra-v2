@@ -273,7 +273,7 @@ public class Utilities {
 
         //can't modify yourself
         if (member.equals(event.getMember())) {
-            error(event.getChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.missingPerms.header").replace("{$command.name}", command), lang(event.getGuild()).get("error.retrieving.member.missingPerms.yourself.error"), event.getAuthor().getEffectiveAvatarUrl());
+            error(event.getChannel(), command, commandEmoji, lang(event.getGuild()).get("error.retrieving.member.missingPerms.header").replace("{$command.name}", command), lang(event.getGuild()).get("error.retrieving.member.missingPerms.yourself.error").replace("{$command.name}", command), event.getAuthor().getEffectiveAvatarUrl());
             return null;
         }
         //can't modify the owner
