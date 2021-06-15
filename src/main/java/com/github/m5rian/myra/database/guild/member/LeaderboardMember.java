@@ -1,7 +1,6 @@
 package com.github.m5rian.myra.database.guild.member;
 
 import com.github.m5rian.myra.utilities.Utilities;
-import net.dv8tion.jda.api.entities.Guild;
 import org.bson.Document;
 
 public class LeaderboardMember {
@@ -15,13 +14,13 @@ public class LeaderboardMember {
     private final int balance;
     private final long voiceCallTime;
 
-    public LeaderboardMember(Document memberDocument, Guild guild) {
-        this.id = memberDocument.getString("userId");
-        this.name = memberDocument.getString("name");
-        this.discriminator = memberDocument.getString("discriminator");
-        this.avatar = memberDocument.getString("avatar");
+    public LeaderboardMember(Document userDocument, String guildId) {
+        this.id = userDocument.getString("userId");
+        this.name = userDocument.getString("name");
+        this.discriminator = userDocument.getString("discriminator");
+        this.avatar = userDocument.getString("avatar");
 
-        final Document guildMemberDocument = (Document) memberDocument.get(guild.getId()); // Get document of guild
+        final Document guildMemberDocument = userDocument.get(guildId, Document.class); // Get document of guild
         this.level = guildMemberDocument.getInteger("level");
         this.xp = Utilities.getBsonLong(guildMemberDocument, "xp");
         this.balance = guildMemberDocument.getInteger("balance");

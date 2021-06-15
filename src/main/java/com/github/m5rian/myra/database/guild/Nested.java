@@ -1,7 +1,6 @@
 package com.github.m5rian.myra.database.guild;
 
 import com.github.m5rian.myra.database.MongoDb;
-import net.dv8tion.jda.api.entities.Guild;
 import org.bson.Document;
 
 import java.util.List;
@@ -11,7 +10,7 @@ import static com.mongodb.client.model.Filters.eq;
 public class Nested {
     // Variables
     private final MongoDb mongoDb;
-    private final Guild guild;
+    private final String guildId;
     private final String nested;
 
     /**
@@ -19,9 +18,9 @@ public class Nested {
      * @param guild   The guild of the current document.
      * @param nested  The key of the nested document.
      */
-    public Nested(MongoDb mongoDb, Guild guild, String nested) {
+    public Nested(MongoDb mongoDb, String guildId, String nested) {
         this.mongoDb = mongoDb;
-        this.guild = guild;
+        this.guildId = guildId;
         this.nested = nested;
     }
 
@@ -30,7 +29,7 @@ public class Nested {
      * @return Returns a {@link String} given by a key.
      */
     public String getString(String key) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class).getString(key);
+        return mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first().get(this.nested, Document.class).getString(key);
     }
 
     /**
@@ -41,10 +40,10 @@ public class Nested {
      */
     public void setString(String key, String value) {
         // Replace value
-        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
         updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), updatedDocument);
     }
 
     /**
@@ -52,7 +51,7 @@ public class Nested {
      * @return Returns a {@link Integer} given by a key.
      */
     public Integer getInteger(String key) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class).getInteger(key);
+        return mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first().get(this.nested, Document.class).getInteger(key);
     }
 
     /**
@@ -63,10 +62,10 @@ public class Nested {
      */
     public void setInteger(String key, Integer value) {
         // Replace value
-        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
         updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), updatedDocument);
     }
 
     /**
@@ -74,7 +73,7 @@ public class Nested {
      * @return Returns the value, found by the given key.
      */
     public Long getLong(String key) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class).getLong(key);
+        return mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first().get(this.nested, Document.class).getLong(key);
     }
 
     /**
@@ -85,10 +84,10 @@ public class Nested {
      */
     public void setLong(String key, Long value) {
         // Replace value
-        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
         updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), updatedDocument);
     }
 
     /**
@@ -96,7 +95,7 @@ public class Nested {
      * @return Returns the value, found by the given key.
      */
     public boolean getBoolean(String key) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class).getBoolean(key);
+        return mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first().get(this.nested, Document.class).getBoolean(key);
     }
 
     /**
@@ -107,10 +106,10 @@ public class Nested {
      */
     public void setBoolean(String key, boolean value) {
         // Replace value
-        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
         updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), updatedDocument);
     }
 
     /**
@@ -120,7 +119,7 @@ public class Nested {
      * @return Returns the value of the given key as the specified class type.
      */
     public <T> T get(String key, Class<T> clazz) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class).get(key, clazz);
+        return mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first().get(this.nested, Document.class).get(key, clazz);
     }
 
     /**
@@ -131,7 +130,7 @@ public class Nested {
      */
 
     public <T> List<T> getList(String key, Class<T> clazz) {
-        return mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class).getList(key, clazz);
+        return mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first().get(this.nested, Document.class).getList(key, clazz);
     }
 
     /**
@@ -143,10 +142,10 @@ public class Nested {
      */
     public <T> void setList(String key, List<T> value) {
         // Replace value
-        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
         updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), updatedDocument);
     }
 
     /**
@@ -157,10 +156,10 @@ public class Nested {
      */
     public void set(String key, Object value) {
         // Replace value
-        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first();
+        final Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first();
         updatedDocument.get(this.nested, Document.class).replace(key, value); // Update value
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), updatedDocument);
     }
 
     /**
@@ -170,9 +169,9 @@ public class Nested {
      */
     public void setNull(String key) {
         // Replace value
-        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first().get(this.nested, Document.class);
+        Document updatedDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first().get(this.nested, Document.class);
         updatedDocument.replace(key, null);
         // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), updatedDocument);
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), updatedDocument);
     }
 }

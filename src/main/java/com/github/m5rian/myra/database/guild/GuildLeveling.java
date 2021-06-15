@@ -1,7 +1,6 @@
 package com.github.m5rian.myra.database.guild;
 
 import com.github.m5rian.myra.database.MongoDb;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import org.bson.Document;
 
@@ -12,16 +11,14 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class GuildLeveling {
     // Variables
-    private MongoDb mongoDb;
-    private Guild guild;
+    private MongoDb mongoDb = MongoDb.getInstance();
+    private String guildId;
 
     /**
-     * @param mongoDb A {@link MongoDb} instance.
-     * @param guild   The guild of the current document.
+     * @param guildId The guild of the current document.
      */
-    public GuildLeveling(MongoDb mongoDb, Guild guild) {
-        this.mongoDb = mongoDb;
-        this.guild = guild;
+    public GuildLeveling(String guildId) {
+        this.guildId = guildId;
     }
 
     /**
@@ -31,7 +28,7 @@ public class GuildLeveling {
      * @return Returns a list with all leveling roles from a guild.
      */
     public List<LevelingRole> getLevelingRoles() {
-        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(); // Get guild document
+        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first(); // Get guild document
         final Document levelingDocument = guildDocument.get("leveling", Document.class); // Get leveling document
         final Document levelingRoles = levelingDocument.get("roles", Document.class); // Get leveling roles
 
@@ -49,7 +46,7 @@ public class GuildLeveling {
      * @return Returns a {@link Document} based on the provided  role.
      */
     public Document getLevelingRole(String role) {
-        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(); // Get guild document
+        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first(); // Get guild document
         final Document levelingDocument = guildDocument.get("leveling", Document.class); // Get leveling document
         final Document levelingRoles = levelingDocument.get("roles", Document.class); // Get leveling roles
         return levelingRoles.get(role, Document.class); // Return role
@@ -62,7 +59,7 @@ public class GuildLeveling {
      * @param role  The role which is assigned, once a member reaches {@param level}.
      */
     public void addLevelingRole(int level, Role role) {
-        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(); // Get guild document
+        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first(); // Get guild document
         final Document levelingDocument = guildDocument.get("leveling", Document.class); // Get leveling document
         final Document levelingRoles = levelingDocument.get("roles", Document.class); // Get roles document
         // Create new document
@@ -71,7 +68,7 @@ public class GuildLeveling {
                 .append("role", role.getId()); // Add role id
         levelingRoles.append(role.getId(), roleDocument); // Add role to leveling roles document
 
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), guildDocument); // Update database
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), guildDocument); // Update database
     }
 
     /**
@@ -80,10 +77,10 @@ public class GuildLeveling {
      * @param role The role to remove.
      */
     public void removeLevelingRole(Role role) {
-        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", guild.getId())).first(); // Get guild document
+        final Document guildDocument = mongoDb.getCollection("guilds").find(eq("guildId", this.guildId)).first(); // Get guild document
         final Document levelingDocument = guildDocument.get("leveling", Document.class); // Get leveling document
         final Document levelingRoles = levelingDocument.get("roles", Document.class); // Get roles document
         levelingRoles.remove(role.getId()); // search for leveling role
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", guild.getId()), guildDocument); // Update database
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), guildDocument); // Update database
     }
 }

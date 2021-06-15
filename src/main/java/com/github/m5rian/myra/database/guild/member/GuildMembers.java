@@ -3,7 +3,7 @@ package com.github.m5rian.myra.database.guild.member;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.guild.LeaderboardType;
 import com.mongodb.client.MongoCursor;
-import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import org.bson.Document;
 
@@ -15,16 +15,17 @@ import static com.mongodb.client.model.Filters.exists;
 
 public class GuildMembers {
     // Variables
-    private final MongoDb mongoDb;
-    private final Guild guild;
+    private final MongoDb mongoDb = MongoDb.getInstance();
+    private final JDA jda;
+    private final String guildId;
 
     /**
-     * @param mongoDb A {@link MongoDb} instance.
-     * @param guild
+     * @param jda     A {@link JDA} Object.
+     * @param guildId The ID of the current guild.
      */
-    public GuildMembers(MongoDb mongoDb, Guild guild) {
-        this.mongoDb = mongoDb;
-        this.guild = guild;
+    public GuildMembers(JDA jda, String guildId) {
+        this.jda = jda;
+        this.guildId = guildId;
     }
 
     /**
@@ -32,7 +33,7 @@ public class GuildMembers {
      * @return Returns a {@link GuildMember} object.
      */
     public GuildMember getMember(Member member) {
-        return new GuildMember(mongoDb, guild, member);
+        return new GuildMember(guildId, member);
     }
 
     /**
@@ -42,12 +43,11 @@ public class GuildMembers {
     public GuildMember getMember(String memberId) {
         Member member = null;
         try {
-            member = this.guild.retrieveMemberById(memberId).complete(); // Retrieve member
+            member = this.jda.getGuildById(this.guildId).retrieveMemberById(memberId).complete(); // Retrieve member
         } catch (Exception ignored) {
 
         }
-        return new GuildMember(mongoDb, guild, member);
-
+        return new GuildMember(this.guildId, member);
     }
 
     /**
@@ -55,13 +55,12 @@ public class GuildMembers {
      * @return Returns a list of member documents sorted by the type.
      */
     public List<LeaderboardMember> getLeaderboard(LeaderboardType type) {
-        //create leaderboard
-        List<LeaderboardMember> leaderboard = new ArrayList<>();
+        final List<LeaderboardMember> leaderboard = new ArrayList<>(); // Create leaderboard list
 
-        MongoCursor<Document> iterator = mongoDb.getCollection("users").find(exists(guild.getId())).iterator(); // Create an iterator of all members, who are in the guild
+        final MongoCursor<Document> iterator = mongoDb.getCollection("users").find(exists(this.guildId)).iterator(); // Create an iterator of all members, who are in the guild
         while (iterator.hasNext()) {
-            final Document document = iterator.next(); // Get next user document
-            leaderboard.add(new LeaderboardMember(document, guild));  // Add member to leaderboard
+            final Document userDocument = iterator.next(); // Get next user document
+            leaderboard.add(new LeaderboardMember(userDocument, guildId));  // Add member to leaderboard
         }
         iterator.close(); // Close iterator
 

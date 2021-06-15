@@ -5,7 +5,7 @@ import com.github.m5rian.myra.database.MongoDocuments;
 import com.github.m5rian.myra.listeners.leveling.Leveling;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.mongodb.client.MongoCursor;
-import net.dv8tion.jda.api.entities.Guild;
+import com.mongodb.client.model.Filters;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
@@ -14,13 +14,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.exists;
+import static com.mongodb.client.model.Filters.*;
 
 public class GuildMember {
     // Variables
-    private MongoDb mongoDb; // A mongodb instance
-    private Guild guild; // The guild of the member
+    private final MongoDb mongoDb = MongoDb.getInstance(); // A mongodb instance
+    private final String guildId; // The guild of the member
     private Member member; // The member itself
     private Document userDocument; // The document of the user
     private Document memberDocument; // The guild specific document of the member
@@ -31,19 +30,17 @@ public class GuildMember {
      * If there are no documents, it will create the missing ones.
      * Also the member gets checked on {@link User#isBot()}.
      *
-     * @param mongoDb A {@link MongoDb} instance.
-     * @param guild   The Guild.
+     * @param guildId The ID of the guild.
      * @param member  The member itself.
      */
-    public GuildMember(MongoDb mongoDb, Guild guild, Member member) {
+    public GuildMember(String guildId, Member member) {
+        this.guildId = guildId;
+
         // Member is bot
-        if (member.getUser().isBot()) {
+        if (member == null || member.getUser().isBot()) {
             this.bot = true;
             return;
         }
-
-        this.mongoDb = mongoDb;
-        this.guild = guild;
         this.member = member;
 
         // Member hasn't a user document
@@ -54,12 +51,12 @@ public class GuildMember {
         this.userDocument = mongoDb.getCollection("users").find(eq("userId", member.getId())).first(); // Get user document
 
         // Member hasn't a guild document
-        if (userDocument.get(guild.getId()) == null) {
+        if (userDocument.get(this.guildId) == null) {
             final Document guildMemberDocument = MongoDocuments.createGuildMemberDocument(member); // Create document for guild
-            userDocument.put(guild.getId(), guildMemberDocument); // Add document for guild to user document
+            userDocument.put(this.guildId, guildMemberDocument); // Add document for guild to user document
             mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
         }
-        this.memberDocument = userDocument.get(guild.getId(), Document.class); // Get the guild document of the member
+        this.memberDocument = userDocument.get(this.guildId, Document.class); // Get the guild document of the member
     }
 
     /**
@@ -130,10 +127,10 @@ public class GuildMember {
     public int getRank() {
         List<LeaderboardMember> leaderboard = new ArrayList<>(); // Create leaderboard
 
-        final MongoCursor<Document> iterator = mongoDb.getCollection("users").find(exists(guild.getId())).iterator(); // Create an iterator of all members, who are in the guild
+        final MongoCursor<Document> iterator = mongoDb.getCollection("users").find(exists(this.guildId)).iterator(); // Create an iterator of all members, who are in the guild
         while (iterator.hasNext()) {
-            final Document document = iterator.next(); // Get next user document
-            leaderboard.add(new LeaderboardMember(document, guild));  // Add member to leaderboard
+            final Document userDocument = iterator.next(); // Get next user document
+            leaderboard.add(new LeaderboardMember(userDocument, this.guildId));  // Add member to leaderboard
         }
         iterator.close(); // Close the iterator
 
@@ -170,15 +167,26 @@ public class GuildMember {
     /**
      * @return Returns the amount of messages a member wrote.
      */
-    public Integer getMessages() {
-        return (bot ? null : memberDocument.getInteger("messages"));
+    public Long getMessages() {
+        return (bot ? null : Utilities.getBsonLong(memberDocument, "messages"));
     }
 
     /**
      * Add one message to the total amount of written messages.
      */
     public void addMessage() {
-        memberDocument.replace("messages", memberDocument.getInteger("messages") + 1); // Add one message
+        final long messageCount = Utilities.getBsonLong(memberDocument, "messages") + 1L;
+        //System.out.println("old count " + Utilities.getBsonLong(memberDocument, "messages"));
+        //System.out.println("new count" + messageCount);
+
+        memberDocument.replace("messages", messageCount); // Add one message
+        final Document $set = new Document("$set", new Document(this.guildId, memberDocument));
+        mongoDb.getCollection("users").updateOne(Filters.eq("userId", member.getId()), $set);
+        //   mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+    }
+
+    public void setMessageCount(long amount) {
+        memberDocument.replace("messages", amount); // Add one message
         mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
     }
 
