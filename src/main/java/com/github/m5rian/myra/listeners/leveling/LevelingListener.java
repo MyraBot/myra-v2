@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class LevelingListener {
+    private static HashMap<Guild, HashMap<Member, Message>> cooldown = new HashMap<>();
     private final Leveling LEVELING = new Leveling();
 
     public void onMessage(MessageReceivedEvent event) throws Exception {
@@ -22,11 +23,11 @@ public class LevelingListener {
         final MongoUser dbUser = new MongoUser(event.getAuthor()); // Get User from database
         final GuildMember dbMember = dbGuild.getMembers().getMember(event.getMember()); // Get member from database
 
-        final int xpFromMessage = getXpFromMessage(event.getMessage()); // Get xp from message
-
+        //System.out.println("message count " + dbMember.getMessages());
         dbMember.addMessage(); // Update message count
-
         dbUser.addMessage(); // Update global messages count
+
+        final int xpFromMessage = getXpFromMessage(event.getMessage()); // Get xp from message
         dbUser.addXp(xpFromMessage); // Update global xp count
 
         if (!dbGuild.getListenerManager().check("leveling")) return; // Check if leveling is enabled
@@ -36,8 +37,6 @@ public class LevelingListener {
         LEVELING.levelUp(event.getMember(), event.getChannel(), dbMember, xpFromMessage); // Check for new level
         dbMember.addXp(xpFromMessage); // Update xp
     }
-
-    private static HashMap<Guild, HashMap<Member, Message>> cooldown = new HashMap<>();
 
     private boolean cooldown(MessageReceivedEvent event) {
         boolean returnedValue = true;
@@ -65,33 +64,18 @@ public class LevelingListener {
 
     //return xp
     public int getXpFromMessage(Message rawMessage) {
-        //define variable
-        String stringMessage = rawMessage.getContentDisplay();
-        //return '1' or '2' random
-        Random random = new Random();
-        int oneOrTwo = random.nextInt(3 - 1) + 1;
-        //remove quoted message
-        if (stringMessage.startsWith("> ") && stringMessage.contains("\n")) {
-            //split message into paragraphs
-            String[] paragraphs = stringMessage.split("\n");
-            //remove all paragraphs, which aren't quotes
-            for (String paragraph : paragraphs) {
-                if (paragraph.startsWith("> ")) {
-                    stringMessage = stringMessage.replace(paragraph, "");
-                }
-            }
-        }
-        //if contains link
-        String[] eachWord = rawMessage.getContentRaw().split("\\s+");
-        for (String word : eachWord) {
-            //remove all links
+        String message = rawMessage.getContentDisplay(); // Get message
+        final int oneOrTwo = new Random().nextInt(4) + 1; // Get random number between 1 and 5
+
+        String[] eachWord = rawMessage.getContentRaw().split("\\s+"); // Split message in words
+        for (String word : eachWord) { // Go through each word
+            // Word is a link
             if (word.startsWith("http") || word.startsWith("www")) {
-                stringMessage = stringMessage.replace(word, "");
+                message = message.replace(word, ""); // Remove link
             }
         }
-        //convert message to character array
-        char[] msg = stringMessage.toCharArray();
-        //calculate the xp for the message
-        return msg.length / 20 + oneOrTwo;
+
+        char[] msg = message.toCharArray(); // Convert message to character array
+        return msg.length / 10 + oneOrTwo; // Calculate xp
     }
 }
