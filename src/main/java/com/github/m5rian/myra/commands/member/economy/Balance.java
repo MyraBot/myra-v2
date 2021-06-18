@@ -3,13 +3,14 @@ package com.github.m5rian.myra.commands.member.economy;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
-import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
+import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
+import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.entities.Member;
 
 public class Balance implements CommandHandler {
@@ -45,7 +46,7 @@ public class Balance implements CommandHandler {
             if (member == null) return;
         }
 
-        final Integer balance = db.getMembers().getMember(member).getBalance(); // Get user balance
+        final Integer balance = GuildMember.get(member).getBalance(); // Get user balance
         // Send balance
         new Success(ctx.getEvent())
                 .setCommand("balance")

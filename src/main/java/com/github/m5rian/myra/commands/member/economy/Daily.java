@@ -26,7 +26,7 @@ public class Daily implements CommandHandler {
     public void execute(CommandContext ctx) throws Exception {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
 
-        final GuildMember member = MongoGuild.get(ctx.getGuild()).getMembers().getMember(ctx.getEvent().getMember()); // Get member from database
+        final GuildMember member = GuildMember.get(ctx.getMember()); // Get member from database
         long lastClaim = member.getLastClaim(); // Get last claimed reward
 
         long passedTime = System.currentTimeMillis() - lastClaim; // Get duration, which passed (in milliseconds)

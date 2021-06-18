@@ -195,7 +195,7 @@ public class Leveling {
 
     //return missing xp
     public static Integer requiredXpForNextLevel(Guild guild, Member member) {
-        int currentLevel = MongoGuild.get(guild).getMembers().getMember(member).getLevel();
+        int currentLevel = GuildMember.get(member).getLevel();
         //define variable
         double xp;
         //parabola

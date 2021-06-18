@@ -3,16 +3,17 @@ package com.github.m5rian.myra.commands.member.economy.administrator;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
-import com.github.m5rian.myra.utilities.language.Lang;
-import com.github.m5rian.myra.utilities.permissions.Administrator;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
+import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
+import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
+import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.m5rian.myra.utilities.language.Lang;
+import com.github.m5rian.myra.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.Member;
 
 public class EconomySet implements CommandHandler {
@@ -44,7 +45,7 @@ public class EconomySet implements CommandHandler {
         if (member == null) return;
 
         final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
-        long balance = db.getMembers().getMember(member).getBalance(); // Get current balance
+        long balance = GuildMember.get(member).getBalance(); // Get current balance
 
         // Add balance
         if (ctx.getArguments()[1].matches("\\+\\d+")) {
@@ -83,7 +84,7 @@ public class EconomySet implements CommandHandler {
             return;
         }
 
-        db.getMembers().getMember(member).setBalance(Math.toIntExact(balance)); // Change balance in database
+        GuildMember.get(member).setBalance(Math.toIntExact(balance)); // Change balance in database
         // Success
         new Success(ctx.getEvent())
                 .setCommand("economy set")

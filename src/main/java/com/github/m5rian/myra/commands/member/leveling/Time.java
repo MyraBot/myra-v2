@@ -3,7 +3,7 @@ package com.github.m5rian.myra.commands.member.leveling;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
@@ -29,7 +29,7 @@ public class Time implements CommandHandler {
             if (member == null) return;
         }
 
-        final String voiceCallTime = Format.toTimeExact(MongoGuild.get(ctx.getGuild()).getMembers().getMember(member).getVoiceTime());
+        final String voiceCallTime = Format.toTimeExact(GuildMember.get(member).getVoiceTime());
         new Success(ctx.getEvent())
                 .setCommand("time")
                 .setMessage(lang(ctx).get("command.leveling.time.success")

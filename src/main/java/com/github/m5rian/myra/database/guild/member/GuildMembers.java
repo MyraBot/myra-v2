@@ -33,7 +33,7 @@ public class GuildMembers {
      * @return Returns a {@link GuildMember} object.
      */
     public GuildMember getMember(Member member) {
-        return new GuildMember(guildId, member);
+        return GuildMember.get(this.guildId, member.getId());
     }
 
     /**
@@ -47,7 +47,7 @@ public class GuildMembers {
         } catch (Exception ignored) {
 
         }
-        return new GuildMember(this.guildId, member);
+        return GuildMember.get(this.guildId, memberId);
     }
 
     /**

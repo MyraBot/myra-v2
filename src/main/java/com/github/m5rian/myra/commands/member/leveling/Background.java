@@ -50,7 +50,7 @@ public class Background implements CommandHandler {
 
         final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
         // Not enough money
-        if (db.getMembers().getMember(ctx.getMember()).getBalance() < 10000) {
+        if (GuildMember.get(ctx.getMember()).getBalance() < 10000) {
             new Error(ctx.getEvent())
                     .setCommand("edit rank")
                     .setEmoji("\uD83D\uDDBC")
@@ -101,7 +101,7 @@ public class Background implements CommandHandler {
 
                         // Confirm purchase
                         if (reaction.equals(emojis[0])) {
-                            final GuildMember dbMember = db.getMembers().getMember(e.getMember()); // Get member in database
+                            final GuildMember dbMember = GuildMember.get(e.getMember()); // Get member in database
                             dbMember.setBalance(dbMember.getBalance() - 10000); // Update balance
 
                             // Success

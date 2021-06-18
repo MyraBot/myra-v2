@@ -6,6 +6,7 @@ import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.commands.administrator.AutoRole;
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
@@ -67,7 +68,7 @@ public class LevelingRolesAdd implements CommandHandler {
             if (!member.getUser().isBot()) { // Ignore bots
 
                 // If members level is at least the level of the leveling roles
-                if (db.getMembers().getMember(member).getLevel() >= Integer.parseInt(ctx.getArguments()[0])) {
+                if (GuildMember.get(member).getLevel() >= Integer.parseInt(ctx.getArguments()[0])) {
                     ctx.getGuild().addRoleToMember(member, role).queue(); // Add role
                 }
             }

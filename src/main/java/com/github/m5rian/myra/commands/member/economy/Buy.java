@@ -89,7 +89,7 @@ public class Buy implements CommandHandler {
         final ShopRolesDocument roleInfo = find.get(); // Get right shop role
         // Sell role
         if (ctx.getMember().getRoles().contains(ctx.getGuild().getRoleById(roleInfo.getId()))) {
-            final int balance = db.getMembers().getMember(ctx.getMember()).getBalance(); // Get members balance
+            final int balance = GuildMember.get(ctx.getMember()).getBalance(); // Get members balance
             final String currency = db.getNested("economy").getString("currency"); // Get guild currency
             int sellPrice = roleInfo.getPrice() / 2; // Get price to sell role
 
@@ -130,7 +130,7 @@ public class Buy implements CommandHandler {
                                             .send();
                                     ctx.getGuild().removeRoleFromMember(ctx.getMember(), role).queue(); // Remove role
 
-                                    db.getMembers().getMember(ctx.getMember()).setBalance(balance + finalSellPrice); // Update balance
+                                    GuildMember.get(ctx.getMember()).setBalance(balance + finalSellPrice); // Update balance
                                 }
                                 // Cancel selling role
                                 else if (Arrays.stream(Lang.lang(ctx).getArray("array.no")).anyMatch(word -> word.equalsIgnoreCase(response))) {
@@ -149,7 +149,7 @@ public class Buy implements CommandHandler {
 
         // Buy role
         else {
-            final GuildMember member = db.getMembers().getMember(ctx.getMember()); // Get member in db
+            final GuildMember member = GuildMember.get(ctx.getMember()); // Get member in db
             // Not enough money
             if (member.getBalance() < roleInfo.getPrice()) {
                 new Error(ctx.getEvent())

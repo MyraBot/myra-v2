@@ -1,5 +1,7 @@
 package com.github.m5rian.myra.database.guild.member;
 
+import com.github.m5rian.myra.Config;
+import com.github.m5rian.myra.DiscordBot;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.MongoDocuments;
 import com.github.m5rian.myra.listeners.leveling.Leveling;
@@ -19,8 +21,8 @@ import static com.mongodb.client.model.Filters.*;
 public class GuildMember {
     // Variables
     private final MongoDb mongoDb = MongoDb.getInstance(); // A mongodb instance
-    private final String guildId; // The guild of the member
-    private Member member; // The member itself
+    private final String guildId; // The ID of the guild
+    private final String memberId; // The ID of the member
     private Document userDocument; // The document of the user
     private Document memberDocument; // The guild specific document of the member
     private boolean bot = false; // Is the member a bot?
@@ -30,33 +32,42 @@ public class GuildMember {
      * If there are no documents, it will create the missing ones.
      * Also the member gets checked on {@link User#isBot()}.
      *
-     * @param guildId The ID of the guild.
-     * @param member  The member itself.
+     * @param guildId  The ID of the guild.
+     * @param memberId The ID of the member.
      */
-    public GuildMember(String guildId, Member member) {
+    public GuildMember(String guildId, String memberId) {
         this.guildId = guildId;
+        this.memberId = memberId;
 
-        // Member is bot
-        if (member == null || member.getUser().isBot()) {
+        final User user = DiscordBot.shardManager.retrieveUserById(this.memberId).complete(); // Retrieve member
+        // User is a bot
+        if (user.isBot()) {
             this.bot = true;
             return;
         }
-        this.member = member;
 
         // Member hasn't a user document
-        if (mongoDb.getCollection("users").find(eq("userId", member.getId())).first() == null) {
-            final Document userDocument = MongoDocuments.createUserDocument(member.getUser()); // Create document for user
+        if (mongoDb.getCollection("users").find(eq("userId", this.memberId)).first() == null) {
+            final Document userDocument = MongoDocuments.createUserDocument(user); // Create document for user
             mongoDb.getCollection("users").insertOne(userDocument); // Insert document
         }
-        this.userDocument = mongoDb.getCollection("users").find(eq("userId", member.getId())).first(); // Get user document
+        this.userDocument = mongoDb.getCollection("users").find(eq("userId", this.memberId)).first(); // Get user document
 
         // Member hasn't a guild document
         if (userDocument.get(this.guildId) == null) {
-            final Document guildMemberDocument = MongoDocuments.createGuildMemberDocument(member); // Create document for guild
+            final Document guildMemberDocument = MongoDocuments.createGuildMemberDocument(); // Create document for guild
             userDocument.put(this.guildId, guildMemberDocument); // Add document for guild to user document
-            mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+            mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
         }
         this.memberDocument = userDocument.get(this.guildId, Document.class); // Get the guild document of the member
+    }
+
+    public static GuildMember get(String guildId, String memberId) {
+        return Config.CACHE_MEMBER.get(guildId + ":" + memberId);
+    }
+
+    public static GuildMember get(Member member) {
+        return Config.CACHE_MEMBER.get(member.getGuild().getId() + ":" + member.getId());
     }
 
     /**
@@ -82,7 +93,7 @@ public class GuildMember {
         if (bot) return; // Member is bot
 
         memberDocument.replace("xp", xp); // Set xp
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -94,7 +105,7 @@ public class GuildMember {
         if (bot) return; // Member is bot
 
         memberDocument.replace("xp", getXp() + xpToAdd); // Add xp
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -116,7 +127,7 @@ public class GuildMember {
         // Update xp
         final long xp = new Leveling().getXpFromLevel(level); // Get xp from level
         memberDocument.replace("xp", xp); // Replace xp
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -140,7 +151,7 @@ public class GuildMember {
         int rank = 0;
         // Search for member
         for (LeaderboardMember memberDocument : leaderboard) {
-            if (memberDocument.getId().equals(member.getId())) {
+            if (memberDocument.getId().equals(this.memberId)) {
                 rank = leaderboard.indexOf(memberDocument) + 1;
                 break;
             }
@@ -161,7 +172,7 @@ public class GuildMember {
      */
     public void setVoiceTime(long millis) {
         memberDocument.replace("voiceCallTime", millis); // Replace current time
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -181,13 +192,13 @@ public class GuildMember {
 
         memberDocument.replace("messages", messageCount); // Add one message
         final Document $set = new Document("$set", new Document(this.guildId, memberDocument));
-        mongoDb.getCollection("users").updateOne(Filters.eq("userId", member.getId()), $set);
-        //   mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").updateOne(Filters.eq("userId", this.memberId), $set);
+        //   mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     public void setMessageCount(long amount) {
         memberDocument.replace("messages", amount); // Add one message
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -204,7 +215,7 @@ public class GuildMember {
      */
     public void setBalance(int balance) {
         memberDocument.replace("balance", balance); // Replace current balance
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -219,7 +230,7 @@ public class GuildMember {
      */
     public void updateClaimedReward() {
         memberDocument.replace("lastClaim", System.currentTimeMillis()); // Update last claim time
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -234,7 +245,7 @@ public class GuildMember {
      */
     public void setDailyStreak(int streak) {
         memberDocument.replace("dailyStreak", streak); // Replace current streak
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 
     /**
@@ -251,6 +262,6 @@ public class GuildMember {
      */
     public void setRankBackground(String url) {
         memberDocument.replace("rankBackground", url); // Replace current streak
-        mongoDb.getCollection("users").findOneAndReplace(eq("userId", member.getId()), userDocument); // Update database
+        mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.memberId), userDocument); // Update database
     }
 }

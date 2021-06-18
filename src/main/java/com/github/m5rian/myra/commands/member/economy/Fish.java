@@ -5,7 +5,6 @@ import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.Config;
-import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.CommandCooldown;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
@@ -30,7 +29,7 @@ public class Fish implements CommandHandler {
         if (ctx.getArguments().length != 0) return; // Check for no arguments
 
         if (!CommandCooldown.getInstance().addCommand(ctx, "fish", 5)) return; //Check for cooldown
-        final GuildMember db = MongoGuild.get(ctx.getGuild()).getMembers().getMember(ctx.getMember()); // Get Member in database
+        final GuildMember db = GuildMember.get(ctx.getMember()); // Get Member in database
         // Balance limit would be reached
         if (db.getBalance() + maxCatch > Config.ECONOMY_MAX) {
             new Error(ctx.getEvent())

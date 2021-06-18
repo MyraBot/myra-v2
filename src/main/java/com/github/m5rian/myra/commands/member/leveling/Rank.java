@@ -1,11 +1,15 @@
 package com.github.m5rian.myra.commands.member.leveling;
 
-import com.github.m5rian.jdaCommandHandler.*;
-import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.listeners.leveling.Leveling;
-import com.github.m5rian.myra.utilities.EmbedMessage.*;
-import com.github.m5rian.myra.utilities.*;
+import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
+import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
+import com.github.m5rian.myra.utilities.Graphic;
+import com.github.m5rian.myra.utilities.ImageEditor;
+import com.github.m5rian.myra.utilities.Utilities;
 import net.dv8tion.jda.api.entities.Member;
 
 import javax.imageio.ImageIO;
@@ -21,64 +25,8 @@ public class Rank implements CommandHandler {
     public static final Integer imageWidth = 500; // Width of rank card
     public static final Integer imageHeight = 150; // Height of rank card
 
-
-    @CommandEvent(
-            name = "rank",
-            aliases = {"level"},
-            args = "(member)",
-            emoji = "\uD83C\uDFC5",
-            description = "description.leveling.rank"
-    )
-    public void execute(CommandContext ctx) throws Exception {
-        // Command usage
-        if (ctx.getArguments().length > 1) {
-            new CommandUsage(ctx.getEvent())
-                    .setCommand("edit rank")
-                    .addUsages(new Usage()
-                            .setUsage("rank <member>")
-                            .setEmoji("\uD83C\uDFC5")
-                            .setDescription(lang(ctx).get("description.leveling.rank")))
-                    .send();
-            return;
-        }
-
-        Member member = ctx.getMember(); // Get self member
-        // If user is given
-        if (ctx.getArguments().length == 1) {
-            member = Utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "rank", "\uD83C\uDFC5");
-            if (member == null) return;
-        }
-
-        // Member is bot
-        if (member.getUser().isBot()) {
-            error(ctx).setDescription(lang(ctx).get("command.leveling.rank.error.bot")).send();
-            return;
-        }
-
-        final GuildMember getMember = MongoGuild.get(member.getGuild()).getMembers().getMember(member); // Get member in database
-        final String backgroundUrl = getMember.getRankBackground(); // Get current rank background
-
-        final BufferedImage background;
-        switch (backgroundUrl) {
-            case "default" -> background = ImageIO.read(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("rank/Default-Background.png")));
-            default -> background = ImageIO.read(new URL(backgroundUrl));
-        }
-
-        final String level = String.valueOf(getMember.getLevel()); // Get level
-        final BufferedImage rankCard = renderRankCard(member, background); // Get rank card
-
-        // Send rank card
-        ctx.getChannel()
-                .sendMessage(lang(ctx).get("command.leveling.rank.message.success")
-                        .replace("{$member}", member.getAsMention()) // Member
-                        .replace("{$level}", level)) // Member level
-                .addFile(Graphic.toInputStream(rankCard), member.getUser().getName().toLowerCase() + "_rank.png")
-                .queue();
-    }
-
-
     public static BufferedImage renderRankCard(Member member, BufferedImage background) throws IOException, FontFormatException {
-        final GuildMember guildMember = MongoGuild.get(member.getGuild()).getMembers().getMember(member);
+        final GuildMember guildMember = GuildMember.get(member);
         final String level = String.valueOf(guildMember.getLevel());
         final String xp = String.valueOf(guildMember.getXp());
         final String rank = String.valueOf(guildMember.getRank());
@@ -130,6 +78,60 @@ public class Rank implements CommandHandler {
         backgroundEditor.drawString(messages, imageWidth - 77, imageHeight - 5, 100); // Message count
 
         return backgroundEditor.getBufferedImage();
+    }
+
+    @CommandEvent(
+            name = "rank",
+            aliases = {"level"},
+            args = "(member)",
+            emoji = "\uD83C\uDFC5",
+            description = "description.leveling.rank"
+    )
+    public void execute(CommandContext ctx) throws Exception {
+        // Command usage
+        if (ctx.getArguments().length > 1) {
+            new CommandUsage(ctx.getEvent())
+                    .setCommand("edit rank")
+                    .addUsages(new Usage()
+                            .setUsage("rank <member>")
+                            .setEmoji("\uD83C\uDFC5")
+                            .setDescription(lang(ctx).get("description.leveling.rank")))
+                    .send();
+            return;
+        }
+
+        Member member = ctx.getMember(); // Get self member
+        // If user is given
+        if (ctx.getArguments().length == 1) {
+            member = Utilities.getMember(ctx.getEvent(), ctx.getArguments()[0], "rank", "\uD83C\uDFC5");
+            if (member == null) return;
+        }
+
+        // Member is bot
+        if (member.getUser().isBot()) {
+            error(ctx).setDescription(lang(ctx).get("command.leveling.rank.error.bot")).send();
+            return;
+        }
+
+        final GuildMember getMember = GuildMember.get(ctx.getMember()); // Get member in database
+        final String backgroundUrl = getMember.getRankBackground(); // Get current rank background
+
+        final BufferedImage background;
+        switch (backgroundUrl) {
+            case "default" -> background = ImageIO.read(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("rank/Default-Background.png")));
+            default -> background = ImageIO.read(new URL(backgroundUrl));
+        }
+
+        final String level = String.valueOf(getMember.getLevel()); // Get level
+        final BufferedImage rankCard = renderRankCard(member, background); // Get rank card
+
+        // Send rank card
+        ctx.getChannel()
+                .sendMessage(lang(ctx).get("command.leveling.rank.message.success")
+                        .replace("{$member}", member.getAsMention()) // Member
+                        .replace("{$level}", level)) // Member level
+                .addFile(Graphic.toInputStream(rankCard), member.getUser().getName().toLowerCase() + "_rank.png")
+                .queue();
     }
 
 }

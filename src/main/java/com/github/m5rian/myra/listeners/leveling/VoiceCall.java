@@ -54,7 +54,7 @@ public class VoiceCall {
             if (!activeCalls.containsKey(member.getGuild().getId())) return;
             if (!activeCalls.get(member.getGuild().getId()).containsKey(member.getId())) return;
 
-            final GuildMember dbMember = MongoGuild.get(member.getGuild()).getMembers().getMember(member); // Get member in database
+            final GuildMember dbMember = GuildMember.get(member); // Get member in database
             if (dbMember.isBot()) return; // Member is bot account
 
             final Long currentSpokenTime = dbMember.getVoiceTime(); // Get voice call time until now

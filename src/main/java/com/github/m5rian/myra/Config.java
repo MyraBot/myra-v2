@@ -1,6 +1,7 @@
 package com.github.m5rian.myra;
 
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.Cache;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -43,6 +44,13 @@ public class Config {
                 final Guild guild = DiscordBot.shardManager.getGuildById(guildId); // Get guild
                 final JDA jda = guild.getJDA(); // Get jda of guild
                 return new MongoGuild(jda, guildId);
+            })
+            .setTimeout(5L, TimeUnit.MINUTES);
+    public static final Cache<String, GuildMember> CACHE_MEMBER = new Cache<String, GuildMember>()
+            .setLoadFunction(data -> {
+                final String guildId = data.split(":")[0];
+                final String userId = data.split(":")[1];
+                return new GuildMember(guildId, userId);
             })
             .setTimeout(5L, TimeUnit.MINUTES);
     public static String LOCAL_ADDRESS;

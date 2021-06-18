@@ -5,7 +5,6 @@ import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
@@ -126,7 +125,7 @@ public class MongoDocuments {
                 .append("achievements", new Document());
     }
 
-    public static Document createGuildMemberDocument(Member member) {
+    public static Document createGuildMemberDocument() {
         return new Document()
                 .append("level", 0)
                 .append("xp", 0)

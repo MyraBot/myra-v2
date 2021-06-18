@@ -4,16 +4,17 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.listeners.leveling.Leveling;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.Utilities;
-import static com.github.m5rian.myra.utilities.language.Lang.*;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import net.dv8tion.jda.api.entities.Member;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class LevelingSet implements CommandHandler {
 
@@ -75,10 +76,10 @@ public class LevelingSet implements CommandHandler {
         }
 
         final Integer level = Integer.parseInt(ctx.getArguments()[1]); // Get provided level
-        // Update database
-        final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
-        db.getMembers().getMember(member).setLevel(level); // Update level
-        db.getMembers().getMember(member).setXp(Leveling.getXpFromLevel(level)); // Update xp
+        // Update member
+        final GuildMember dbMember = GuildMember.get(ctx.getMember());
+        dbMember.setLevel(level); // Update level
+        dbMember.setXp(Leveling.getXpFromLevel(level)); // Update xp
 
         //send success message
         new Success(ctx.getEvent())
@@ -90,6 +91,6 @@ public class LevelingSet implements CommandHandler {
                         .replace("{$level}", String.valueOf(level))) // New level
                 .send();
         // Check for leveling roles
-        Leveling.updateLevelingRoles(ctx.getGuild(), member, MongoGuild.get(ctx.getGuild()).getMembers().getMember(member));
+        Leveling.updateLevelingRoles(ctx.getGuild(), member, dbMember);
     }
 }
