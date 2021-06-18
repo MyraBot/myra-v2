@@ -45,8 +45,8 @@ public class Cache<K, V> {
      * @param key   The key of the pair.
      * @param value The value of the pair.
      * @return Returns the current {@link Cache} object for chaining.
-     */
-    public Cache<K, V> add(K key, V value) {
+     **/
+    public Cache<K, V> put(K key, V value) {
         this.cache.put(key, value);
 
         if (this.timeout != null) {
@@ -81,7 +81,7 @@ public class Cache<K, V> {
             }, this.timeout, this.timeunit);// Create new timer
             this.cacheSchedulers.put(key, scheduler); // Add timer to list
         }
-        return cache.getOrDefault(key, null);
+        return this.cache.getOrDefault(key, null);
     }
 
     /**
