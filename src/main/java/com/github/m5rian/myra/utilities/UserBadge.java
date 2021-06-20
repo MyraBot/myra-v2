@@ -38,16 +38,6 @@ public enum UserBadge {
     }
 
     /**
-     * The readable name as used in the Discord Client.
-     *
-     * @return The readable name of this UserFlag.
-     */
-    @Nonnull
-    public String getName() {
-        return this.name;
-    }
-
-    /**
      * Finds the matching {@link UserBadge}. This method is not case sensitive.
      *
      * @param search The search query to search in the enum.
@@ -62,9 +52,9 @@ public enum UserBadge {
 
     /**
      * @param user The user to get the badges from.
-     * @return Returns a {@link List<UserBadge>} with all badges of a user.
+     * @return Returns a {@link List<UserBadge>} with all official discord badges of a user.
      */
-    public static List<UserBadge> getUserBadges(User user) {
+    public static List<UserBadge> getDiscordBadges(User user) {
         final List<UserBadge> badges = new ArrayList<>();
 
         // Add all discord badges to list
@@ -72,10 +62,16 @@ public enum UserBadge {
             badges.add(UserBadge.find(flag.getName()));
         }
 
-        // User isn't member of my server
-        if (!user.getJDA().getGuildById(Config.MARIAN_SERVER_ID).isMember(user)) return badges;
+        return badges;
+    }
 
-        final Member member = user.getJDA().getGuildById(Config.MARIAN_SERVER_ID).retrieveMemberById(user.getId()).complete();
+    /**
+     * @param member The member of {@link Config#MARIAN_SERVER_ID}.
+     * @return Returns a {@link List<UserBadge>} with all custom myra badges.
+     */
+    public static List<UserBadge> getMyraBadges(Member member) {
+        final List<UserBadge> badges = new ArrayList<>();
+
         // User is myra staff
         if (member.getRoles().stream().anyMatch(role -> Config.MYRA_TRANSLATOR_ROLE.equals(role.getId())))
             badges.add(UserBadge.MYRA_TRANSLATOR);
@@ -85,6 +81,17 @@ public enum UserBadge {
         // User is myra partner
         if (member.getRoles().stream().anyMatch(role -> Config.MYRA_PARTNER_ROLE.equals(role.getId())))
             badges.add(UserBadge.MYRA_PARTNER);
+
         return badges;
+    }
+
+    /**
+     * The readable name as used in the Discord Client.
+     *
+     * @return The readable name of this UserFlag.
+     */
+    @Nonnull
+    public String getName() {
+        return this.name;
     }
 }
