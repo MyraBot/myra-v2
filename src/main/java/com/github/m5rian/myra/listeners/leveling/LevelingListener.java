@@ -20,7 +20,8 @@ public class LevelingListener {
         if (!event.isFromGuild()) return; // Ignore direct messages
 
         final MongoGuild dbGuild = MongoGuild.get(event.getGuild()); // Get guild from database
-        final MongoUser dbUser = new MongoUser(event.getAuthor()); // Get User from database
+        final MongoUser dbUser = MongoUser.get(event.getAuthor()); // Get User from database
+        dbUser.update();
         final GuildMember dbMember = GuildMember.get(event.getMember()); // Get member from database
 
         //System.out.println("message count " + dbMember.getMessages());

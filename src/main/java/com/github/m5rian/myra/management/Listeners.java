@@ -30,6 +30,8 @@ import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
@@ -55,11 +57,9 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Listeners extends ListenerAdapter {
-    private boolean acceptEvents = false;
     public final static List<String> unavailableGuilds = new ArrayList<>(); // Guilds which shouldn't receive events
     private final static Logger LOGGER = LoggerFactory.getLogger(Listeners.class);
     private final static String onlineInfo = "Bot online!";
-
     //Combined Message Events (Combines Guild and Private message into 1 event)
     private final GlobalChat globalChat = new GlobalChat();
     private final ReactionRoles reactionRoles = new ReactionRoles();
@@ -74,6 +74,7 @@ public class Listeners extends ListenerAdapter {
     private final Roles roles = new Roles();
     //Guild Voice Events
     private final VoiceCall voiceCall = new VoiceCall();
+    private boolean acceptEvents = false;
 
     private void online() {
         final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picture
@@ -253,12 +254,40 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    public void onGuildMemberRoleAdd(@Nonnull GuildMemberRoleAddEvent event) {
+        try {
+            if (!this.acceptEvents) return;
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
+            // Role changed on Marians discord server
+            if (Config.MARIAN_SERVER_ID.equals(event.getGuild().getId())) {
+                MongoUser.get(event.getUser()).updateUserData();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onGuildMemberRoleRemove(@Nonnull GuildMemberRoleRemoveEvent event) {
+        try {
+            if (!this.acceptEvents) return;
+            if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
+
+            // Role changed on Marians discord server
+            if (Config.MARIAN_SERVER_ID.equals(event.getGuild().getId())) {
+                MongoUser.get(event.getUser()).updateUserData();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     //Guild Member Update Events
     public void onGuildMemberUpdate(@Nonnull GuildMemberUpdateEvent event) {
         try {
             if (!this.acceptEvents) return;
 
-            new MongoUser(event.getUser()).updateUserData();
+            MongoUser.get(event.getUser()).updateUserData();
         } catch (Exception e) {
             e.printStackTrace();
         }

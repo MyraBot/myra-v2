@@ -1,5 +1,6 @@
 package com.github.m5rian.myra;
 
+import com.github.m5rian.myra.database.MongoUser;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.Cache;
@@ -46,13 +47,16 @@ public class Config {
                 return new MongoGuild(jda, guildId);
             })
             .setTimeout(5L, TimeUnit.MINUTES);
+    public static final Cache<String, MongoUser> CACHE_USER = new Cache<String, MongoUser>()
+            .setLoadFunction(MongoUser::new)
+            .setTimeout(5L, TimeUnit.MINUTES);
     public static final Cache<String, GuildMember> CACHE_MEMBER = new Cache<String, GuildMember>()
             .setLoadFunction(data -> {
                 final String guildId = data.split(":")[0];
                 final String userId = data.split(":")[1];
                 return new GuildMember(guildId, userId);
             })
-            .setTimeout(5L, TimeUnit.MINUTES);
+            .setTimeout(10L, TimeUnit.MINUTES);
     public static String LOCAL_ADDRESS;
     public static Long startUp;
 
