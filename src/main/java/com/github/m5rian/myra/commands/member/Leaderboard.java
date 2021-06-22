@@ -64,9 +64,6 @@ public class Leaderboard implements CommandHandler {
                         message.editMessage(loading.getEmbed().build()).queue(); // Edit to loading message
                         final String reaction = e.getReactionEmote().toString(); // Get reacted reaction emote
 
-                        System.out.println(reaction);
-                        System.out.println(emojis[1]);
-
                         // Level leaderboard
                         if (reaction.equals(emojis[0])) message.editMessage(levelLeaderboard).queue();
                             // Balance leaderboard
