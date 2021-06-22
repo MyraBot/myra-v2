@@ -14,7 +14,7 @@ public class GuildListeners {
 
     /**
      * @param mongoDb A {@link MongoDb} instance.w
-     * @param guildId   The current server.
+     * @param guildId The current server.
      */
     public GuildListeners(MongoDb mongoDb, String guildId) {
         this.mongoDb = mongoDb;
@@ -52,6 +52,6 @@ public class GuildListeners {
                 .setCommand(listener)
                 .setEmoji(listenerEmoji)
                 .setAvatar(event.getAuthor().getEffectiveAvatarUrl());
-        success.setMessage("Leveling got toggled " + (newValue ? "on" : "off")).send();
+        success.setMessage(listener + " got toggled " + (newValue ? "on" : "off")).send();
     }
 }
