@@ -63,9 +63,9 @@ public class Config {
     public static void setup() {
         final String os = System.getProperty("os.name");
         if (os.startsWith("Windows")) {
-            LOCAL_ADDRESS = SERVER_ADDRESS;
+            LOCAL_ADDRESS = "http://myra.dyndns1.de";
         } else {
-            LOCAL_ADDRESS = "http://www.myra.bot";
+            LOCAL_ADDRESS = SERVER_ADDRESS;
         }
     }
 }
