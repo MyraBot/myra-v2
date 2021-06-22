@@ -3,10 +3,15 @@ package com.github.m5rian.myra.utilities;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.DiscordBot;
 import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * @author Marian
+ * This enum contains all custom emojis.
+ */
 public enum CustomEmoji {
     // Badges
     HYPESQUAD_BRAVERY("HypeSquad Bravery", Config.MYRA_SERVER_ID),
@@ -38,32 +43,55 @@ public enum CustomEmoji {
     private final String name;
     private final String serverId;
 
+    /**
+     * @param name     The name of the emote. The name is written with spaces,
+     *                 where the first character of a word is always upper case.
+     * @param serverId The {@link Guild#getId()} where the emote is stored.
+     */
     CustomEmoji(String name, String serverId) {
         this.name = name;
         this.serverId = serverId;
     }
 
-    public Emote getEmote() {
-        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
-    }
-
-    public String getAsMention() {
-        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getAsMention();
-    }
-
-    public String getImage() {
-        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getImageUrl();
-    }
-
-    public String getCodepoints() {
-        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).toString().substring(2);
-    }
-
+    /**
+     * Search a {@link CustomEmoji} by their name.
+     *
+     * @param query The search query.
+     * @return Returns a {@link CustomEmoji} which matches the search query.
+     */
     public static CustomEmoji search(String query) {
         Optional<CustomEmoji> first = Arrays.stream(CustomEmoji.values())
                 .filter(emoji -> emoji.name.equalsIgnoreCase(query) || emoji.name.replace("\\s+", "").equalsIgnoreCase(query))
                 .findFirst();
         if (!first.isPresent()) System.out.println(query);
         return first.get();
+    }
+
+    /**
+     * @return Returns the {@link Emote} from the current {@link CustomEmoji}.
+     */
+    public Emote getEmote() {
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0);
+    }
+
+    /**
+     * @return Returns the {@link Emote#getAsMention()} from the current {@link CustomEmoji}.
+     */
+    public String getAsMention() {
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getAsMention();
+    }
+
+    /**
+     * @return Returns the image url of the current {@link CustomEmoji}.
+     */
+    public String getImage() {
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).getImageUrl();
+    }
+
+    /**
+     * @return Returns the a custom codepoint pattern from the current {@link CustomEmoji}.
+     */
+    public String getCodepoints() {
+        return DiscordBot.shardManager.getGuildById(this.serverId).getEmotesByName(this.name.replaceAll("\\s+", ""), true).get(0).toString().substring(2);
     }
 }
