@@ -1,9 +1,9 @@
 package com.github.m5rian.myra;
 
 import com.github.m5rian.jdaCommandHandler.commandServices.ICommandService;
+import com.github.m5rian.myra.utilities.Utilities;
 import com.github.natanbc.lavadsp.Converter;
 import com.mongodb.client.MongoDatabase;
-import com.github.m5rian.myra.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.JDA;
 import org.json.JSONObject;
@@ -43,15 +43,8 @@ public class Myra {
         System.out.println(versions);
         Config.setup();
 
-        // Start Discord bot
-        final Thread discord = new Thread(DiscordBot::new);
-        discord.setName("Discord Bot");
-        // Start web server
-        final Thread webServer = new Thread(WebServer::new);
-        webServer.setName("Spark Web server");
-
-        discord.start();
-        webServer.start();
+        new Thread(DiscordBot::new, "Discord bot").start(); // Start Discord bot
+        new Thread(WebServer::new, "Spark Web server").start(); // Start web server
     }
 
 }
