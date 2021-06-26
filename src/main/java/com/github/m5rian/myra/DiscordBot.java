@@ -73,7 +73,6 @@ import com.github.m5rian.myra.listeners.suggestions.SuggestionsChannel;
 import com.github.m5rian.myra.listeners.suggestions.SuggestionsHelp;
 import com.github.m5rian.myra.listeners.suggestions.SuggestionsToggle;
 import com.github.m5rian.myra.management.Listeners;
-import com.github.m5rian.myra.utilities.ConsoleColours;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import com.github.m5rian.myra.utilities.permissions.Marian;
@@ -92,15 +91,14 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.bson.Document;
 
 import javax.security.auth.login.LoginException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class DiscordBot {
+    private final static String TOKEN = "NzE4NDQ0NzA5NDQ1NjMyMTIy.Xto9xg.ScXvpTLGPkMBp0EP-mlLUCErI8Y";
+    public static ShardManager shardManager;
     public static final DefaultCommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
             .setDefaultPrefix(Config.DEFAULT_PREFIX)
             .setVariablePrefix(guild -> Config.CACHE_PREFIX.get(guild.getId()))
@@ -264,7 +262,7 @@ public class DiscordBot {
                     .addUsageAsField((ctx, command) -> {
                         try {
                             lang(ctx).get(command.description());
-                        }catch (Exception e) {
+                        } catch (Exception e) {
                             System.out.println(command.name());
                         }
                         final String description = lang(ctx).get(command.description())
@@ -282,10 +280,6 @@ public class DiscordBot {
 
                     }))
             .build();
-    private final static String TOKEN = "NzE4NDQ0NzA5NDQ1NjMyMTIy.Xto9xg.ScXvpTLGPkMBp0EP-mlLUCErI8Y";
-    private final static String LOADING_STATUS = "loading bars fill";
-    private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
-    public static ShardManager shardManager;
 
     /**
      * The {@link MemberCachePolicy} says what to do when we get a member through an event.
@@ -315,7 +309,7 @@ public class DiscordBot {
                 .setChunkingFilter(ChunkingFilter.NONE)
                 .setLargeThreshold(50)
                 .setStatus(OnlineStatus.IDLE)
-                .setActivity(Activity.watching(LOADING_STATUS))
+                .setActivity(Activity.watching(Config.LOADING_STATUS))
                 .addEventListeners(
                         new Listeners(),
                         new CommandListener(COMMAND_SERVICE));
@@ -324,35 +318,10 @@ public class DiscordBot {
         MongoDbUpdate.update(() -> {
             try {
                 shardManager = jda.build(); // Start Bot
-                consoleListener(); // Add console listener
+                Listeners.consoleListener(); // Add console listener
             } catch (LoginException e) {
                 e.printStackTrace();
             }
         });
-    }
-
-    private void consoleListener() {
-        String line;
-        // Create a Buffered reader, which reads the lines of the console
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        try {
-            while ((line = reader.readLine()) != null) {
-                // Shutdown command
-                if (line.equalsIgnoreCase("shutdown")) {
-                    if (shardManager != null) {
-                        shardManager.setStatus(OnlineStatus.OFFLINE); // Set status to offline
-                        shardManager.shutdown(); // Stop Bot
-                        System.out.println(OFFLINE_INFO); // Print offline info
-                        System.exit(0); // Stop program
-                    }
-                }
-                // Help command
-                else {
-                    System.out.println("Use " + ConsoleColours.RED + "shutdown" + ConsoleColours.RESET + " to shutdown the program");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -20,8 +20,11 @@ import com.github.m5rian.myra.listeners.premium.UnicornChange;
 import com.github.m5rian.myra.listeners.welcome.WelcomeListener;
 import com.github.m5rian.myra.utilities.APIs.Twitch;
 import com.github.m5rian.myra.utilities.APIs.spotify.Spotify;
+import com.github.m5rian.myra.utilities.ConsoleColours;
+import com.github.m5rian.myra.utilities.Logger;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.language.Lang;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.Message;
@@ -43,23 +46,25 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Listeners extends ListenerAdapter {
     public final static List<String> unavailableGuilds = new ArrayList<>(); // Guilds which shouldn't receive events
-    private final static Logger LOGGER = LoggerFactory.getLogger(Listeners.class);
     private final static String onlineInfo = "Bot online!";
+    private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
+    public static String consoleInput = ""; // Last input to the console
+    private final ExecutorService executor = Executors.newFixedThreadPool(5); // Threadpool executor for guild member update events
     //Combined Message Events (Combines Guild and Private message into 1 event)
     private final GlobalChat globalChat = new GlobalChat();
     private final ReactionRoles reactionRoles = new ReactionRoles();
@@ -75,6 +80,50 @@ public class Listeners extends ListenerAdapter {
     //Guild Voice Events
     private final VoiceCall voiceCall = new VoiceCall();
     private boolean acceptEvents = false;
+
+    public static void consoleListener() {
+        try {
+            final BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            String input = "";
+            while (input.equals("")) {
+                input = in.readLine(); // Read line
+
+                // Alive question
+                if (input.equalsIgnoreCase("alive?")) {
+                    System.out.println("Sure! :D");
+                }
+                // Shutdown command
+                if (input.equalsIgnoreCase("shutdown")) {
+                    if (DiscordBot.shardManager != null) {
+                        DiscordBot.shardManager.setStatus(OnlineStatus.OFFLINE); // Set status to offline
+                        DiscordBot.shardManager.shutdown(); // Stop Bot
+                        System.out.println(OFFLINE_INFO); // Print offline info
+                        System.exit(0); // Stop program
+                    }
+                }
+                // Restart JDA
+                if (input.equalsIgnoreCase("restart")) {
+                    if (DiscordBot.shardManager != null) {
+                        System.out.println("Restarting!");
+
+                        DiscordBot.shardManager.setActivity(Activity.watching(Config.LOADING_STATUS));
+
+                        new Timer().schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                DiscordBot.shardManager.restart();
+                            }
+                        }, 1000L);
+                        DiscordBot.shardManager.restart();
+                    }
+                }
+
+                //do something
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void online() {
         final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picture
@@ -111,24 +160,29 @@ public class Listeners extends ListenerAdapter {
     //JDA Events
     public void onReady(@Nonnull ReadyEvent event) {
         try {
-            new MongoDbUpdate().updateGuilds(event); // Add missing guilds to the database
+            // Bot starts for the first time
+            if (Config.startUp == null) {
+                Lang.languages.clear(); // Clear current saved languages
+                new MongoDbUpdate().updateGuilds(event); // Add missing guilds to the database
+
+                new Twitch().jdaReady(); // Get access token for twitch
+                Spotify.getApi().generateAuthToken(); // Generate Spotify auth token
+
+                Config.startUp = System.currentTimeMillis();
+            }
+
+            Lang.load(event.getJDA().getGuilds()); // Load all languages
 
             new Reminder().onReady(event); // Load reminders
-
             new Tempban().loadUnbans(event); // Load bans
             new Tempmute().onReady(event); // Load mutes
 
-            Lang.load(event.getJDA().getGuilds());
-
-            new Twitch().jdaReady(); // Get access token for twitch
-            Spotify.getApi().generateAuthToken(); // Generate Spotify auth token
-
             new TwitchNotification().jdaReady(event); // Start twitch notifications
+            new UnicornChange().change();
 
             online(); // Change profile picture and activity
-            new UnicornChange().change();
-            LOGGER.info(onlineInfo);
-            Config.startUp = System.currentTimeMillis();
+
+            Logger.log(this.getClass(), onlineInfo);
             this.acceptEvents = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -260,7 +314,7 @@ public class Listeners extends ListenerAdapter {
             if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             // Role changed on Marians discord server
-            if (Config.MARIAN_SERVER_ID.equals(event.getGuild().getId())) {
+            if (Config.MARIAN_SERVER_ID.equals(event.getGuild().getId()) || !event.getUser().isBot()) {
                 MongoUser.get(event.getUser()).updateUserData();
             }
         } catch (Exception e) {
@@ -274,7 +328,7 @@ public class Listeners extends ListenerAdapter {
             if (unavailableGuilds.contains(event.getGuild().getId())) return; // Guild is unavailable
 
             // Role changed on Marians discord server
-            if (Config.MARIAN_SERVER_ID.equals(event.getGuild().getId())) {
+            if (Config.MARIAN_SERVER_ID.equals(event.getGuild().getId()) || !event.getUser().isBot()) {
                 MongoUser.get(event.getUser()).updateUserData();
             }
         } catch (Exception e) {
@@ -285,9 +339,9 @@ public class Listeners extends ListenerAdapter {
     //Guild Member Update Events
     public void onGuildMemberUpdate(@Nonnull GuildMemberUpdateEvent event) {
         try {
-            if (!this.acceptEvents) return;
+            if (!this.acceptEvents || event.getUser().isBot()) return;
 
-            MongoUser.get(event.getUser()).updateUserData();
+            executor.execute(() -> MongoUser.get(event.getUser()).updateUserData());
         } catch (Exception e) {
             e.printStackTrace();
         }
