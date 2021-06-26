@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.listeners.welcome;
 
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -25,11 +26,11 @@ public class WelcomeListener {
         }
         // Welcome embed is enabled
         if (db.getListenerManager().check("welcomeEmbed")) {
-            final MessageEmbed embed  = new WelcomeEmbedRender().render(event.getGuild(), event.getUser()); // Get embed message
+            final MessageEmbed embed = new WelcomeEmbedRender().render(event.getGuild(), event.getUser()); // Get embed message
             channel.sendMessage(embed).queue(); // Send embed
         }
         // Welcome Image is enabled
-        if (db.getListenerManager().check("welcomeImage")) {
+        if (db.getListenerManager().check("welcomeImage") && event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE)) {
             final InputStream welcomeImage = new WelcomeImageRender().render(event.getGuild(), event.getUser()); // Get welcome image
             channel.sendFile(welcomeImage, event.getUser().getName().toLowerCase() + "_welcome.png").queue();
         }
