@@ -24,24 +24,13 @@ public class MongoUser {
     public MongoUser(String userId) {
         this.userId = userId;
 
-        // Retrieve user
-        //    try {
-        final User user = DiscordBot.shardManager.retrieveUserById(this.userId).complete();
-
-        // User is bot
-        if (user.isBot()) this.bot = true;
-            // User isn't a bot
-        else {
-            // User hasn't a user document
-            if (mongoDb.getCollection("users").find(eq("userId", user.getId())).first() == null) {
-                final Document userDocument = MongoDocuments.createUserDocument(user); // Create document for user
-                mongoDb.getCollection("users").insertOne(userDocument); // Insert document
-            }
-            this.document = mongoDb.getCollection("users").find(eq("userId", user.getId())).first(); // Get user document
+        // User hasn't a user document
+        if (mongoDb.getCollection("users").find(eq("userId", userId)).first() == null) {
+            final User user = DiscordBot.shardManager.retrieveUserById(userId).complete();
+            final Document userDocument = MongoDocuments.createUserDocument(user); // Create document for user
+            mongoDb.getCollection("users").insertOne(userDocument); // Insert document
         }
-        //  }catch () {
-        //     this.unavailable = true
-        //}
+        this.document = mongoDb.getCollection("users").find(eq("userId", userId)).first(); // Get user document
     }
 
     public MongoUser(User user) {
