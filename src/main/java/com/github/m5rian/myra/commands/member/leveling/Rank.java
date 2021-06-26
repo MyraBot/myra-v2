@@ -65,7 +65,7 @@ public class Rank implements CommandHandler {
         backgroundEditor.setFont(font); // Set font
         // Draw titles
         backgroundEditor.setFontSize(15f);
-        backgroundEditor.drawLeftString(member.getEffectiveName(), 26, 45, 250); // User name
+        //backgroundEditor.drawLeftString(member.getEffectiveName(), 26, 45, 250); // User name
         backgroundEditor.drawString("Level", 150, imageHeight / 2, 100); // Level
         backgroundEditor.drawString("Xp", 250, imageHeight / 2, 100); // Xp
         backgroundEditor.drawString("Rank", imageWidth - 77, 45, 100); // Rank
