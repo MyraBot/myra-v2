@@ -198,7 +198,7 @@ public class Config implements CommandHandler {
                                 final String userId = document.getString("userId"); // Get user id
                                 try {
                                     final User user = e.getJDA().retrieveUserById(userId).complete(); // Try to retrieve member
-                                    final List<UserBadge> badges = UserBadge.getUserBadges(user); // Get badges
+                                    final List<UserBadge> badges = UserBadge.getDiscordBadges(user); // Get badges
                                     final List<String> badgesAsString = new ArrayList<>();
                                     badges.forEach(badge -> badgesAsString.add(badge.getName()));
 
