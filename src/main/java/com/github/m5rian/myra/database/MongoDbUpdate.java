@@ -1,6 +1,7 @@
 package com.github.m5rian.myra.database;
 
 import com.github.m5rian.myra.Config;
+import com.github.m5rian.myra.utilities.Logger;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.mongodb.client.MongoCursor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -9,7 +10,6 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import org.bson.Document;
-import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -18,8 +18,6 @@ import java.util.List;
 import static com.mongodb.client.model.Filters.eq;
 
 public class MongoDbUpdate {
-    private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MongoDbUpdate.class); // Logger
-
     public static void update(Runnable runnable) {
         final MongoDb mongoDb = MongoDb.getInstance();
 
@@ -43,7 +41,7 @@ public class MongoDbUpdate {
                 mongoDb.getCollection("users").replaceOne(userDocument, updatedUserDocument); // Update document
 
                 long percentage = currentUserDocument * 100L / totalUserDocuments;
-                LOGGER.info(percentage + "%     (" + currentUserDocument + "/" + totalUserDocuments + ")");
+                Logger.log(MongoDbUpdate.class, percentage + "%     (" + currentUserDocument + "/" + totalUserDocuments + ")");
             }
         }
 
