@@ -8,8 +8,8 @@ mainClassName = 'com.github.m5rian.myra.Myra'
 group = 'com.github.m5rian'
 version = '2.1.1'
 
-sourceCompatibility = JavaVersion.VERSION_15
-targetCompatibility = JavaVersion.VERSION_15
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
 
 
 repositories {
