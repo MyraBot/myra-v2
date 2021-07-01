@@ -111,7 +111,8 @@ public class Buy implements CommandHandler {
                         .setCommand("buy")
                         .setEmoji("\uD83D\uDED2")
                         .setMessage(Lang.lang(ctx).get("command.economy.buy.message.sell")
-                                .replace("{$price}", Format.number(sellPrice)));// Selling price
+                                .replace("{$price}", Format.number(sellPrice)) // Selling price
+                                .replace("{$currency}", currency)); // Server currency
 
                 final int finalSellPrice = sellPrice; // Create final variable of selling price
                 ctx.getChannel().sendMessage(confirmation.getEmbed().build()).queue(message -> {
