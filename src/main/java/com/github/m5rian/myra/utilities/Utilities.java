@@ -25,7 +25,11 @@ import static com.mongodb.client.model.Filters.eq;
 
 public class Utilities {
     public static final ScheduledExecutorService TIMER = Executors.newScheduledThreadPool(5);
-    public static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
+    public static final OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build();
 
     //colours
     public static final int red = 0xC16B65;
