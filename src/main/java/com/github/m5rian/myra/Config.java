@@ -53,7 +53,8 @@ public class Config {
                 final JDA jda = guild.getJDA(); // Get jda of guild
                 return new MongoGuild(jda, guildId);
             })
-            .setTimeout(5L, TimeUnit.MINUTES);
+            .setTimeout(5L, TimeUnit.MINUTES)
+            .setTimeoutAction((guildId, guild) -> guild.push()); // Push changes to database on a timeout
     public static final Cache<String, MongoUser> CACHE_USER = new Cache<String, MongoUser>()
             .setLoadFunction(MongoUser::new)
             .setTimeout(5L, TimeUnit.MINUTES);

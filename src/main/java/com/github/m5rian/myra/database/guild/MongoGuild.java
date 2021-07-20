@@ -16,6 +16,7 @@ public class MongoGuild {
     private final JDA jda;
     private final String guildId;
     private final Document document;
+
     /**
      * @param jda     A {@link JDA} Object.
      * @param guildId The guild to search for.
@@ -59,7 +60,6 @@ public class MongoGuild {
      */
     public void setString(String key, String value) {
         this.document.replace(key, value); // Replace value
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -78,7 +78,6 @@ public class MongoGuild {
      */
     public void setLong(String key, Long value) {
         this.document.replace(key, value); // Replace value
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -97,7 +96,6 @@ public class MongoGuild {
      */
     public void setBoolean(String key, boolean value) {
         this.document.replace(key, value); // Replace value
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -109,6 +107,16 @@ public class MongoGuild {
     public <T> T get(String key, Class<T> clazz) {
         return this.document.get(key, clazz);
     }
+
+
+    /**
+     * @param key   The key to search for.
+     * @param value The new value replacement.
+     */
+    public void set(String key, Object value) {
+        this.document.replace(key, value);
+    }
+
 
     /**
      * @param key   The key to search for.
@@ -130,7 +138,6 @@ public class MongoGuild {
      */
     public <T> void setList(String key, List<T> value) {
         this.document.replace(key, value); // Replace value
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document); // Update database
     }
 
     /**
@@ -140,18 +147,16 @@ public class MongoGuild {
      */
     public void setNull(String key) {
         this.document.replace(key, null); // Replace value
-        // Update database
-        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document);
     }
 
     /**
      * Get a nested object from the guild document.
      *
-     * @param nested The nested object key.
-     * @return Returns a {@link Document}, which matches the key of nested.
+     * @param key The key of the nested object.
+     * @return Returns a {@link Nested} which matches the given key.
      */
-    public Nested getNested(String nested) {
-        return new Nested(mongoDb, this.guildId, nested);
+    public Nested getNested(String key) {
+        return new Nested(this, key);
     }
 
     /**
@@ -175,5 +180,12 @@ public class MongoGuild {
      */
     public GuildLeveling getLeveling() {
         return new GuildLeveling(this.guildId);
+    }
+
+    /**
+     * Update the document in the database
+     */
+    public void push() {
+        mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document);
     }
 }
