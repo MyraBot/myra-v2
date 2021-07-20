@@ -14,6 +14,13 @@ public class WebServer {
         post("/youtube", YoutubeHttpHandler::onYoutubePost); // Youtube feed listener
         get("/youtube", YoutubeHttpHandler::onYoutubeGet); // Youtube subscribe verification
 
+        // Api
+        new Thread(() -> {
+            path("/api", () -> {
+                post("/embed", "application/json", Api::onEmbed); // Embed sending
+            });
+        }, "Embed Builder").start();
+
         YoutubeNotification.renewSubscriptions(); // Renew all subscriptions
     }
 
