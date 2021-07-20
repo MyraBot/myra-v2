@@ -3,6 +3,7 @@ package com.github.m5rian.myra.utilities;
 import com.mongodb.lang.Nullable;
 
 import java.util.concurrent.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
@@ -31,11 +32,17 @@ public class Cache<K, V> {
      */
     private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(5);
     private Function<K, V> loadFunction;
+    private BiConsumer<K, V> timeoutConsumer;
     private Long timeout;
     private TimeUnit timeunit = TimeUnit.SECONDS;
 
     public Cache<K, V> setLoadFunction(Function<K, V> function) {
         this.loadFunction = function;
+        return this;
+    }
+
+    public Cache<K, V> setTimeoutAction(BiConsumer<K, V> consumer) {
+        this.timeoutConsumer = consumer;
         return this;
     }
 
@@ -71,17 +78,20 @@ public class Cache<K, V> {
             this.cache.put(key, value); // Put pair in cache
         }
 
+        // There is a timeout function
         if (this.timeout != null) {
             // There is already a running timer for the timeout
             if (this.cacheSchedulers.containsKey(key)) {
                 this.cacheSchedulers.get(key).cancel(false); // Stop current timer
             }
             final ScheduledFuture<?> scheduler = timer.schedule(() -> {
+                if (this.timeoutConsumer != null) this.timeoutConsumer.accept(key, this.cache.get(key)); // Run timeout action
                 this.cache.remove(key);
             }, this.timeout, this.timeunit);// Create new timer
             this.cacheSchedulers.put(key, scheduler); // Add timer to list
         }
-        return this.cache.getOrDefault(key, null);
+
+        return this.cache.get(key);
     }
 
     /**
