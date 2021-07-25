@@ -1,75 +1,94 @@
 package com.github.m5rian.myra.listeners.notifications;
 
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
+import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.managers.NotificationsYoutubeManager;
 import com.github.m5rian.myra.utilities.APIs.youtube.Youtube;
-import com.github.m5rian.myra.utilities.APIs.youtube.data.YoutubeChannel;
-import com.github.m5rian.myra.utilities.APIs.youtube.data.YoutubeVideo;
-import com.mongodb.client.MongoCursor;
-import com.github.m5rian.myra.DiscordBot;
+import com.github.m5rian.myra.utilities.APIs.youtube.YtChannel;
+import com.github.m5rian.myra.utilities.APIs.youtube.YtVideo;
+import com.github.m5rian.myra.utilities.APIs.youtube.YtVideos;
 import com.github.m5rian.myra.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.ReadyEvent;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import static com.mongodb.client.model.Filters.eq;
+public class YoutubeNotification implements CommandHandler {
+    private static final MongoDb mongoDb = MongoDb.getInstance(); // Get database
 
-public class YoutubeNotification {
-    private static final Logger LOGGER = LoggerFactory.getLogger(YoutubeNotification.class);
+    public static void start(ReadyEvent event) {
+        final int start = 5 - LocalDateTime.now().getMinute() % 5;
 
-    public static void onVideoUpload(YoutubeChannel channel, YoutubeVideo video) {
-        final EmbedBuilder notification = new EmbedBuilder()
-                .setAuthor(channel.getName(), "https://www.youtube.com/channel/" + channel.getId())
-                .setColor(Utilities.blue)
-                .setDescription(Utilities.hyperlink(video.getTitle(), "https://www.youtube.com/watch?v=" + video.getId()))
-                .setImage(video.getThumbnail())
-                .setTimestamp(video.getUploadTime());
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {   // Loop
+            try {
+                final long lastRefresh = mongoDb.getCollection("config").find().first().getLong("youtube refresh"); // Get last youtube refresh
 
-        int runs = 0;
-        final MongoCursor<Document> guildDocuments = MongoDb.getInstance().getCollection("guilds").find(eq("notifications.youtube", channel.getId())).iterator();
-        while (guildDocuments.hasNext()) {
-            runs++;
-            final Document guildDocument = guildDocuments.next(); // Get next guild document
+                final Iterator<Guild> guilds = event.getJDA().getGuilds().iterator(); // Create an iterator for the guilds
+                while (guilds.hasNext()) { // Loop through every guild
+                    final Guild guild = guilds.next(); // Get next guild
+                    MongoGuild db = MongoGuild.get(guild); // Get database
 
-            final String channelId = guildDocument.get("notifications", Document.class).getString("channel");
-            if (channel.equals("not set")) continue;
+                    List<String> youtubers = NotificationsYoutubeManager.getInstance().getYoutubers(guild); // Get all youtubers
+                    if (youtubers.isEmpty()) continue;  // No streamers are set
 
-            final TextChannel textchannel = DiscordBot.shardManager.getGuildById(guildDocument.getString("guildId")).getTextChannelById(channelId);
-            if (textchannel == null) continue;
+                    String channelRaw = db.getNested("notifications").getString("channel"); // Get notifications channel
+                    // If no notifications channel is set
+                    if (channelRaw.equals("not set")) continue;
+                    TextChannel channel = guild.getTextChannelById(channelRaw); // Get notifications channel
 
-            // Get custom message
-            String message = null;
-            final String messageRaw = guildDocument.get("notifications", Document.class).getString("youtubeMessage");
-            if (!messageRaw.equals("not set")) {
-                message = messageRaw
-                        .replace("{youtuber}", channel.getName())
-                        .replace("{title}", video.getTitle());
+                    // For each youtuber
+                    for (String channelId : youtubers) {
+                        final YtVideos latestVideos = Youtube.getLatestVideos(channelId); // Get latest videos
+                        // For every video
+                        for (YtVideo video : latestVideos.getVideos()) {
+                            final YtChannel youtuber = latestVideos.getChannel(); // Get youtuber
+                            long publishedAtInMillis = video.getUploadTime().toInstant().toEpochMilli(); // Get upload time in milliseconds
+
+                            // Last youtube check was already made when the video came out
+                            if (publishedAtInMillis < lastRefresh) continue;
+
+
+                            // Send message
+                            String message = null;
+                            final String messageRaw = db.getNested("notifications").getString("youtubeMessage");
+                            if (!messageRaw.equals("not set")) {
+                                message = messageRaw
+                                        .replace("{youtuber}", youtuber.getChannelName())
+                                        .replace("{title}", video.getTitle());
+                            }
+
+                            // Create embed
+                            EmbedBuilder notification = new EmbedBuilder()
+                                    .setAuthor(youtuber.getChannelName(), "https://www.youtube.com/watch?v=" + video.getId())
+                                    .setColor(Utilities.blue)
+                                    .setDescription(Utilities.hyperlink(video.getTitle(), "https://www.youtube.com/watch?v=" + video.getId()) + "\n")
+                                    //.setThumbnail(youtuber.getAvatar())
+                                    .setImage(video.getThumbnail())
+                                    .setTimestamp(video.getUploadTime().toInstant());
+
+                            // Send notification without custom message
+                            if (message == null) channel.sendMessage(notification.build()).queue();
+                                // Send notification with custom message
+                            else channel.sendMessage(message).embed(notification.build()).queue();
+                        }
+                    }
+                }
+                // Update last refresh in database
+                final Document updatedDocument = mongoDb.getCollection("config").find().first(); // Get config document
+                updatedDocument.replace("youtube refresh", System.currentTimeMillis()); // Update last check
+                mongoDb.getCollection("config").findOneAndReplace(mongoDb.getCollection("config").find().first(), updatedDocument); // Update document
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            // Send notification without custom message
-            if (message == null) textchannel.sendMessage(notification.build()).queue();
-                // Send notification with custom message
-            else textchannel.sendMessage(message).embed(notification.build()).queue();
-        }
-
-        // No server subscribed to this youtube channel
-        if (runs == 0) Youtube.unsubscribe(channel.getId()); // Unsubscribe
+        }, start, 15, TimeUnit.MINUTES);
     }
-
-    public static void renewSubscriptions() {
-        final MongoCursor<Document> guilds = MongoDb.getInstance().getCollection("guilds").find().iterator();
-        int subscriptions = 0;
-        while (guilds.hasNext()) {
-            final Document guild = guilds.next(); // Get guild document
-            final List<String> channels = guild.get("notifications", Document.class).getList("youtube", String.class); // Get all youtubers
-            channels.forEach(Youtube::subscribe); // Subscribe to all channels
-            subscriptions += channels.size(); // Increase subscription count
-        }
-
-        LOGGER.info("Renewed " + subscriptions + " subscriptions"); // Log amount of subscription
-    }
-
 }

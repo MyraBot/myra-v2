@@ -4,21 +4,19 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
-import com.github.m5rian.myra.utilities.APIs.youtube.Youtube;
-import com.github.m5rian.myra.utilities.APIs.youtube.data.YoutubeChannel;
+import com.github.m5rian.myra.database.managers.NotificationsTwitchManager;
+import com.github.m5rian.myra.database.managers.NotificationsYoutubeManager;
+import com.github.m5rian.myra.utilities.APIs.youtube.deprecated.Youtube;
+import com.github.m5rian.myra.utilities.APIs.youtube.deprecated.data.YoutubeChannel;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
-import com.github.m5rian.myra.database.managers.NotificationsTwitchManager;
-import com.github.m5rian.myra.database.managers.NotificationsYoutubeManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class NotificationsList implements CommandHandler {
     private final String[] emojis = {

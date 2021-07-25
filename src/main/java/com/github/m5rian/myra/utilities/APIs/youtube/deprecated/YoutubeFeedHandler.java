@@ -1,8 +1,7 @@
-package com.github.m5rian.myra.utilities.APIs.youtube;
+package com.github.m5rian.myra.utilities.APIs.youtube.deprecated;
 
-import com.github.m5rian.myra.utilities.APIs.youtube.data.YoutubeChannel;
-import com.github.m5rian.myra.utilities.APIs.youtube.data.YoutubeVideo;
-import com.github.m5rian.myra.listeners.notifications.YoutubeNotification;
+import com.github.m5rian.myra.utilities.APIs.youtube.deprecated.data.YoutubeChannel;
+import com.github.m5rian.myra.utilities.APIs.youtube.deprecated.data.YoutubeVideo;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -32,7 +31,8 @@ public class YoutubeFeedHandler {
             return;
         }
 
-        YoutubeNotification.onVideoUpload(getChannel(), getVideo());
+        System.out.println("Video got uploaded");
+        //YoutubeNotification.onVideoUpload(getChannel(), getVideo());
     }
 
     /**

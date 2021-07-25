@@ -1,4 +1,4 @@
-package com.github.m5rian.myra.utilities.APIs.youtube.data;
+package com.github.m5rian.myra.utilities.APIs.youtube.deprecated.data;
 
 public class YoutubeChannel {
     private final String id;

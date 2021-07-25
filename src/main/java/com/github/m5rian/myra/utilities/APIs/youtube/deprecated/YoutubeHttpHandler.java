@@ -1,4 +1,4 @@
-package com.github.m5rian.myra.utilities.APIs.youtube;
+package com.github.m5rian.myra.utilities.APIs.youtube.deprecated;
 
 import com.github.m5rian.myra.WebServer;
 import org.jsoup.Jsoup;
@@ -12,6 +12,7 @@ import spark.Response;
  * This class handles all http requests of youtube.
  * The calls are received from the {@link WebServer}.
  * <p>
+ * Pubsubhubbub: https://pubsubhubbub.appspot.com/subscribe
  * Good reference:
  * <ul>
  *     <li>https://www.codeproject.com/Tips/1229912/Push-Notification-PubSubHubBub-from-Youtube-to-Csh</li>
@@ -28,13 +29,18 @@ public class YoutubeHttpHandler {
      * @return Returns a {@link Response} containing the hub.challenge request parameter
      */
     public static Object onYoutubeGet(spark.Request req, spark.Response res) {
+        System.out.println("Verifying youtuber");
+
         return req.queryParams("hub.challenge"); // Return hub.challenge parameter
     }
 
     public static Object onYoutubePost(Request req, Response res) {
+        System.out.println("----------------------------------------");
         final String xmlRaw = req.body();
         final Document xml = Jsoup.parse(xmlRaw);
         new YoutubeFeedHandler(xml);
+
+        System.out.println(xmlRaw);
 
         // Return status code to tell the youtube server that the request was successfully received
         res.status(204);

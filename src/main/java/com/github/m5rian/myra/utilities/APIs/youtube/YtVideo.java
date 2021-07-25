@@ -1,15 +1,15 @@
-package com.github.m5rian.myra.utilities.APIs.youtube.data;
+package com.github.m5rian.myra.utilities.APIs.youtube;
 
 import java.time.ZonedDateTime;
 
-public class YoutubeVideo {
+public class YtVideo {
     private final String id;
     private final String title;
     private final ZonedDateTime publishedAt;
     private final String description;
     private final String views;
 
-    public YoutubeVideo(String id, String title, ZonedDateTime publishedAt, String description, String views) {
+    public YtVideo(String id, String title, ZonedDateTime publishedAt, String description, String views) {
         this.title = title;
         this.id = id;
         this.publishedAt = publishedAt;
@@ -26,7 +26,8 @@ public class YoutubeVideo {
     }
 
     public String getThumbnail() {
-        return "https://img.youtube.com/vi/" + this.id + "/mqdefault.jpg";
+        final String baseUrl = "https://img.youtube.com/vi/{videoId}/mqdefault.jpg";
+        return baseUrl.replace("{videoId}", this.id);
     }
 
     public ZonedDateTime getUploadTime() {
