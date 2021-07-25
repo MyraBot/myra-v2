@@ -10,6 +10,7 @@ import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.ImageEditor;
+import com.github.m5rian.myra.utilities.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
@@ -59,17 +60,14 @@ public class Background implements CommandHandler {
                     .send();
             return;
         }
-        // Check if argument is an image
-        try {
-            ImageIO.read(new URL(ctx.getArguments()[0])); // Argument is an image
+        // Argument isn't a URL
+        if (!Utilities.isValidURL(ctx.getArguments()[0])) {
+            error(ctx).setDescription(lang(ctx).get("error.invalidUrl")).send();
+            return;
         }
-        // Argument isn't an image
-        catch (Exception e) {
-            new Error(ctx.getEvent())
-                    .setCommand("edit rank")
-                    .setEmoji("\uD83D\uDDBC")
-                    .setMessage(lang(ctx).get("command.leveling.edit.rank.error.noImage"))
-                    .send();
+        // Url is not an image
+        if (ImageIO.read(new URL(ctx.getArguments()[0])) == null)  {
+            error(ctx).setDescription(lang(ctx).get("command.leveling.edit.rank.error.noImage")).send();
             return;
         }
 
@@ -93,7 +91,7 @@ public class Background implements CommandHandler {
 
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e -> !e.getUser().isBot()
-                            && e.getMember() == ctx.getMember()
+                            && e.getUserIdLong() == ctx.getAuthor().getIdLong()
                             && e.getMessageIdLong() == message.getIdLong()
                             && Arrays.asList(emojis).contains(e.getReactionEmote().getEmoji()))
                     .setAction(e -> {
