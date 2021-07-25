@@ -36,6 +36,13 @@ public class Cache<K, V> {
     private Long timeout;
     private TimeUnit timeunit = TimeUnit.SECONDS;
 
+    /**
+     * @return Returns the raw map of the cache.
+     */
+    public ConcurrentMap<K, V> getCache() {
+        return this.cache;
+    }
+
     public Cache<K, V> setLoadFunction(Function<K, V> function) {
         this.loadFunction = function;
         return this;

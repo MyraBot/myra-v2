@@ -44,6 +44,10 @@ public class MongoGuild {
         return Config.CACHE_GUILD.get(guild.getId());
     }
 
+    public Document getDocument() {
+        return this.document;
+    }
+
     /**
      * @param key The key to search for.
      * @return Returns a {@link String} given by a key.

@@ -10,12 +10,14 @@ import com.github.m5rian.myra.commands.member.music.MusicVoteListener;
 import com.github.m5rian.myra.commands.moderation.ban.Tempban;
 import com.github.m5rian.myra.commands.moderation.mute.MutePermissions;
 import com.github.m5rian.myra.commands.moderation.mute.Tempmute;
+import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.MongoDbUpdate;
 import com.github.m5rian.myra.database.MongoUser;
 import com.github.m5rian.myra.listeners.*;
 import com.github.m5rian.myra.listeners.leveling.LevelingListener;
 import com.github.m5rian.myra.listeners.leveling.VoiceCall;
 import com.github.m5rian.myra.listeners.notifications.TwitchNotification;
+import com.github.m5rian.myra.listeners.notifications.YoutubeNotification;
 import com.github.m5rian.myra.listeners.premium.UnicornChange;
 import com.github.m5rian.myra.listeners.welcome.WelcomeListener;
 import com.github.m5rian.myra.utilities.APIs.Twitch;
@@ -24,6 +26,9 @@ import com.github.m5rian.myra.utilities.ConsoleColours;
 import com.github.m5rian.myra.utilities.Logger;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.language.Lang;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.ReplaceOneModel;
+import com.mongodb.client.model.WriteModel;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Icon;
@@ -46,6 +51,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.bson.Document;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
@@ -59,7 +66,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.mongodb.client.model.Filters.eq;
+
 public class Listeners extends ListenerAdapter {
+    private final static org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Listeners.class); // Get logger
     public final static List<String> unavailableGuilds = new ArrayList<>(); // Guilds which shouldn't receive events
     private final static String onlineInfo = "Bot online!";
     private final static String OFFLINE_INFO = ConsoleColours.RED + "Bot offline" + ConsoleColours.RESET;
@@ -125,6 +135,38 @@ public class Listeners extends ListenerAdapter {
         }
     }
 
+    public static void listenToShutdown() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("Shutting down! Saving data before...");
+            // Update guild documents
+            final List<WriteModel<Document>> guildRequests = new ArrayList<>(); // Create list for guild events
+            Config.CACHE_GUILD.getCache().forEach((guildId, dbGuild) -> { // For each cached guild
+                guildRequests.add(new ReplaceOneModel<>(eq("guildId", guildId), dbGuild.getDocument()));
+            });
+            final MongoCollection<Document> guildCollection = MongoDb.getInstance().getCollection("guilds"); // Get guild collection
+            guildCollection.bulkWrite(guildRequests); // Perform actions
+
+            // Update user documents
+            final List<WriteModel<Document>> userRequests = new ArrayList<>(); // Create list for user events
+            Config.CACHE_USER.getCache().forEach((userId, mongoUser) -> { // For each cached user
+                userRequests.add(new ReplaceOneModel<>(eq("userId", userId), mongoUser.getDocument()));
+            });
+            final MongoCollection<Document> userCollection = MongoDb.getInstance().getCollection("guilds"); // Get user collection
+            userCollection.bulkWrite(userRequests); // Perform actions
+
+            // Update members guild documents
+            Config.CACHE_MEMBER.getCache().forEach((data, guildMember) -> {
+                final String guildId = data.split(":")[0]; // Get guild id
+                final String userId = data.split(":")[1]; // Get user id
+
+                final Document $set = new Document("$set", new Document(guildId, guildMember.getMemberDocument())); // Create update document of guild document
+                userCollection.updateOne(eq("userId", userId), $set); // Update guild document
+            });
+
+            LOGGER.info("Bot successfully shut down");
+        }));
+    }
+
     private void online() {
         final int start = 60 - LocalDateTime.now().getMinute() % 60; // Get time to start changing the profile picture
 
@@ -178,6 +220,7 @@ public class Listeners extends ListenerAdapter {
             new Tempmute().onReady(event); // Load mutes
 
             new TwitchNotification().jdaReady(event); // Start twitch notifications
+            YoutubeNotification.start(event); // Start youtube notifications
             new UnicornChange().change();
 
             online(); // Change profile picture and activity

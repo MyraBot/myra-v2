@@ -57,6 +57,10 @@ public class MongoUser {
         return Config.CACHE_USER.get(user.getId());
     }
 
+    public Document getDocument() {
+        return this.document;
+    }
+
     public MongoUser update() {
         mongoDb.getCollection("users").findOneAndReplace(eq("userId", this.userId), this.document); // Update database
         return this;

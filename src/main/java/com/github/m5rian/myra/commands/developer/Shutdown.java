@@ -38,7 +38,7 @@ public class Shutdown implements CommandHandler {
                         message.clearReactions().queue(); // Clear reactions
                         DiscordBot.shardManager.setStatus(OnlineStatus.OFFLINE); // Set status to offline
                         e.getJDA().shutdown(); // Shutdown JDA
-                        System.exit(0);  // Shutdown whole program
+                        System.exit(-2); // Shut down program gracefully and run the shutdown hooks
                     })
                     .setTimeout(30L, TimeUnit.SECONDS)
                     .setTimeoutAction(() -> message.clearReactions().queue())

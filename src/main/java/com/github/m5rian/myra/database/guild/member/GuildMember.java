@@ -70,6 +70,10 @@ public class GuildMember {
         return Config.CACHE_MEMBER.get(member.getGuild().getId() + ":" + member.getId());
     }
 
+    public Document getMemberDocument() {
+        return this.memberDocument;
+    }
+
     /**
      * @return Is the member a bot?
      */
