@@ -1,5 +1,6 @@
 package com.github.m5rian.myra.utilities.language;
 
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class LanguageBundle {
@@ -10,7 +11,14 @@ public class LanguageBundle {
     }
 
     public String get(String target) {
-        return this.bundle.getString(target);
+        try {
+            return this.bundle.getString(target);
+        }
+        // Couldn't find string
+        catch (MissingResourceException e) {
+            return new LanguageBundle(ResourceBundle.getBundle("languages/" + Lang.Country.ENGLISH.getId())).get(target);
+        }
+
     }
 
     public String[] getArray(String target) {
