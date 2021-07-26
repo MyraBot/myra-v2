@@ -1,7 +1,7 @@
 package com.github.m5rian.myra.commands.developer;
 
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
-import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;

@@ -1,6 +1,6 @@
 package com.github.m5rian.myra.utilities.language;
 
-import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.CustomEmoji;
 import com.github.m5rian.myra.utilities.Utilities;

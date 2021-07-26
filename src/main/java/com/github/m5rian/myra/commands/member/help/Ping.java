@@ -1,7 +1,7 @@
 package com.github.m5rian.myra.commands.member.help;
 
-import com.github.m5rian.jdaCommandHandler.CommandContext;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.command.CommandContext;
+import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.entities.MessageEmbed;

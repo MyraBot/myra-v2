@@ -1,6 +1,6 @@
 package com.github.m5rian.myra.utilities;
 
-import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 

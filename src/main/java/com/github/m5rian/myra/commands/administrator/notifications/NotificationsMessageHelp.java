@@ -1,8 +1,8 @@
 package com.github.m5rian.myra.commands.administrator.notifications;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.CommandEvent;
-import com.github.m5rian.jdaCommandHandler.CommandContext;
+import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
+import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import static com.github.m5rian.myra.utilities.language.Lang.*;
