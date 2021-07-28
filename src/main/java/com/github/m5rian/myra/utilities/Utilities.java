@@ -1,5 +1,6 @@
 package com.github.m5rian.myra.utilities;
 
+import com.github.m5rian.jdaCommandHandler.CommandUtils;
 import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.MongoDbUpdate;
@@ -83,7 +84,7 @@ public class Utilities {
     public static Duration getDuration(CommandContext ctx, String inputDuration, String inputTimeUnit) {
         // Inputs don't match the right characters
         if (!inputDuration.matches("\\d+") || !inputTimeUnit.matches("\\D+")) {
-            ctx.getCommandService().executeError(ctx).setDescription(lang(ctx).get("error.invalidTime") + "\n" + lang(ctx).get("info.usage.time")).send();
+            CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("error.invalidTime") + "\n" + lang(ctx).get("info.usage.time")).send();
             return null;
         }
 
