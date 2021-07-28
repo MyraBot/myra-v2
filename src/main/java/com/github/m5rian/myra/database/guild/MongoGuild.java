@@ -61,9 +61,11 @@ public class MongoGuild {
      *
      * @param key   The key to search for.
      * @param value The new value.
+     * @return Returns the current {@link MongoGuild} for chaining purpose.
      */
-    public void setString(String key, String value) {
+    public MongoGuild setString(String key, String value) {
         this.document.replace(key, value); // Replace value
+        return this;
     }
 
     /**
@@ -79,9 +81,11 @@ public class MongoGuild {
      *
      * @param key   The key to search for.
      * @param value The new value.
+     * @return Returns the current {@link MongoGuild} for chaining purpose.
      */
-    public void setLong(String key, Long value) {
+    public MongoGuild setLong(String key, Long value) {
         this.document.replace(key, value); // Replace value
+        return this;
     }
 
     /**
@@ -97,9 +101,11 @@ public class MongoGuild {
      *
      * @param key   The key to search for.
      * @param value The new value.
+     * @return Returns the current {@link MongoGuild} for chaining purpose.
      */
-    public void setBoolean(String key, boolean value) {
+    public MongoGuild setBoolean(String key, boolean value) {
         this.document.replace(key, value); // Replace value
+        return this;
     }
 
     /**
@@ -116,9 +122,11 @@ public class MongoGuild {
     /**
      * @param key   The key to search for.
      * @param value The new value replacement.
+     * @return Returns the current {@link MongoGuild} for chaining purpose.
      */
-    public void set(String key, Object value) {
+    public MongoGuild set(String key, Object value) {
         this.document.replace(key, value);
+        return this;
     }
 
 
@@ -139,18 +147,22 @@ public class MongoGuild {
      * @param key   The key to search for.
      * @param value The new list.
      * @param <T>   The class type of which the list will be.
+     * @return Returns the current {@link MongoGuild} for chaining purpose.
      */
-    public <T> void setList(String key, List<T> value) {
+    public <T> MongoGuild setList(String key, List<T> value) {
         this.document.replace(key, value); // Replace value
+        return this;
     }
 
     /**
      * Set a key to null.
      *
      * @param key The key to find.
+     * @return Returns the current {@link MongoGuild} for chaining purpose.
      */
-    public void setNull(String key) {
+    public MongoGuild setNull(String key) {
         this.document.replace(key, null); // Replace value
+        return this;
     }
 
     /**
@@ -188,8 +200,11 @@ public class MongoGuild {
 
     /**
      * Update the document in the database
+     *
+     * @return Returns the current {@link MongoGuild} for chaining purpose.
      */
-    public void push() {
+    public MongoGuild push() {
         mongoDb.getCollection("guilds").findOneAndReplace(eq("guildId", this.guildId), this.document);
+        return this;
     }
 }
