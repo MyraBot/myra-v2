@@ -1,5 +1,7 @@
 package com.github.m5rian.myra;
 
+import com.github.m5rian.myra.database.guild.MongoGuild;
+
 import static spark.Spark.*;
 
 public class WebServer {
@@ -12,11 +14,17 @@ public class WebServer {
         //get("/youtube", YoutubeHttpHandler::onYoutubeGet); // Youtube subscribe verification
 
         // Api
-        new Thread(() -> {
-            path("/api", () -> {
-                post("/embed", "application/json", Api::onEmbed); // Embed sending
+        path("/api", () -> {
+            before("/*", (req, res) -> res.header("Access-Control-Allow-Origin", "*"));
+
+            path("/retrieve", () -> {
+                get("/guild", (req, res) -> MongoGuild.get(req.headers("guildId")).getDocument().toJson());
             });
-        }, "Embed Builder").start();
+
+            post("/embed", "application/json", Api::onEmbed); // Embed sending
+            post("/welcoming", "application/json", Api::onWelcomeSave); // Save leveling settings
+            post("/general", "application/json", Api::onGeneralSave); // Save general settings
+        });
     }
 
 }
