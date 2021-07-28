@@ -28,7 +28,7 @@ public class Reminder implements CommandHandler {
     )
     public void execute(CommandContext ctx) throws Exception {
         // Command usage
-        if (ctx.getArguments().length == 0) {
+        if (ctx.getArguments().length < 2) {
             new CommandUsage(ctx.getEvent())
                     .setCommand("reminder")
                     .addUsages(new Usage()
@@ -40,7 +40,7 @@ public class Reminder implements CommandHandler {
         }
 
 
-        final String reason = ctx.getArgumentsRaw().split("\\s+", 3)[2]; // Get remind reason
+        final String reason = ctx.getArgumentsRaw().split("\\s+", 2)[1]; // Get remind reason
         final Utilities.Duration duration = Utilities.getDuration(ctx, ctx.getArguments()[0], ctx.getArguments()[1]); // Get duration
         if (duration == null) return;
 
