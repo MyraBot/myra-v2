@@ -1,19 +1,17 @@
 package com.github.m5rian.myra.commands.administrator.welcome;
 
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
-import com.github.m5rian.myra.database.guild.MongoGuild;
 
 import java.awt.*;
-
-import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class WelcomeColour implements CommandHandler {
 
@@ -40,7 +38,7 @@ public class WelcomeColour implements CommandHandler {
             final Color color = Color.decode(ctx.getArguments()[0]); // try to decode colour
             final String hex = Integer.toHexString(color.getRGB()).substring(2); // Get hex from colour
 
-            MongoGuild.get(ctx.getGuild()).getNested("welcome").setString("welcomeColour", hex); // Save in database
+            MongoGuild.get(ctx.getGuild()).getNested("welcome").setColour("welcomeColour", color); // Save in database
             //success
             new Success(ctx.getEvent())
                     .setCommand("welcome colour")

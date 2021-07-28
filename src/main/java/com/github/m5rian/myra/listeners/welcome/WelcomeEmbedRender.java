@@ -14,12 +14,12 @@ public class WelcomeEmbedRender {
     public MessageEmbed render(Guild guild, User user) {
         final MongoGuild db = MongoGuild.get(guild); // Get database
         // Get variables
-        final String welcomeColour = db.getNested("welcome").getString("welcomeColour"); // Get colour
+        final Color welcomeColour = db.getNested("welcome").getColour("welcomeColour"); // Get colour
         final String welcome = db.getNested("welcome").getString("welcomeEmbedMessage"); // Get message
         // Return message embed
         return new EmbedBuilder()
                 .setAuthor("welcome", null, guild.getIconUrl())
-                .setColor(Color.decode(welcomeColour))
+                .setColor(welcomeColour)
                 .setThumbnail(user.getEffectiveAvatarUrl())
                 .setDescription(welcome
                         .replace("{member}", user.getAsMention()) // Member mention
