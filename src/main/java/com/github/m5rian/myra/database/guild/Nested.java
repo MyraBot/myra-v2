@@ -2,6 +2,7 @@ package com.github.m5rian.myra.database.guild;
 
 import org.bson.Document;
 
+import java.awt.*;
 import java.util.List;
 
 public class Nested {
@@ -34,9 +35,10 @@ public class Nested {
      * @param key   The key to search for.
      * @param value The new value.
      */
-    public void setString(String key, String value) {
+    public Nested setString(String key, String value) {
         this.nested.replace(key, value); // Replace value
         this.dbGuild.set(this.nestedKey, this.nested); // Update nested object
+        return this;
     }
 
     /**
@@ -52,10 +54,12 @@ public class Nested {
      *
      * @param key   The key to search for.
      * @param value The new value.
+     *              @return Returns the current {@link Nested} for chaining purpose.
      */
-    public void setInteger(String key, Integer value) {
+    public Nested setInteger(String key, Integer value) {
         this.nested.replace(key, value); // Replace value
         this.dbGuild.set(this.nestedKey, this.nested); // Update nested object
+        return this;
     }
 
     /**
@@ -72,9 +76,10 @@ public class Nested {
      * @param key   The key to search for.
      * @param value The new value.
      */
-    public void setLong(String key, Long value) {
+    public Nested setLong(String key, Long value) {
         this.nested.replace(key, value); // Replace value
         this.dbGuild.set(this.nestedKey, this.nested); // Update nested object
+        return this;
     }
 
     /**
@@ -90,10 +95,12 @@ public class Nested {
      *
      * @param key   The key to search for.
      * @param value The new value.
+     * @return Returns the current {@link Nested} for chaining purpose.
      */
-    public void setBoolean(String key, boolean value) {
+    public Nested setBoolean(String key, boolean value) {
         this.nested.replace(key, value); // Replace value
         this.dbGuild.set(this.nestedKey, this.nested); // Update nested object
+        return this;
     }
 
     /**
@@ -129,23 +136,48 @@ public class Nested {
     }
 
     /**
+     * @param key The key to search for.
+     * @return Returns a {@link Color} given by a key.
+     */
+    public Color getColour(String key) {
+        return Color.decode(this.nested.getString(key));
+    }
+
+    /**
+     * Replace a colour in the guild document.
+     *
+     * @param key   The key to search for.
+     * @param value The new value.
+     * @return Returns the current {@link Nested} for chaining purpose.
+     */
+    public Nested setColour(String key, Color value) {
+        this.nested.replace(key, String.format("#%02x%02x%02x", value.getRed(), value.getGreen(), value.getBlue())); // Replace value
+        this.dbGuild.set(this.nestedKey, this.nested); // Update nested object
+        return this;
+    }
+
+    /**
      * Replace a key with a any value.
      *
      * @param key   The key to search for.
      * @param value The new value.
+     * @return Returns the current {@link Nested} for chaining purpose.
      */
-    public void set(String key, Object value) {
+    public Nested set(String key, Object value) {
         this.nested.replace(key, value); // Replace value
         this.dbGuild.set(this.nestedKey, this.nested); // Update nested object
+        return this;
     }
 
     /**
      * Set a key to null.
      *
      * @param key The key to find.
+     * @return Returns the current {@link Nested} for chaining purpose.
      */
-    public void setNull(String key) {
+    public Nested setNull(String key) {
         this.nested.replace(key, null); // Replace value
         this.dbGuild.set(this.nestedKey, this.nested); // Update nested object
+        return this;
     }
 }
