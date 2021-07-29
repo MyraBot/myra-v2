@@ -4,6 +4,7 @@ import com.github.m5rian.jdaCommandHandler.Channel;
 import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Success;
@@ -48,6 +49,7 @@ public class Prefix implements CommandHandler {
 
 
         // Change the prefix
+        Config.CACHE_PREFIX.put(ctx.getGuild().getId(), ctx.getArguments()[0]);
         MongoGuild.get(ctx.getGuild()).setString("prefix", ctx.getArguments()[0]); // Change prefix
         // Success information
         Success success = new Success(ctx.getEvent())
