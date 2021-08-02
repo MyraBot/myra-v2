@@ -254,7 +254,8 @@ public class DiscordBot {
             .setInfoFactory(new CommandMessageFactory()
                     .setAuthor(ctx -> ctx.getCommand().name())
                     .setAuthorAvatar(ctx -> ctx.getAuthor().getEffectiveAvatarUrl())
-                    .setColourHex(ctx -> String.valueOf(Utilities.blue)))
+                    .setColourHex(ctx -> String.valueOf(Utilities.blue))
+                    .reply(false))
             .setUsageFactory(new CommandUsageFactory()
                     .setDefaultEmbed(ctx -> new EmbedBuilder()
                             .setAuthor(ctx.getCommand().name(), null, ctx.getAuthor().getEffectiveAvatarUrl())
@@ -277,8 +278,13 @@ public class DiscordBot {
                         else {
                             return new MessageEmbed.Field("`" + ctx.getPrefix() + command.name() + " " + String.join(" ", command.args()) + "`", command.emoji() + " │ " + description, false);
                         }
-
-                    }))
+                    })
+                    .reply(false))
+            .setErrorFactory(new CommandMessageFactory()
+                    .setAuthor(ctx -> ctx.getCommand().name())
+                    .setAuthorAvatar(ctx -> ctx.getAuthor().getEffectiveAvatarUrl())
+                    .setColourHex(ctx -> String.valueOf(Utilities.red))
+                    .reply(false))
             .build();
 
     /**
