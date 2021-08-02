@@ -23,14 +23,14 @@ public class Calculate implements CommandHandler {
             return;
         }
 
-        try {
-            final Integer calculation = Calculator.calculate(ctx.getArgumentsRaw().replaceAll("\\s+", ""));
-            info(ctx).setDescription(lang(ctx).get("command.general.calculate.result")
-                    .replace("{$calculation}", ctx.getArgumentsRaw().replaceAll("\\s+", ""))
-                    .replace("{$result}", String.valueOf(calculation)))
-                    .send();
-        } catch (IllegalArgumentException e) {
-            error(ctx).setDescription(lang(ctx).get("command.general.calculate.error")).send();
-        }
+            try {
+                final Calculator.Calculation calculation = Calculator.calculate(ctx.getArgumentsRaw().replaceAll("\\s+", ""));
+                info(ctx).setDescription(lang(ctx).get("command.general.calculate.result")
+                        .replace("{$calculation}", calculation.calculation())
+                        .replace("{$result}", String.valueOf(calculation.result())))
+                        .send();
+            } catch (IllegalArgumentException e) {
+                error(ctx).setDescription(lang(ctx).get("command.general.calculate.error")).send();
+            }
     }
 }

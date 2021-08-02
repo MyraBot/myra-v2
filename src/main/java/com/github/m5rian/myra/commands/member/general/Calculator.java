@@ -27,8 +27,8 @@ public class Calculator {
         }});
     }};
 
-    public static Integer calculate(String operation) throws IllegalArgumentException {
-        if (operation.matches(".*[a-zA-Z].*")) throw new IllegalArgumentException();
+    public static Calculation calculate(String operation) throws IllegalArgumentException {
+        operation = operation.replaceAll("[^\\d," + Operator.getPattern().substring(1), "");
 
         if (operation.startsWith("-")) {
             operation = "0" + operation;
@@ -61,16 +61,18 @@ public class Calculator {
             for (List<Operator> operatorsOfRule : operationOrder) {
                 // For all left operators of the calculation
                 for (int i = 0; i < operators.size(); i++) {
-                    final Operator operator = Operator.getOperator(operators.get(i));
+                    final Operator operator = Operator.getOperator(operators.get(i)); // Get current operator
+
+                    // Operator is the right according to the roles
                     if (operatorsOfRule.contains(operator)) {
-                        applyOperation(operators, digits, i, operator);
+                        applyOperation(operators, digits, i, operator); // Apply current operation
                     }
                 }
 
             }
         }
 
-        return digits.get(0);
+        return new Calculation(operation, digits.get(0));
     }
 
     private static void applyOperation(List<Character> operators, List<Integer> digits, int i, Operator operator) throws IllegalArgumentException {
@@ -79,7 +81,6 @@ public class Calculator {
             final int result = operator.operationFunction.apply(digits.get(i), digits.get(i + 1)); // Calculate intermediate result
             digits.set(i, result); // Replace first operator with result
             digits.remove(i + 1); // Remove second operator
-            i -= 1;
         } catch (Exception e) {
             throw new IllegalArgumentException();
         }
@@ -143,7 +144,8 @@ public class Calculator {
             }
             return finalPattern;
         }
-
     }
+
+    record Calculation(String calculation, Integer result) {}
 
 }
