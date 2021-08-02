@@ -2,15 +2,12 @@ package com.github.m5rian.myra.utilities;
 
 import com.github.m5rian.jdaCommandHandler.CommandUtils;
 import com.github.m5rian.jdaCommandHandler.command.CommandContext;
-import com.github.m5rian.myra.database.MongoDb;
-import com.github.m5rian.myra.database.MongoDbUpdate;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import org.bson.Document;
@@ -22,7 +19,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
-import static com.mongodb.client.model.Filters.eq;
 
 public class Utilities {
     public static final ScheduledExecutorService TIMER = Executors.newScheduledThreadPool(5);
@@ -383,17 +379,6 @@ public class Utilities {
      */
     public static long getMemberCount(JDA jda) {
         return jda.getGuilds().stream().mapToLong(Guild::getMemberCount).sum();
-    }
-
-    /**
-     * This value updates when the bot joins a new server.
-     * See in {@link MongoDbUpdate#guildJoinEvent(GuildJoinEvent)}.
-     *
-     * @return Returns the amount of {@link User}.
-     */
-    public static long getUserCount(JDA jda) {
-        final Document stats = new MongoDb().getCollection("config").find(eq("document", "stats")).first(); // Get stats document
-        return getBsonLong(stats, "users"); // Returns user count as long
     }
 
     public static boolean isValidURL(String url) {
