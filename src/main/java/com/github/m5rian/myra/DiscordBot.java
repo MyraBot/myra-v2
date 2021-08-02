@@ -301,19 +301,18 @@ public class DiscordBot {
 
         final DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(TOKEN,
                 // Enabled events
-                GatewayIntent.GUILD_MEMBERS,// Enabling events with members (Member join, leave, ...)
+                GatewayIntent.GUILD_MEMBERS,// Enabling member events (Member join, leave, ...)
                 GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)
-                GatewayIntent.GUILD_MESSAGE_REACTIONS, // Reaction add remove bla bla
-                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.GUILD_MESSAGE_REACTIONS, // Enabling message reaction events (add, remove, ...)
+                GatewayIntent.GUILD_VOICE_STATES, // Enabling voice events (join, leave, mute, deafen, ...)
                 //GatewayIntent.GUILD_PRESENCES, // Is needed for the CLIENT_STATUS CacheFlag
-                GatewayIntent.GUILD_EMOJIS) // Emote add/update/delete events. Also is needed for the CacheFlag
+                GatewayIntent.GUILD_EMOJIS) // Enabling emote events (add, update, delete, ...). Also is needed for the CacheFlag.EMOTE
                 .enableCache(
                         CacheFlag.EMOTE,
                         //CacheFlag.CLIENT_STATUS,
                         CacheFlag.VOICE_STATE)
-                .setMemberCachePolicy(MemberCachePolicy.DEFAULT)
+                .setMemberCachePolicy(MemberCachePolicy.NONE)
                 .setChunkingFilter(ChunkingFilter.NONE)
-                .setLargeThreshold(50)
                 .setStatus(OnlineStatus.IDLE)
                 .setActivity(Activity.watching(Config.LOADING_STATUS))
                 .addEventListeners(
