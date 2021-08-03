@@ -97,7 +97,6 @@ import java.util.List;
 import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class DiscordBot {
-    private final static String TOKEN = "NzE4NDQ0NzA5NDQ1NjMyMTIy.Xto9xg.ScXvpTLGPkMBp0EP-mlLUCErI8Y";
     public static ShardManager shardManager;
     public static final DefaultCommandService COMMAND_SERVICE = new DefaultCommandServiceBuilder()
             .setDefaultPrefix(Config.DEFAULT_PREFIX)
@@ -299,7 +298,7 @@ public class DiscordBot {
                 new Administrator(),
                 new Moderator());
 
-        final DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(TOKEN,
+        final DefaultShardManagerBuilder jda = DefaultShardManagerBuilder.create(Myra.config.isInDev() ? Myra.config.getTestToken() : Myra.config.getToken(),
                 // Enabled events
                 GatewayIntent.GUILD_MEMBERS,// Enabling member events (Member join, leave, ...)
                 GatewayIntent.GUILD_MESSAGES, // Enabling message events (send, edit, delete, ...)

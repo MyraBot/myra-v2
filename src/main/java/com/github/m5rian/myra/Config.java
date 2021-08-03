@@ -7,6 +7,9 @@ import com.github.m5rian.myra.utilities.Cache;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class Config {
@@ -75,5 +78,27 @@ public class Config {
         } else {
             LOCAL_ADDRESS = SERVER_ADDRESS;
         }
+    }
+
+    private final Properties properties = new Properties();
+
+    public Config() {
+        try (InputStream input = Config.class.getClassLoader().getResourceAsStream("config.properties")) {
+            this.properties.load(input); // load a properties file
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getToken() {
+        return properties.getProperty("token");
+    }
+
+    public String getTestToken() {
+        return properties.getProperty("testToken");
+    }
+
+    public Boolean isInDev() {
+        return Boolean.parseBoolean(properties.getProperty("development"));
     }
 }
