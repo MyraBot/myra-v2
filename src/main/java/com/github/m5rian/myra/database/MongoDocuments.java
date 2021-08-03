@@ -90,7 +90,7 @@ public class MongoDocuments {
         Document guildDoc = new Document("guildId", guild.getId())
                 .append("guildName", guild.getName())
                 .append("prefix", Config.DEFAULT_PREFIX)
-                .append("lang", Lang.Country.ENGLISH.getId())
+                .append("lang", Lang.Country.ENGLISH.getIsoCode())
                 .append("premium", false)
                 .append("unicorn", null)
 

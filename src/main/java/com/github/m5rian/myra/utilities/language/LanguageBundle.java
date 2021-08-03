@@ -16,7 +16,7 @@ public class LanguageBundle {
         }
         // Couldn't find string
         catch (MissingResourceException e) {
-            return new LanguageBundle(ResourceBundle.getBundle("languages/" + Lang.Country.ENGLISH.getId())).get(target);
+            return new LanguageBundle(ResourceBundle.getBundle("languages/" + Lang.Country.ENGLISH.getIsoCode())).get(target);
         }
 
     }

@@ -27,7 +27,7 @@ public class Lang {
         private final String id;
         private final String name;
         private final String nativeName;
-        private final String emoji;
+        private final String unicodeEmoji;
         private final CustomEmoji customEmoji;
         private final boolean isEmote;
 
@@ -35,7 +35,7 @@ public class Lang {
             this.id = id;
             this.name = name;
             this.nativeName = nativeName;
-            this.emoji = flag;
+            this.unicodeEmoji = flag;
             this.customEmoji = null;
             this.isEmote = false;
         }
@@ -44,12 +44,12 @@ public class Lang {
             this.id = id;
             this.name = name;
             this.nativeName = nativeName;
-            this.emoji = null;
+            this.unicodeEmoji = null;
             this.customEmoji = flag;
             this.isEmote = true;
         }
 
-        public String getId() {
+        public String getIsoCode() {
             return this.id;
         }
 
@@ -61,23 +61,24 @@ public class Lang {
             return this.nativeName;
         }
 
-        public String getFlag() {
-            if (this.isEmote) return this.customEmoji.getAsMention();
-            else return this.emoji;
-        }
-
-        public String getCodepoints() {
-            if (this.isEmote) return this.customEmoji.getCodepoints();
-            else return Utilities.toCodepoints(this.emoji);
-        }
-
-        public boolean hasCustomFlag() {
+        public boolean hasCustomEmoji() {
             return this.isEmote;
         }
 
-        public static Country getById(String id) {
+        public CustomEmoji getCustomEmoji() {
+            return this.customEmoji;
+        }
+
+        /**
+         * @return Returns the flag as a unicode emoji, example: "\uD83C\uDDEC\uD83C\uDDE7"
+         */
+        public String getUnicodeEmoji() {
+            return this.unicodeEmoji;
+        }
+
+        public static Country getByIsoCode(String isoCode) {
             for (Country language : Country.values()) {
-                if (language.getId().equals(id)) {
+                if (language.getIsoCode().equals(isoCode)) {
                     return language;
                 }
             }
@@ -88,17 +89,20 @@ public class Lang {
             List<String> codepoints = new ArrayList<>();
             for (Country lang : Country.values()) {
                 if (lang.isEmote) codepoints.add(lang.customEmoji.getCodepoints());
-                else codepoints.add(Utilities.toCodepoints(lang.emoji));
+                else codepoints.add(Utilities.toCodepoints(lang.unicodeEmoji));
             }
             return codepoints;
         }
     }
 
     /**
-     * Stores the {@link Country} of each {@link Guild}.
-     * Through saving it (instead of getting it from the database every time) we can save time.
+     * Stores the language ISO-code for each {@link ResourceBundle}.
      */
-    public static final Map<String, Country> languages = new HashMap<>();
+    public static final Map<String, ResourceBundle> languages = new HashMap<>() {{
+        for (Country country : Country.values()) {
+            put(country.getIsoCode(), getLanguage(country.getIsoCode()));
+        }
+    }};
 
     public static LanguageBundle lang(CommandContext ctx) {
         // Message is from guild
@@ -132,8 +136,8 @@ public class Lang {
      * @return Returns a {@link ResourceBundle} with all language specific strings.
      */
     private static ResourceBundle getGuildLanguage(Guild guild) {
-        final Country language = languages.get(guild.getId()); // Get language of guild
-        return getLanguage(language); // Return language
+        final String isoCode = MongoGuild.get(guild).getString("lang"); // Get language iso code of guild
+        return getLanguage(isoCode); // Return language
     }
 
     /**
@@ -141,14 +145,15 @@ public class Lang {
      * @return Returns a {@link ResourceBundle} with all language specific strings.
      */
     private static ResourceBundle getLanguage(Country country) {
-        return ResourceBundle.getBundle("languages/" + country.getId());
+        return ResourceBundle.getBundle("languages/" + country.getIsoCode());
     }
 
-    public static void load(List<Guild> guilds) {
-        for (Guild guild : guilds) {
-            final String languageId = MongoGuild.get(guild).getString("lang");
-            languages.put(guild.getId(), Country.getById(languageId));
-        }
+    /**
+     * @param isoCode The ISO-code of the language.
+     * @return Returns a {@link ResourceBundle} with all language specific strings.
+     */
+    private static ResourceBundle getLanguage(String isoCode) {
+        return ResourceBundle.getBundle("languages/" + isoCode);
     }
 
 }

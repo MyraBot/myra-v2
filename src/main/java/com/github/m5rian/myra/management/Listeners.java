@@ -2,6 +2,7 @@ package com.github.m5rian.myra.management;
 
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.DiscordBot;
+import com.github.m5rian.myra.Myra;
 import com.github.m5rian.myra.commands.developer.Roles;
 import com.github.m5rian.myra.commands.developer.ServerTracking;
 import com.github.m5rian.myra.commands.member.general.Reminder;
@@ -204,16 +205,14 @@ public class Listeners extends ListenerAdapter {
         try {
             // Bot starts for the first time
             if (Config.startUp == null) {
-                Lang.languages.clear(); // Clear current saved languages
-                new MongoDbUpdate().updateGuilds(event); // Add missing guilds to the database
+                if (!Myra.config.isInDev()) {
+                    new MongoDbUpdate().updateGuilds(event); // Add missing guilds to the database
+                }
 
                 new Twitch().jdaReady(); // Get access token for twitch
                 Spotify.getApi().generateAuthToken(); // Generate Spotify auth token
-
                 Config.startUp = System.currentTimeMillis();
             }
-
-            Lang.load(event.getJDA().getGuilds()); // Load all languages
 
             new Reminder().onReady(event); // Load reminders
             new Tempban().loadUnbans(event); // Load bans
@@ -304,7 +303,6 @@ public class Listeners extends ListenerAdapter {
     public void onGuildJoin(@Nonnull GuildJoinEvent event) {
         try {
             new MongoDbUpdate().guildJoinEvent(event); // Add guild document to database
-            Lang.languages.put(event.getGuild().getId(), Lang.Country.ENGLISH); // Add english as default language to guild
 
             serverTracking.onGuildJoin(event); // Server tracking message
             new InviteThanks().guildJoinEvent(event); // Thank message to server owner
