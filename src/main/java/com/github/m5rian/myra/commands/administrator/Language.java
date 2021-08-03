@@ -1,18 +1,21 @@
 package com.github.m5rian.myra.commands.administrator;
 
+import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
-import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.language.Lang;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emote;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Language implements CommandHandler {
 
@@ -23,53 +26,37 @@ public class Language implements CommandHandler {
             description = "Change the language for your server"
     )
     public void onLanguageCommand(CommandContext ctx) {
-        if (ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).isMember(ctx.getAuthor()) && !ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).getMemberById(ctx.getMember().getIdLong()).getRoles().stream().anyMatch(role -> role.getId().equals(Config.MYRA_TRANSLATOR_ROLE))) return;
+        if (ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).isMember(ctx.getAuthor()) && !ctx.getEvent().getJDA().getGuildById(Config.MARIAN_SERVER_ID).getMemberById(ctx.getMember().getIdLong()).getRoles().stream().anyMatch(role -> role.getId().equals(Config.MYRA_TRANSLATOR_ROLE)))
+            return;
 
-        final EmbedBuilder embed = info(ctx).getEmbed(); // Create embed
-        Arrays.asList(Lang.Country.values()).forEach(lang -> embed.appendDescription(lang.getFlag() + " " + lang.getNativeName() + "\n"));
+        final MongoGuild mongoGuild = MongoGuild.get(ctx.getGuild());
+        final String currentLanguage = mongoGuild.getString("lang"); // Get current language's ISO-Code
 
-        ctx.getChannel().sendMessage(embed.build()).queue(message -> {
-            Arrays.asList(Lang.Country.values()).forEach(lang -> {
-                // Language has a custom emote
-                if (lang.hasCustomFlag()) {
-                    final Emote emote = ctx.getEvent().getJDA().getEmoteById(lang.getCodepoints().replaceAll("\\D", ""));
-                    message.addReaction(emote).queue();
-                }
-                // Language has a normal emoji
-                else {
-                    message.addReaction(lang.getFlag()).queue();
-                }
-            });
+        final List<SelectOption> options = new ArrayList<>(); // Create list for all language options
+        Arrays.asList(Lang.Country.values()).forEach(lang -> options.add(SelectOption.of(lang.getNativeName(), lang.getIsoCode()).withEmoji(lang.hasCustomEmoji() ? Emoji.fromEmote(lang.getCustomEmoji().getEmote()) : Emoji.fromUnicode(lang.getUnicodeEmoji()))));
 
-            ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
-                    .setCondition(e -> !e.getUser().isBot()
-                            && e.getMessageIdLong() == message.getIdLong()
-                            && e.getUserIdLong() == ctx.getAuthor().getIdLong())
-                    //&& Lang.Country.getFlagsAsCodepoints().contains(e.getReactionEmote().toString()))
-                    .setAction(e -> {
+        final SelectionMenu.Builder menu = SelectionMenu.create("language_" + ctx.getMessage().getId())
+                .addOptions(options)
+                .setMaxValues(1)
+                .setDefaultOptions(List.of(options.stream().filter(option -> option.getValue().equals(currentLanguage)).findFirst().get()));
+        info(ctx).setDescription(lang(ctx).get("command.language.info.selection")).addComponents(menu.build()).send(); // Send message
 
-                        final String reaction;
-                        if (e.getReactionEmote().isEmote()) reaction = e.getReactionEmote().getEmote().toString();
-                        else reaction = e.getReactionEmote().getAsCodepoints();
+        onSelectionMenuEvent(menu.getId(), event -> {
+            final Lang.Country newLanguage = Lang.Country.getByIsoCode(event.getSelectedOptions().get(0).getValue());
 
-                        Lang.Country language;
-                        switch (reaction) {
-                            case "U+1f1ebU+1f1f7" -> language = Lang.Country.FRENCH;
-                            case "E:Catalan(851830307405299714)" -> language = Lang.Country.CATALAN;
-                            case "U+1f1eeU+1f1f9" -> language = Lang.Country.ITALIAN;
-                            case "U+1f1e9U+1f1ea" -> language = Lang.Country.GERMAN;
+            MongoGuild.get(ctx.getGuild()).setString("lang", newLanguage.getIsoCode()); // Update database
 
-                            default -> language = Lang.Country.ENGLISH;
-                        }
+            event.editSelectionMenu(event.getSelectionMenu().createCopy()
+                    .setDefaultOptions(List.of(event.getSelectedOptions().get(0))) // Set new lanuage as selected
+                    .setDisabled(true) // Disable selection menu
+                    .build()).queue();
 
-                        MongoGuild.get(ctx.getGuild()).setString("lang", language.getId()); // Update language
-                        Lang.languages.put(ctx.getGuild().getId(), language); // Update language cache
-
-                        info(ctx).setDescription("Changed language to " + language.getName()).send();
-                    })
-                    .setTimeout(30, TimeUnit.SECONDS)
-                    .setTimeoutAction(() -> message.clearReactions().queue())
-                    .load();
+            event.getMessage().editMessageEmbeds(
+                    info(ctx).setDescription(lang(ctx).get("command.language.info.changed")
+                            .replace("{$language.name}", newLanguage.getNativeName()))
+                            .getEmbed()
+                            .build())
+                    .queue();
         });
     }
 }
