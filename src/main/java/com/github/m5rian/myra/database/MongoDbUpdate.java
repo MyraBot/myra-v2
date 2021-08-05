@@ -1,6 +1,8 @@
 package com.github.m5rian.myra.database;
 
 import com.github.m5rian.myra.Config;
+import com.github.m5rian.myra.DiscordBot;
+import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Logger;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.mongodb.client.MongoCursor;
@@ -9,6 +11,8 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import org.bson.Document;
+
+import java.util.Arrays;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -73,36 +77,25 @@ public class MongoDbUpdate {
                 .append("welcomeImageFont", welcomeRaw.getString("welcomeImageFont"))
                 .append("welcomeEmbedMessage", welcomeRaw.getString("welcomeEmbedMessage"))
                 .append("welcomeDirectMessage", welcomeRaw.getString("welcomeDirectMessage"));
-        Document commands = new Document()
-                .append("calculate", commandsRaw.getBoolean("calculate"))
-                .append("avatar", commandsRaw.getBoolean("avatar"))
-                .append("information", commandsRaw.getBoolean("information"))
-                .append("reminder", commandsRaw.getBoolean("reminder"))
 
-                .append("rank", commandsRaw.getBoolean("rank"))
-                .append("leaderboard", commandsRaw.getBoolean("leaderboard"))
-                .append("editRank", commandsRaw.getBoolean("editRank"))
+        // Commands
+        final Document commands = new Document();
+        DiscordBot.COMMAND_SERVICE.getCommands().forEach(command -> {
+            final Class<?> commandClass = command.getMethod().getDeclaringClass();
+            // Command isn't a command to escape
+            if (Arrays.stream(Config.ESCAPED_COMMAND_PACKAGES).noneMatch(dir -> commandClass.getPackageName().startsWith(dir))) {
+                final String commandName = Format.asVariableName(command.getCommand().name()); // Get camel case of command name
+                // Command was already saved
+                if (commandsRaw.containsKey(commandName)) {
+                    commands.put(commandName, commandsRaw.getBoolean(commandName));
+                }
+                // Command wasn't in the guild document yet
+                else {
+                    commands.put(Format.asVariableName(command.getCommand().name()), true);
+                }
+            }
+        });
 
-                .append("meme", commandsRaw.getBoolean("meme"))
-                .append("textFormatter", commandsRaw.getBoolean("textFormatter"))
-
-                .append("music", commandsRaw.getBoolean("music"))
-                .append("join", commandsRaw.getBoolean("join"))
-                .append("leave", commandsRaw.getBoolean("leave"))
-                .append("play", commandsRaw.getBoolean("play"))
-                .append("skip", commandsRaw.getBoolean("skip"))
-                .append("clearQueue", commandsRaw.getBoolean("clearQueue"))
-                .append("shuffle", commandsRaw.getBoolean("shuffle"))
-                .append("musicInformation", commandsRaw.getBoolean("musicInformation"))
-                .append("queue", commandsRaw.getBoolean("queue"))
-
-                .append("moderation", commandsRaw.getBoolean("moderation"))
-                .append("clear", commandsRaw.getBoolean("clear"))
-                .append("nick", commandsRaw.getBoolean("nick"))
-                .append("kick", commandsRaw.getBoolean("kick"))
-                .append("mute", commandsRaw.getBoolean("mute"))
-                .append("ban", commandsRaw.getBoolean("ban"))
-                .append("unban", commandsRaw.getBoolean("unban"));
         Document listeners = new Document()
                 .append("welcomeImage", listenersRaw.getBoolean("welcomeImage"))
                 .append("welcomeEmbed", listenersRaw.getBoolean("welcomeEmbed"))

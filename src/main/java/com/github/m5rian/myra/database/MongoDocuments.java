@@ -1,7 +1,9 @@
 package com.github.m5rian.myra.database;
 
 import com.github.m5rian.myra.Config;
+import com.github.m5rian.myra.DiscordBot;
 import com.github.m5rian.myra.utilities.CustomEmoji;
+import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.entities.Guild;
@@ -9,6 +11,7 @@ import net.dv8tion.jda.api.entities.User;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -37,37 +40,16 @@ public class MongoDocuments {
                 .append("twitch", new ArrayList<String>())
                 .append("youtubeMessage", "not set")
                 .append("youtube", new ArrayList<String>());
-        //commands
-        Document commands = new Document()
-                .append("calculate", true)
-                .append("avatar", true)
-                .append("information", true)
-                .append("reminder", true)
 
-                .append("rank", true)
-                .append("leaderboard", true)
-                .append("edit rank", true)
-
-                .append("meme", true)
-                .append("textFormatter", true)
-
-                .append("music", true)
-                .append("join", true)
-                .append("leave", true)
-                .append("play", true)
-                .append("skip", true)
-                .append("clearQueue", true)
-                .append("shuffle", true)
-                .append("musicInformation", true)
-                .append("queue", true)
-
-                .append("moderation", true)
-                .append("clear", true)
-                .append("nick", true)
-                .append("kick", true)
-                .append("mute", true)
-                .append("ban", true)
-                .append("unban", true);
+        // Commands
+        final Document commands = new Document();
+        DiscordBot.COMMAND_SERVICE.getCommands().forEach(command -> {
+            final Class<?> commandClass = command.getMethod().getDeclaringClass();
+            // Command isn't a command to escape
+            if (Arrays.stream(Config.ESCAPED_COMMAND_PACKAGES).noneMatch(dir -> commandClass.getPackageName().startsWith(dir))) {
+                commands.put(Format.asVariableName(command.getCommand().name()), true);
+            }
+        });
         //listeners
         Document listeners = new Document()
                 // Welcome

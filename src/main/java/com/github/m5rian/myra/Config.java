@@ -42,6 +42,12 @@ public class Config {
     public static final boolean UPDATE_USERS = false;
     public static final String DEFAULT_AVATAR = "https://cdn.discordapp.com/embed/avatars/4.png";
     public static final String DISCORD_PROFILE_URL = "https://discord.com/users/";
+
+    public static final String[] ESCAPED_COMMAND_PACKAGES = {
+            "com.github.m5rian.myra.commands.member.help",
+            "com.github.m5rian.myra.commands.administrator",
+            "com.github.m5rian.myra.commands.developer"
+    };
     // Caches
     public static final Cache<String, String> CACHE_PREFIX = new Cache<String, String>()
             .setLoadFunction(guildId -> {
