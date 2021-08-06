@@ -32,8 +32,8 @@ public class Shutdown implements CommandHandler {
             ctx.getWaiter().waitForEvent(GuildMessageReactionAddEvent.class)
                     .setCondition(e ->
                             !e.getUser().isBot()
-                                    && e.getUser() == ctx.getAuthor()
-                                    && e.getMessageId().equals(message.getId()))
+                                    && e.getUserIdLong() == ctx.getAuthor().getIdLong()
+                                    && e.getMessageIdLong() == message.getIdLong())
                     .setAction(e -> {
                         message.clearReactions().queue(); // Clear reactions
                         DiscordBot.shardManager.setStatus(OnlineStatus.OFFLINE); // Set status to offline
