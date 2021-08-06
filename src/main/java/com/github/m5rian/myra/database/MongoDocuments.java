@@ -104,6 +104,7 @@ public class MongoDocuments {
                 .append("messages", 0)
                 .append("avatar", user.getEffectiveAvatarUrl())
                 .append("birthday", "not set")
+                .append("socials", new Document().put("discord", user.getId()))
                 .append("achievements", new Document());
     }
 

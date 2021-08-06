@@ -140,6 +140,7 @@ public class MongoDbUpdate {
                 .append("xp", Utilities.getBsonLong(userDocument, "xp")) // Global xp
                 .append("messages", userDocument.getInteger("messages")) // Global messages
                 .append("birthday", userDocument.getString("birthday"))
+                .append("socials", userDocument.get("socials", Document.class))
                 .append("achievements", userDocument.get("achievements", Document.class));
 
         for (String key : userDocument.keySet()) {
@@ -149,7 +150,7 @@ public class MongoDbUpdate {
             final Document updatedGuildDocument = new Document() // Create a new guild document
                     .append("level", guildDocument.getInteger("level"))
                     .append("xp", Utilities.getBsonLong(guildDocument, "xp"))
-                    .append("messages", guildDocument.getInteger("messages"))
+                    .append("messages", Utilities.getBsonLong(guildDocument, "messages"))
                     .append("voiceCallTime", Utilities.getBsonLong(guildDocument, "voiceCallTime"))
                     .append("balance", guildDocument.getInteger("balance"))
                     .append("dailyStreak", guildDocument.getInteger("dailyStreak"))
