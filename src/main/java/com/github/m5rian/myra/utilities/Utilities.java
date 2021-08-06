@@ -477,4 +477,8 @@ public class Utilities {
 
     }
 
+    public static String mentionRole(String id) {
+        return "<@&" + id + ">";
+    }
+
 }
