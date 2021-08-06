@@ -1,12 +1,21 @@
 package com.github.m5rian.myra.commands.administrator;
 
 import com.github.m5rian.jdaCommandHandler.Channel;
-import com.github.m5rian.jdaCommandHandler.command.CommandContext;
-import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
+import com.github.m5rian.jdaCommandHandler.command.CommandContext;
+import com.github.m5rian.jdaCommandHandler.command.CommandData;
+import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
+import com.github.m5rian.myra.DiscordBot;
+import com.github.m5rian.myra.commands.member.help.Help;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.Nested;
+import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
+
+import java.util.Arrays;
+import java.util.Optional;
+
+import static com.github.m5rian.myra.utilities.language.Lang.lang;
 
 public class Toggle implements CommandHandler {
 
@@ -19,111 +28,97 @@ public class Toggle implements CommandHandler {
             channel = Channel.GUILD
     )
     public void execute(CommandContext ctx) throws Exception {
-        error(ctx).setDescription("hey man! This command is currently broken. Please try again in a few days. I'm sorry").send();
-        /*
         // Command usage
         if (ctx.getArguments().length == 0) {
-            new CommandUsage(ctx.getEvent())
-                    .setCommand("toggle")
-                    .addUsages(new Usage()
-                            .setUsage("toggle <command/category>")
-                            .setEmoji("\uD83D\uDD11")
-                            .setDescription(lang(ctx).get("description.toggle")))
-                    .addInformation(lang(ctx).get("command.toggle.info.info"))
-                    .send();
+            usage(ctx).setFooter(lang(ctx).get("command.toggle.info.info")).send();
             return;
         }
 
         final MongoGuild db = MongoGuild.get(ctx.getGuild()); // Get database
-        final Success success = new Success(ctx.getEvent())
-                .setCommand("toggle")
-                .setEmoji("\uD83D\uDD11");
+        // User wants to toggle a whole category
+        if (ctx.getArgumentsRaw().equalsIgnoreCase("leveling") || ctx.getArgumentsRaw().equalsIgnoreCase("moderation") || ctx.getArgumentsRaw().equalsIgnoreCase("music")) {
+            boolean newValue;
+            String category;
 
-        // Category leveling
-        if (ctx.getArgumentsRaw().equalsIgnoreCase("leveling")) {
-            final boolean newValue = toggleLeveling(db);
-            // Category is enabled
-            if (newValue)
-                success.setMessage(lang(ctx).get("command.toggle.info.category.on")
-                        .replace("{$category}", "leveling"));
-                // Category is disabled
-            else success.setMessage(lang(ctx).get("command.toggle.info.category.off")
-                    .replace("{$category}", "leveling"));
-
-            success.send(); // Send success message
-            return;
-        }
-        // Category Moderation
-        if (ctx.getArgumentsRaw().equalsIgnoreCase("moderation")) {
-            final boolean newValue = toggleModeration(db);
-            // Category is enabled
-            if (newValue)
-                success.setMessage(lang(ctx).get("command.toggle.info.category.on")
-                        .replace("{$category}", "moderation"));
-                // Category is disabled
-            else success.setMessage(lang(ctx).get("command.toggle.info.category.off")
-                    .replace("{$category}", "moderation"));
-
-            success.send(); // Send success message
-            return;
-        }
-        // Category music
-        if (ctx.getArgumentsRaw().equalsIgnoreCase("music")) {
-            final boolean newValue = toggleMusic(db);
-            // Category is enabled
-            if (newValue)
-                success.setMessage(lang(ctx).get("command.toggle.info.category.on")
-                        .replace("{$category}", "music"));
-                // Category is disabled
-            else success.setMessage(lang(ctx).get("command.toggle.info.category.off")
-                    .replace("{$category}", "music"));
-
-            success.send(); // Send success message
-            return;
-        }
-
-
-        // Get command without prefix
-        String command;
-        if (ctx.getArguments()[0].startsWith(ctx.getPrefix())) {
-            command = ctx.getArguments()[0].substring(ctx.getPrefix().length());
-        } else command = ctx.getArguments()[0];
-
-        // Go throw every command
-        for (Map.Entry<MethodInfo, CommandEvent> entry : DiscordBot.COMMAND_SERVICE.getCommands()akg702
-                .entrySet()) {
-
-            // If a alias or name matches the given command
-            if (Arrays.stream(entry.getValue().aliases()).anyMatch(command::equalsIgnoreCase) || command.equalsIgnoreCase(entry.getValue().name())) {
-                // Command is a help command
-                if (entry.getKey().getClass().getPackage().equals(Help.class.getPackage())) {
-                    new Error(ctx.getEvent())
-                            .setCommand("toggle")
-                            .setEmoji("\uD83D\uDD11")
-                            .setMessage(lang(ctx).get("command.toggle.error.helpCommands"))
-                            .send();
-                    return;
+            // Category leveling
+            switch (ctx.getArgumentsRaw().toLowerCase()) {
+                case "leveling" -> {
+                    newValue = toggleLeveling(db);
+                    category = "leveling";
                 }
-                command = Format.asVariableName(entry.getValue().name()); // Get command name
-                boolean newValue = !db.getNested("commands").get(command, Boolean.class); // Get new value of command
-                db.getNested("commands").setBoolean(command, newValue); // Update database
+                case "moderation" -> {
+                    newValue = toggleModeration(db);
+                    category = "moderation";
+                }
+                case "music" -> {
+                    newValue = toggleMusic(db);
+                    category = "music";
+                }
+                default -> throw new IllegalStateException("Unexpected value: " + ctx.getArgumentsRaw().toLowerCase());
+            }
 
-                // Success information
-                if (newValue) success.setMessage(lang(ctx).get("command.toggle.info.command.on")
-                        .replace("{$command}", command)); // Command which got toggled on
-                else success.setMessage(lang(ctx).get("command.toggle.info.command.off")
-                        .replace("{$command}", command)); // Command which got toggled off
+            // Category got enabled
+            if (newValue) info(ctx).setDescription(lang(ctx).get("command.toggle.info.category.on")
+                    .replace("{$category}", category))
+                    .send();
+                // Category is disabled
+            else info(ctx).setDescription(lang(ctx).get("command.toggle.info.category.off")
+                    .replace("{$category}", category))
+                    .send();
+        }
 
-                success.send();
+        // User wants to disable only a command
+        else {
+            // Get command without prefix
+            String command = ctx.getArgumentsRaw();
+            if (ctx.getArguments()[0].startsWith(ctx.getPrefix())) { // Argument starts with prefix
+                command = ctx.getArgumentsRaw().substring(ctx.getPrefix().length()); // Remove prefix
+            }
+
+            final String query = command; // Copy command variable to final one
+            // Try to finding a command matching the search query
+            final Optional<CommandData> optionalCommand = DiscordBot.COMMAND_SERVICE.getCommands().stream().filter(commandData -> {
+                final CommandEvent commandEvent = commandData.getCommand(); // Get command event annotation
+                // Command names are the same
+                if (commandEvent.name().equalsIgnoreCase(query)) {
+                    return true;
+                }
+                // An alias matches the command query
+                if (Arrays.stream(commandEvent.aliases()).anyMatch(alias -> alias.equalsIgnoreCase(query))) {
+                    return true;
+                }
+                return false;
+            }).findFirst();
+
+            // No command found
+            if (optionalCommand.isEmpty()) {
+                error(ctx).setDescription(lang(ctx).get("command.toggle.error.notFound")).send();
                 return;
             }
+            // Command exists
+            else {
+                // Command is a help command
+                if (optionalCommand.get().getMethod().getDeclaringClass().getPackageName().equals(Help.class.getPackageName())) {
+                    error(ctx).setDescription(lang(ctx).get("command.toggle.error.helpCommands")).send();
+                    return;
+                }
+
+                final String camelCase = Format.asVariableName(optionalCommand.get().getCommand().name()); // Get command name in camel case
+                System.out.println(camelCase);
+                final boolean newValue = !db.getNested("commands").getBoolean(camelCase); // Get new value of command
+                db.getNested("commands").setBoolean(camelCase, newValue); // Update database
+
+                // Command got toggled on
+                if (newValue) info(ctx).setDescription(lang(ctx).get("command.toggle.info.command.on")
+                        .replace("{$command}", optionalCommand.get().getCommand().name()))
+                        .send();
+                // Command got toggled off
+                else info(ctx).setDescription(lang(ctx).get("command.toggle.info.command.off")
+                        .replace("{$command}", optionalCommand.get().getCommand().name()))
+                        .send();
+            }
         }
-        // Command doesn't exist
-        new Error(ctx.getEvent())
-                .setCommand("toggle")
-                .setEmoji("\uD83D\uDD11")
-                .setMessage(lang(ctx).get("command.toggle.error.notFound"))
-                .send();*/
+
     }
 
     private boolean toggleLeveling(MongoGuild db) {

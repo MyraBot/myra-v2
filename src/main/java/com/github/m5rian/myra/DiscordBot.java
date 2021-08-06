@@ -68,11 +68,13 @@ import com.github.m5rian.myra.commands.premium.Unicorn;
 import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.MongoDbUpdate;
 import com.github.m5rian.myra.database.guild.MongoGuild;
+import com.github.m5rian.myra.database.guild.Nested;
 import com.github.m5rian.myra.listeners.suggestions.SubmitSuggestion;
 import com.github.m5rian.myra.listeners.suggestions.SuggestionsChannel;
 import com.github.m5rian.myra.listeners.suggestions.SuggestionsHelp;
 import com.github.m5rian.myra.listeners.suggestions.SuggestionsToggle;
 import com.github.m5rian.myra.management.Listeners;
+import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.github.m5rian.myra.utilities.permissions.Administrator;
 import com.github.m5rian.myra.utilities.permissions.Marian;
@@ -284,6 +286,13 @@ public class DiscordBot {
                     .setAuthorAvatar(ctx -> ctx.getAuthor().getEffectiveAvatarUrl())
                     .setColourHex(ctx -> String.valueOf(Utilities.red))
                     .reply(false))
+            .addCheck((event, command) -> {
+                final Nested commands = MongoGuild.get(event.getGuild()).getNested("commands");
+                if (commands.hasKey(command.getCommand().name())) {
+                    return commands.getBoolean(Format.asVariableName(command.getCommand().name()));
+                }
+                else return true;
+            })
             .build();
 
     /**

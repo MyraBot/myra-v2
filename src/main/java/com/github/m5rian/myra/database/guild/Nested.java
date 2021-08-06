@@ -23,6 +23,14 @@ public class Nested {
 
     /**
      * @param key The key to search for.
+     * @return Returns whether the nested document contains a key named {@param key}.
+     */
+    public boolean hasKey(String key) {
+        return nested.containsKey(key);
+    }
+
+    /**
+     * @param key The key to search for.
      * @return Returns a {@link String} given by a key.
      */
     public String getString(String key) {
@@ -54,7 +62,7 @@ public class Nested {
      *
      * @param key   The key to search for.
      * @param value The new value.
-     *              @return Returns the current {@link Nested} for chaining purpose.
+     * @return Returns the current {@link Nested} for chaining purpose.
      */
     public Nested setInteger(String key, Integer value) {
         this.nested.replace(key, value); // Replace value
