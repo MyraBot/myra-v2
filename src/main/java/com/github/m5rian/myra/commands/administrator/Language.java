@@ -57,6 +57,8 @@ public class Language implements CommandHandler {
                             .getEmbed()
                             .build())
                     .queue();
+
+            finishSelectionMenu(menu.getId());
         });
     }
 }
