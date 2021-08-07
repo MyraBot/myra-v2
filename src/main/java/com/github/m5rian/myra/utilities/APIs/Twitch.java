@@ -7,6 +7,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -51,8 +52,8 @@ public class Twitch {
         try (Response response = Utilities.HTTP_CLIENT.newCall(game).execute()) {
             //return access token
             String output = response.body().string();
-            JSONArray games = new JSONObject(output).getJSONArray("data");
-            if (games.isNull(0)) return null;
+            JSONArray games = new JSONObject(output).optJSONArray("data");
+            if (games == null) return null;
             else return games.getJSONObject(0).getString("name");
         }
     }
@@ -103,11 +104,16 @@ public class Twitch {
         String channelOutput;
         try (Response channelResponse = Utilities.HTTP_CLIENT.newCall(channel).execute()) {
             channelOutput = channelResponse.body().string();
+
+            try {
+                final JSONObject stream = new JSONObject(channelOutput); // Create Json object
+                if (stream.getJSONArray("data").length() == 0) return null; // No channel found
+                return stream.getJSONArray("data").getJSONObject(0); // Return channel information
+            }
+            // Invalid response, probably server error
+            catch (JSONException e) {
+                return null;
+            }
         }
-
-        JSONObject stream = new JSONObject(channelOutput); // Create Json object
-
-        if (stream.getJSONArray("data").length() == 0) return null; // No channel found
-        return stream.getJSONArray("data").getJSONObject(0); // Return channel information
     }
 }
