@@ -1,9 +1,10 @@
 package com.github.m5rian.myra.utilities.APIs.LavaPlayer;
 
+import com.github.m5rian.jdaCommandHandler.CommandUtils;
+import com.github.m5rian.jdaCommandHandler.command.CommandContext;
+import com.github.m5rian.jdaCommandHandler.commandMessages.CommandMessage;
 import com.github.m5rian.myra.utilities.APIs.spotify.Playlist;
 import com.github.m5rian.myra.utilities.APIs.spotify.Song;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.EmbedMessage.Success;
 import com.github.m5rian.myra.utilities.LoadingBar;
 import com.github.m5rian.myra.utilities.Utilities;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -16,7 +17,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashMap;
@@ -65,23 +66,23 @@ public class PlayerManager {
         return guildId.get();
     }
 
-    public void loadAndPlay(Message message, String query, boolean isUrl, Playlist playlist) {
-        final GuildMusicManager musicManager = this.getMusicManager(message.getGuild()); // Get music manager for guild
+    public void loadAndPlay(CommandContext ctx, String query, boolean isUrl, Playlist playlist) {
+        final GuildMusicManager musicManager = this.getMusicManager(ctx.getGuild()); // Get music manager for guild
 
         // Load songs from spotify playlist
         if (playlist != null) {
-            loadSpotifyPlaylist(message, playlist, musicManager); // Load spotify playlist
+            loadSpotifyPlaylist(ctx, playlist, musicManager); // Load spotify playlist
         }
         // Load songs from other sources (handled by lavaplayer)
         else {
-            loadAndPlayQuery(message, query, isUrl, musicManager);
+            loadAndPlayQuery(ctx, query, isUrl, musicManager);
         }
         musicManager.audioPlayer.setVolume(50); // Set volume
     }
 
 
-    private void loadAndPlayQuery(Message message, String query, boolean isUrl, GuildMusicManager musicManager) {
-        final User author = message.getAuthor();  // Get author
+    private void loadAndPlayQuery(CommandContext ctx, String query, boolean isUrl, GuildMusicManager musicManager) {
+        final User author = ctx.getAuthor();  // Get author
 
         this.audioPlayerManager.loadItemOrdered(musicManager, query, new AudioLoadResultHandler() {
 
@@ -91,17 +92,14 @@ public class PlayerManager {
              */
             @Override
             public void trackLoaded(AudioTrack track) {
-                final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
+                final RequestData requestData = new RequestData(author.getIdLong(), (TextChannel) ctx.getChannel()); // Create new request data
                 track.setUserData(requestData); // Add request data
                 musicManager.scheduler.queue(track); // Add audio track to queue
 
                 // Success message
-                new Success(null)
-                        .setCommand("play")
-                        .setAvatar(author.getEffectiveAvatarUrl())
-                        .setHyperLink(track.getInfo().title)
-                        .setMessage("Adding to queue: " + Utilities.hyperlink("`" + track.getInfo().title + "`", track.getInfo().uri))
-                        .setChannel(message.getChannel())
+                CommandUtils.infoFactory.invoke(ctx)
+                        .setHyperLink(track.getInfo().uri)
+                        .setDescription("Adding to queue: " + Utilities.hyperlink("`" + track.getInfo().title + "`", track.getInfo().uri))
                         .send();
             }
 
@@ -115,22 +113,19 @@ public class PlayerManager {
             public void playlistLoaded(AudioPlaylist playlist) {
                 // Query is a link to a playlist
                 if (!playlist.isSearchResult()) {
-                    Success success = new Success(null)
-                            .setCommand("play")
-                            .setAvatar(author.getEffectiveAvatarUrl())
-                            .setHyperLink(query)
-                            .setChannel(message.getChannel());
+                    final CommandMessage info = CommandUtils.infoFactory.invoke(ctx).setHyperLink(query);
                     // Playlist is given by url
-                    if (isUrl) { // Add in message url to playlist
-                        success.setMessage("Adding playlist to queue: " + Utilities.hyperlink("`" + playlist.getName() + "`", query));
-                    } else {
-                        success.setMessage(String.format("Adding playlist to queue: `%s`", playlist.getName()));
+                    if (isUrl) {
+                        info.setDescription("Adding playlist to queue: " + Utilities.hyperlink("`" + playlist.getName() + "`", query)).send();
                     }
-                    success.send(); // Send success message
+                    // Playlist was given my a search query
+                    else {
+                        info.setDescription(String.format("Adding playlist to queue: `%s`", playlist.getName())).send();
+                    }
 
                     // Add every audio of the playlist track to queue
                     playlist.getTracks().forEach(track -> {
-                        final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
+                        final RequestData requestData = new RequestData(author.getIdLong(), (TextChannel) ctx.getChannel()); // Create new request data
                         track.setUserData(requestData); // Add request data
                         musicManager.scheduler.queue(track); // Add audio track to queue
                     });
@@ -139,7 +134,7 @@ public class PlayerManager {
                 // Playlist are audio racks, which match query
                 else {
                     final AudioTrack track = playlist.getTracks().get(0); // Get first track
-                    final RequestData requestData = new RequestData(author.getIdLong(), message.getTextChannel()); // Create new request data
+                    final RequestData requestData = new RequestData(author.getIdLong(), (TextChannel) ctx.getChannel()); // Create new request data
                     track.setUserData(requestData); // Add request data
                     trackLoaded(track); // Load track in queue
                 }
@@ -147,41 +142,32 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                new Error(null)
-                        .setCommand("play")
-                        .setEmoji("\uD83D\uDCBF")
-                        .setAvatar(author.getEffectiveAvatarUrl())
-                        .setMessage(String.format("Nothing found by `%s`", query))
-                        .setChannel(message.getChannel())
+                CommandUtils.errorFactory.invoke(ctx)
+                        .setDescription(String.format("Nothing found by `%s`", query))
                         .send();
             }
 
             @Override
             public void loadFailed(FriendlyException e) {
-                new Error(null)
-                        .setCommand("play")
-                        .setEmoji("\uD83D\uDCBF")
-                        .setAvatar(author.getEffectiveAvatarUrl())
-                        .setMessage("Could not play the track")
+                CommandUtils.errorFactory.invoke(ctx)
+                        .setDescription("Could not play the track")
                         .send();
             }
         });
     }
 
-    private void loadSpotifyPlaylist(Message message, Playlist playlist, GuildMusicManager musicManager) {
+    private void loadSpotifyPlaylist(CommandContext ctx, Playlist playlist, GuildMusicManager musicManager) {
         final LoadingBar loadingBarPreset = new LoadingBar("□", "■", 10L, (long) playlist.getSongs().size()); // Create preset for loading bar
         // Create decoding embed
-        final EmbedBuilder decoding = new Success(null)
-                .setCommand("play")
-                .setAvatar(message.getAuthor().getEffectiveAvatarUrl())
+        final EmbedBuilder decoding = CommandUtils.infoFactory.invoke(ctx)
                 .setHyperLink(playlist.getUrl())
-                .setMessage(lang(message).get("command.music.play.spotify.playlist.info.decoding")
+                .setDescription(lang(ctx).get("command.music.play.spotify.playlist.info.decoding")
                         .replace("{$playlist.name}", playlist.getName())
                         .replace("{$playlist.url}", playlist.getUrl()))
                 .setFooter(loadingBarPreset.render(0L))
                 .getEmbed();
 
-        message.getChannel().sendMessage(decoding.build()).queue(response -> {
+        ctx.getMessage().replyEmbeds(decoding.build()).queue(response -> {
             final SpotifyPlaylistLoader playlistLoader = new SpotifyPlaylistLoader(response, playlist, musicManager); // Create a spotify playlist loader
 
             // Song loading

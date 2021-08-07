@@ -2,8 +2,6 @@ package com.github.m5rian.myra.utilities;
 
 import com.github.m5rian.jdaCommandHandler.CommandUtils;
 import com.github.m5rian.jdaCommandHandler.command.CommandContext;
-import com.github.m5rian.myra.utilities.EmbedMessage.Error;
-import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -391,29 +389,27 @@ public class Utilities {
     }
 
     public static boolean hasMusicError(CommandContext ctx) {
-        // Prepare error message
-        final Error error = new Error(ctx.getEvent())
-                .setCommand("leave")
-                .setEmoji("\uD83D\uDCE4");
+        // Bot isn't connected to a voice channel yet
+        if (!ctx.getGuild().getAudioManager().isConnected()) {
+            ctx.getGuild().getAudioManager().openAudioConnection(ctx.getMember().getVoiceState().getChannel()); // Open audio connection
+        }
 
         // Author isn't in a voice channel yet
         if (!ctx.getEvent().getMember().getVoiceState().inVoiceChannel()) {
-            error.setMessage(Lang.lang(ctx).get("command.music.error.memberNotInVoiceChannel")).send();
+            CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("command.music.error.memberNotInVoiceChannel")).send();
             return true;
         }
         // Bot not connected to a voice channel
         if (!ctx.getGuild().getAudioManager().isConnected()) {
-            error.setMessage(Lang.lang(ctx).get("command.music.error.notConnected")).send();
+            CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("command.music.error.notConnected")).send();
             return true;
         }
         // Author isn't in the same voice channel as bot
         if (!ctx.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(ctx.getEvent().getMember())) {
-            ctx.getGuild().getAudioManager().getConnectedChannel().createInvite().timeout(15, TimeUnit.MINUTES).queue(invite -> {
-                error.setMessage(Lang.lang(ctx).get("command.music.error.alreadyConnected")
-                        .replace("{$channel}", invite.getChannel().getName()) // Channel name
-                        .replace("{$invite}", invite.getUrl())) // Invite url
-                        .send();
-            });
+            final VoiceChannel voiceChannel = ctx.getGuild().getAudioManager().getConnectedChannel();
+            CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("command.music.error.alreadyConnected")
+                    .replace("{$channel.mention}", Utilities.mentionChannel(voiceChannel.getId()))) // Channel mention
+                    .send();
             return true;
         }
 
@@ -481,4 +477,26 @@ public class Utilities {
         return "<@&" + id + ">";
     }
 
+    public static String mentionChannel(String id) {
+        return "<#" + id + ">";
+    }
+
+    public static boolean hasPerms(CommandContext ctx, Permission... permissions) {
+        for (Permission permission : permissions) {
+            // Bot doesn't have required permission
+            if (!ctx.getBotMember().hasPermission((GuildChannel) ctx.getChannel(), permission)) {
+                switch (permission) {
+                    case MESSAGE_WRITE -> {
+                        return false;
+                    }
+                    case VOICE_CONNECT -> {
+                        CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("command.music.join.error.missingPermission")).send();
+                        return false;
+                    }
+                }
+                return false;
+            }
+        }
+        return true;
+    }
 }
