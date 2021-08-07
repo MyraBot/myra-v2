@@ -290,8 +290,7 @@ public class DiscordBot {
                 final Nested commands = MongoGuild.get(event.getGuild()).getNested("commands");
                 if (commands.hasKey(command.getCommand().name())) {
                     return commands.getBoolean(Format.asVariableName(command.getCommand().name()));
-                }
-                else return true;
+                } else return true;
             })
             .build();
 
@@ -319,14 +318,13 @@ public class DiscordBot {
                         CacheFlag.EMOTE,
                         //CacheFlag.CLIENT_STATUS,
                         CacheFlag.VOICE_STATE)
-                .setMemberCachePolicy(MemberCachePolicy.NONE)
+                .setMemberCachePolicy(MemberCachePolicy.VOICE) // MemberCachePolicy.VOICE to get the VoiceState of a member
                 .setChunkingFilter(ChunkingFilter.NONE)
                 .setStatus(OnlineStatus.IDLE)
                 .setActivity(Activity.watching(Config.LOADING_STATUS))
                 .addEventListeners(
                         new Listeners(),
                         new CommandListener(COMMAND_SERVICE));
-
         // Update database
         MongoDbUpdate.update(() -> {
             try {
