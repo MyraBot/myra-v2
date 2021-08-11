@@ -21,7 +21,7 @@ public class Lang {
         ENGLISH("en_UK", "English", "English", "\uD83C\uDDEC\uD83C\uDDE7"),
         FRENCH("fr", "French", "Français", "\uD83C\uDDEB\uD83C\uDDF7"),
         CATALAN("ca", "Catalan", "Català", CustomEmoji.CATALAN),
-        ITALIAN("it", "Italian", "Italia", "\uD83C\uDDEE\uD83C\uDDF9"),
+        //ITALIAN("it", "Italian", "Italia", "\uD83C\uDDEE\uD83C\uDDF9"),
         GERMAN("de", "German", "Deutsch", "\uD83C\uDDE9\uD83C\uDDEA");
 
         private final String id;
