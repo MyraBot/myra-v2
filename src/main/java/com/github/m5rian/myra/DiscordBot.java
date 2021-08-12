@@ -43,10 +43,7 @@ import com.github.m5rian.myra.commands.member.economy.administrator.shop.ShopRem
 import com.github.m5rian.myra.commands.member.economy.blackjack.BlackJack;
 import com.github.m5rian.myra.commands.member.fun.Meme;
 import com.github.m5rian.myra.commands.member.fun.TextFormatter;
-import com.github.m5rian.myra.commands.member.general.Avatar;
-import com.github.m5rian.myra.commands.member.general.Calculate;
-import com.github.m5rian.myra.commands.member.general.Emoji;
-import com.github.m5rian.myra.commands.member.general.Reminder;
+import com.github.m5rian.myra.commands.member.general.*;
 import com.github.m5rian.myra.commands.member.general.information.*;
 import com.github.m5rian.myra.commands.member.help.*;
 import com.github.m5rian.myra.commands.member.leveling.Background;
@@ -106,146 +103,52 @@ public class DiscordBot {
             .allowMention()
             .registerCommandClasses(
                     // Marian
-                    new SetGuildPremium(),
-                    new GetInvite(),
-                    new Shutdown(),
-                    new Blacklist(),
+                    new SetGuildPremium(), new GetInvite(), new Shutdown(), new Blacklist(),
                     // Premium
                     new Unicorn(),
                     // Administrator
-                    new Prefix(),
-                    new com.github.m5rian.myra.commands.administrator.Config(),
-                    new Language(),
-                    new Say(),
-                    new Toggle(),
-                    new GlobalChatChannel(),
-                    new MusicVotingToggle(),
+                    new Prefix(), new com.github.m5rian.myra.commands.administrator.Config(), new Language(), new Say(), new Toggle(), new GlobalChatChannel(), new MusicVotingToggle(),
 
-                    new ReactionRolesHelp(),
-                    new ReactionRolesAdd(),
-                    new ReactionRolesRemove(),
+                    new ReactionRolesHelp(), new ReactionRolesAdd(), new ReactionRolesRemove(),
                     //
                     new LogChannel(),
                     // Help
-                    new Commands(),
-                    new Help(),
-                    new Invite(),
-                    new Ping(),
-                    new Support(),
-                    new Feature(),
-                    new Report(),
-                    new Vote(),
+                    new Commands(), new Help(), new Invite(), new Ping(), new Support(), new Feature(), new Report(), new Vote(),
                     // General
-                    new InformationHelp(),
-                    new InformationServer(),
-                    new InformationUser(),
-                    new InformationMember(),
-                    new InformationBot(),
-
-                    new Avatar(),
-                    new Calculate(),
-                    new Reminder(),
-                    new Emoji(),
+                    new InformationHelp(), new InformationServer(), new InformationUser(), new InformationMember(), new InformationBot(),
+                    new Avatar(), new Calculate(), new Reminder(), new Emoji(), new About(),
                     // Leveling
-                    new LevelingHelp(),
-                    new LevelingToggle(),
-                    new LevelingSet(),
-                    new LevelingChannel(),
-
-                    new LevelingRolesHelp(),
-                    new LevelingRolesList(),
-                    new LevelingRolesAdd(),
-                    new LevelingRolesRemove(),
-                    new LevelingRolesUnique(),
-
-                    new Rank(),
-                    new Background(),
-                    new Time(),
-                    new Leaderboard(),
+                    new LevelingHelp(), new LevelingToggle(), new LevelingSet(), new LevelingChannel(),
+                    new LevelingRolesHelp(), new LevelingRolesList(), new LevelingRolesAdd(), new LevelingRolesRemove(), new LevelingRolesUnique(),
+                    new Rank(), new Background(), new Time(), new Leaderboard(),
                     // Economy
-                    new EconomyHelp(),
-                    new EconomySet(),
-                    new Currency(),
-
-                    new ShopHelp(),
-                    new ShopAdd(),
-                    new ShopRemove(),
-
-                    new Balance(),
-                    new Daily(),
-                    new Streak(),
-                    new Fish(),
-                    new BlackJack(),
-                    new Give(),
-
+                    new EconomyHelp(), new EconomySet(), new Currency(),
+                    new ShopHelp(), new ShopAdd(), new ShopRemove(),
+                    new Balance(), new Daily(), new Streak(), new Fish(), new BlackJack(), new Give(),
                     new Buy(),
                     // Fun
-                    new Meme(),
-                    new TextFormatter(),
+                    new Meme(), new TextFormatter(),
                     // Suggestions
-                    new SuggestionsHelp(),
-                    new SuggestionsChannel(),
-                    new SuggestionsToggle(),
-
+                    new SuggestionsHelp(), new SuggestionsChannel(), new SuggestionsToggle(),
                     new SubmitSuggestion(),
                     // Moderation
                     new ModerationHelp(),
 
-                    new Ban(),
-                    new Tempban(),
-                    new Unban(),
-
-                    new MuteRole(),
-                    new Mute(),
-                    new Tempmute(),
-                    new Unmute(),
-
-                    new Clear(),
-                    new Kick(),
-                    new Nick(),
+                    new Ban(), new Tempban(), new Unban(),
+                    new MuteRole(), new Mute(), new Tempmute(), new Unmute(),
+                    new Clear(), new Kick(), new Nick(),
                     // Music
-                    new MusicHelp(),
-                    new MusicJoin(),
-                    new MusicLeave(),
-                    new MusicPlay(),
-                    new MusicStop(),
-                    new MusicShuffle(),
-                    new MusicRepeat(),
-                    new MusicInformation(),
-                    new MusicQueue(),
-                    new MusicSkip(),
-                    new MusicClearQueue(),
-                    new MusicFilters(),
+                    new MusicHelp(), new MusicJoin(), new MusicLeave(), new MusicPlay(), new MusicStop(), new MusicShuffle(), new MusicRepeat(), new MusicInformation(), new MusicQueue(), new MusicSkip(), new MusicClearQueue(), new MusicFilters(),
                     // Autorole
                     new AutoRole(),
                     // Notification
-                    new NotificationsHelp(),
-                    new NotificationsChannel(),
-                    new NotificationsList(),
-
-                    new NotificationsMessageHelp(),
-                    new Streamer(),
-                    new NotificationsMessageTwitch(),
-                    new YouTuber(),
-                    new NotificationsMessageYoutube(),
+                    new NotificationsHelp(), new NotificationsChannel(), new NotificationsList(),
+                    new NotificationsMessageHelp(), new Streamer(), new NotificationsMessageTwitch(), new YouTuber(), new NotificationsMessageYoutube(),
                     // Welcome
-                    new WelcomeHelp(),
-                    new WelcomePreview(),
-                    new WelcomeChannel(),
-                    new WelcomeColour(),
-                    // Welcome Image
-                    new WelcomeImageHelp(),
-                    new WelcomeImageToggle(),
-                    new WelcomeImageBackground(),
-                    new WelcomeImageFont(),
-                    // Welcome direct message
-                    new WelcomeDirectMessageHelp(),
-                    new WelcomeDirectMessageToggle(),
-                    new WelcomeDirectMessageMessage(),
-                    // Welcome embed
-                    new WelcomeEmbedHelp(),
-                    new WelcomeEmbedToggle(),
-                    new WelcomeEmbedMessage())
+                    new WelcomeHelp(), new WelcomePreview(), new WelcomeChannel(), new WelcomeColour(),
+                    new WelcomeImageHelp(), new WelcomeImageToggle(), new WelcomeImageBackground(), new WelcomeImageFont(), // Welcome image
+                    new WelcomeDirectMessageHelp(), new WelcomeDirectMessageToggle(), new WelcomeDirectMessageMessage(),  // Welcome direct message
+                    new WelcomeEmbedHelp(), new WelcomeEmbedToggle(), new WelcomeEmbedMessage()) // Welcome embed
             .setUserBlacklist(() -> {
                 final List<String> userIds = new ArrayList<>();
                 final List<Document> userBlacklist = MongoDb.getInstance().getCollection("config").find(Filters.eq("document", "blacklist")).first().getList("users", Document.class);

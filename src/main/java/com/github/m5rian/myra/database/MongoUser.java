@@ -4,12 +4,14 @@ import com.github.m5rian.myra.Config;
 import com.github.m5rian.myra.DiscordBot;
 import com.github.m5rian.myra.utilities.UserBadge;
 import com.github.m5rian.myra.utilities.Utilities;
+import com.github.myra.commons.Social;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -264,6 +266,41 @@ public class MongoUser {
         if (this.bot || this.unavailable) return null;
 
         this.document.replace("messages", this.document.getInteger("messages") + 1); // Add one message
+        return this;
+    }
+
+    /**
+     * Is null if user is a bot.
+     *
+     * @return Returns all social media accounts of the user.
+     */
+    public List<Social> getSocials() {
+        if (this.bot || this.unavailable) return null;
+
+        final List<Social> socials = new ArrayList<>(); // List for all social media accounts
+        final Document socialsRaw = this.document.get("socials", Document.class); // Get socials
+
+        for (Map.Entry<String, Object> socialRaw : socialsRaw.entrySet()) {
+            final Social social = Social.getByName(socialRaw.getKey());
+            final String value = (String) socialRaw.getValue(); // Get user data of social media platform
+            social.setValue(value);
+            socials.add(social);
+        }
+
+        return socials;
+    }
+
+    /**
+     * Returns null if user is a bot.
+     *
+     * @param social A social which gets edited.
+     * @return Returns all social media accounts of the user.
+     */
+    public MongoUser setSocial(Social social) {
+        if (this.bot || this.unavailable) return null;
+
+        final Document socials = this.document.get("socials", Document.class); // Get socials
+        socials.put(social.getName().toLowerCase(), social.getValue());
         return this;
     }
 
