@@ -66,10 +66,6 @@ import com.github.m5rian.myra.database.MongoDb;
 import com.github.m5rian.myra.database.MongoDbUpdate;
 import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.database.guild.Nested;
-import com.github.m5rian.myra.listeners.suggestions.SubmitSuggestion;
-import com.github.m5rian.myra.listeners.suggestions.SuggestionsChannel;
-import com.github.m5rian.myra.listeners.suggestions.SuggestionsHelp;
-import com.github.m5rian.myra.listeners.suggestions.SuggestionsToggle;
 import com.github.m5rian.myra.management.Listeners;
 import com.github.m5rian.myra.utilities.Format;
 import com.github.m5rian.myra.utilities.Utilities;
@@ -129,8 +125,7 @@ public class DiscordBot {
                     // Fun
                     new Meme(), new TextFormatter(),
                     // Suggestions
-                    new SuggestionsHelp(), new SuggestionsChannel(), new SuggestionsToggle(),
-                    new SubmitSuggestion(),
+                    new Suggestions(), new Suggest(),
                     // Moderation
                     new ModerationHelp(),
 
@@ -232,6 +227,7 @@ public class DiscordBot {
         MongoDbUpdate.update(() -> {
             try {
                 shardManager = jda.build(); // Start Bot
+                Myra.config.configureJDA(shardManager);
                 Listeners.consoleListener(); // Add console listener
             } catch (LoginException e) {
                 e.printStackTrace();

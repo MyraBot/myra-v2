@@ -13,10 +13,7 @@ import com.github.m5rian.myra.commands.member.economy.*;
 import com.github.m5rian.myra.commands.member.economy.blackjack.BlackJack;
 import com.github.m5rian.myra.commands.member.fun.Meme;
 import com.github.m5rian.myra.commands.member.fun.TextFormatter;
-import com.github.m5rian.myra.commands.member.general.Avatar;
-import com.github.m5rian.myra.commands.member.general.Calculate;
-import com.github.m5rian.myra.commands.member.general.Emoji;
-import com.github.m5rian.myra.commands.member.general.Reminder;
+import com.github.m5rian.myra.commands.member.general.*;
 import com.github.m5rian.myra.commands.member.general.information.InformationHelp;
 import com.github.m5rian.myra.commands.member.help.*;
 import com.github.m5rian.myra.commands.member.leveling.Background;
@@ -35,8 +32,6 @@ import com.github.m5rian.myra.commands.moderation.mute.MuteRole;
 import com.github.m5rian.myra.commands.moderation.mute.Tempmute;
 import com.github.m5rian.myra.commands.moderation.mute.Unmute;
 import com.github.m5rian.myra.listeners.Someone;
-import com.github.m5rian.myra.listeners.suggestions.SubmitSuggestion;
-import com.github.m5rian.myra.listeners.suggestions.SuggestionsHelp;
 import com.github.m5rian.myra.utilities.language.Lang;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -88,7 +83,7 @@ public class CommandEmbeds implements CommandHandler {
                 Avatar.class,
                 InformationHelp.class,
                 Reminder.class,
-                SubmitSuggestion.class,
+                Suggest.class,
                 Emoji.class)
                 .getEmbed();
     }
@@ -169,13 +164,15 @@ public class CommandEmbeds implements CommandHandler {
                 AutoRole.class,
                 WelcomeHelp.class,
                 NotificationsHelp.class,
-                SuggestionsHelp.class,
+                Suggestions.class,
                 LevelingHelp.class,
                 EconomyHelp.class,
                 GlobalChatChannel.class,
                 ReactionRolesHelp.class,
                 MusicVotingToggle.class)
-                .forbidCommands("onMemberPurge", "onMemberUpdate", "onMee6LevelingTransfer") // Ignored commands
+                // Ignored commands
+                .forbidCommands("onMemberPurge", "onMemberUpdate", "onMee6LevelingTransfer", // Config
+                        "onChannelCommand", "onToggleCommand", "onAcceptCommand", "onDenyCommand") // Suggestions
                 .addInlineField("`@someone`", "\uD83C\uDFB2 │ " + lang(this.ctx).get("description.someone"))
                 .getEmbed();
     }

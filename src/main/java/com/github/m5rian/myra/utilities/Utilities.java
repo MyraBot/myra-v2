@@ -12,6 +12,8 @@ import org.bson.Document;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +30,7 @@ public class Utilities {
 
     //colours
     public static final int red = 0xC16B65;
+    public static final int green = 0x28eb42;
     public static final int blue = 0x7AC8F2;
     public static final int gray = 0x2F3136;
     //keys
@@ -157,10 +160,10 @@ public class Utilities {
     //error message
     public static void error(MessageChannel textChannel, String command, String commandEmoji, String errorHeader, String error, String authorAvatar) {
         textChannel.sendMessage(new EmbedBuilder()
-                .setAuthor(command, null, authorAvatar)
-                .setColor(Utilities.red)
-                .addField("\uD83D\uDEA7 │ " + errorHeader, error, false)
-                .build())
+                        .setAuthor(command, null, authorAvatar)
+                        .setColor(Utilities.red)
+                        .addField("\uD83D\uDEA7 │ " + errorHeader, error, false)
+                        .build())
                 .queue();
     }
 
@@ -408,7 +411,7 @@ public class Utilities {
         if (!ctx.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(ctx.getEvent().getMember())) {
             final VoiceChannel voiceChannel = ctx.getGuild().getAudioManager().getConnectedChannel();
             CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("command.music.error.alreadyConnected")
-                    .replace("{$channel.mention}", Utilities.mentionChannel(voiceChannel.getId()))) // Channel mention
+                            .replace("{$channel.mention}", Utilities.mentionChannel(voiceChannel.getId()))) // Channel mention
                     .send();
             return true;
         }
@@ -482,21 +485,51 @@ public class Utilities {
     }
 
     public static boolean hasPerms(CommandContext ctx, Permission... permissions) {
-        for (Permission permission : permissions) {
-            // Bot doesn't have required permission
-            if (!ctx.getBotMember().hasPermission((GuildChannel) ctx.getChannel(), permission)) {
+        return hasPermsInChannel(ctx, (TextChannel) ctx.getChannel(), permissions);
+    }
+
+    public static boolean hasPermsInChannel(CommandContext ctx, TextChannel targetChannel, Permission... permissions) {
+        final List<Permission> defaultPermissions = new ArrayList<>() {{
+            add(Permission.MESSAGE_WRITE);
+            add(Permission.MESSAGE_EMBED_LINKS);
+        }};
+        //  Check for default permissions
+        for (Permission permission : defaultPermissions) {
+            if (!ctx.getBotMember().hasPermission(targetChannel, permission)) {
                 switch (permission) {
                     case MESSAGE_WRITE -> {
+                        if (ctx.getChannel().getIdLong() != targetChannel.getIdLong()) {
+                            CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("error.permission")
+                                    .replace("{$permission.name}", lang(ctx).get("error.permission.messageWrite"))).send();
+                        }
                         return false;
                     }
+                    case MESSAGE_EMBED_LINKS -> {
+                        CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("error.permission")
+                                .replace("{$permission.name}", lang(ctx).get("error.permission.messageEmbedLinks"))).send();
+                        return false;
+                    }
+                    case MESSAGE_MANAGE -> {
+                        CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("error.permission")
+                                .replace("{$permission.name}", lang(ctx).get("error.permission.messageManage"))).send();
+                        return false;
+                    }
+                }
+            }
+        }
+        // Check for custom required permissions
+        for (Permission permission : permissions) {
+            // Bot doesn't have required permission
+            if (!ctx.getBotMember().hasPermission(targetChannel, permission)) {
+                switch (permission) {
                     case VOICE_CONNECT -> {
                         CommandUtils.errorFactory.invoke(ctx).setDescription(lang(ctx).get("command.music.join.error.missingPermission")).send();
                         return false;
                     }
                 }
-                return false;
             }
         }
         return true;
     }
+
 }
