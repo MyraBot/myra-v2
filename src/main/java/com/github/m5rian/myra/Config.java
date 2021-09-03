@@ -6,6 +6,7 @@ import com.github.m5rian.myra.database.guild.member.GuildMember;
 import com.github.m5rian.myra.utilities.Cache;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,7 @@ public class Config {
     public static final String PREMIUM = "⋆";
 
     public static final String MARIAN_ID = "639544573114187797";
-    public static final String MYRA_ID = "718444709445632122";
+    public static String MYRA_ID;
 
     public static final String MARIAN_SERVER_ID = "642809436515074053";
     public static final String MYRA_SERVER_ID = "774269364244971571";
@@ -32,6 +33,8 @@ public class Config {
     public static final String MYRA_STAFF_ROLE = "715545225057140736";
     public static final String MYRA_TRANSLATOR_ROLE = "849614228917583929";
     public static final String MYRA_PARTNER_ROLE = "842074433308196954";
+
+    public static final String CHANNEL_SUGGESTIONS = "676032951808557097";
 
     public static final String MYRA_BUG_WEBHOOK = "https://discord.com/api/v8/webhooks/849948508760834058/F-jHtylLUFEfnKYNyJynVEvKZ5M-2LIsAMH4VN0s1gdCBzOLSYRHFCkWy4WmUOHHgz-7";
     public static final String MYRA_FEATURE_WEBHOOK = "https://discord.com/api/v8/webhooks/788769270384558120/A_6jJ1gstVcqih6lD8pTIAereQBhTJRn9vtbljqevVQ4uiOXAEXPTWZBh6n99ZJJrwPd";
@@ -77,13 +80,8 @@ public class Config {
     public static String LOCAL_ADDRESS;
     public static Long startUp;
 
-    public static void setup() {
-        final String os = System.getProperty("os.name");
-        if (os.startsWith("Windows")) {
-            LOCAL_ADDRESS = "http://myra.dyndns1.de";
-        } else {
-            LOCAL_ADDRESS = SERVER_ADDRESS;
-        }
+    public void configureJDA(ShardManager shards) {
+        MYRA_ID = shards.retrieveApplicationInfo().getJDA().getSelfUser().getId();
     }
 
     private final Properties properties = new Properties();
@@ -93,6 +91,13 @@ public class Config {
             this.properties.load(input); // load a properties file
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        final String os = System.getProperty("os.name");
+        if (os.startsWith("Windows")) {
+            LOCAL_ADDRESS = "http://myra.dyndns1.de";
+        } else {
+            LOCAL_ADDRESS = SERVER_ADDRESS;
         }
     }
 

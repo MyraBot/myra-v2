@@ -19,7 +19,6 @@ public class Myra {
      */
     public static void main(String[] args) {
         Listeners.listenToShutdown();
-        Config.setup();
 
         new Thread(DiscordBot::new, "Discord bot").start(); // Start Discord bot
         new Thread(WebServer::new, "Spark Web server").start(); // Start web server
