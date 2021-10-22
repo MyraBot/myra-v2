@@ -4,3 +4,5 @@
 /build/
 /build/classes/java/main/
 /src/main/resources/config.properties
+bot/build
+bot/src/main/resources
