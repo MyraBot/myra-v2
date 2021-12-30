@@ -53,7 +53,7 @@ public class Twitch {
             //return access token
             String output = response.body().string();
             JSONArray games = new JSONObject(output).optJSONArray("data");
-            if (games == null) return null;
+            if (games == null || games.length() == 0) return null;
             else return games.getJSONObject(0).getString("name");
         }
     }
