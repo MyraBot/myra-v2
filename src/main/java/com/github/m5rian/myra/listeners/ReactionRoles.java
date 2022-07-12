@@ -1,6 +1,6 @@
 package com.github.m5rian.myra.listeners;
 
-import com.github.m5rian.myra.database.MongoDb;
+import com.github.m5rian.myra.database.guild.MongoGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -13,25 +13,16 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mongodb.client.model.Filters.eq;
-
 public class ReactionRoles {
 
     public void reactionRoleAssign(GuildMessageReactionAddEvent event) {
-        final Document guildDocument = MongoDb.getInstance().getCollection("guilds").find(eq("guildId", event.getGuild().getId())).first(); // Get guild document
-        final List<Document> rr = guildDocument.getList("reactionRoles", Document.class); // Get reaction roles list
+        final List<Document> rr = MongoGuild.get(event.getGuild()).getList("reactionRoles", Document.class); // Get reaction roles list
 
-        if (rr.stream().noneMatch(document -> document.getString("message").equals(event.getMessageId())))
-            return; // Message isn't a reaction role
+        if (rr.stream().noneMatch(document -> document.getString("message").equals(event.getMessageId()))) return; // Message isn't a reaction role
         if (rr.stream().noneMatch(document -> {
-            if (event.getReactionEmote().isEmoji()) {
-                return document.getString("emoji").equals(event.getReactionEmote().getEmoji());
-            }
-            else {
-                return document.getString("emoji").equals(event.getReactionEmote().getEmote().toString());
-            }
-        }))
-            return; // Emoji isn't a reaction role emoji
+            if (event.getReactionEmote().isEmoji()) return document.getString("emoji").equals(event.getReactionEmote().getEmoji());
+            else return document.getString("emoji").equals(event.getReactionEmote().getEmote().toString());
+        })) return; // Emoji isn't a reaction role emoji
 
         final List<Document> boundReactionRoles = new ArrayList<>(); // Create list for all reaction roles which are bound to the message
         Document reactionRole = null; // Create variable to store reaction role document
@@ -96,11 +87,9 @@ public class ReactionRoles {
     }
 
     public void reactionRoleRemove(GuildMessageReactionRemoveEvent event) {
-        final Document guildDocument = MongoDb.getInstance().getCollection("guilds").find(eq("guildId", event.getGuild().getId())).first(); // Get guild document
-        final List<Document> rr = guildDocument.getList("reactionRoles", Document.class); // Get reaction roles list
+        final List<Document> rr = MongoGuild.get(event.getGuild()).getList("reactionRoles", Document.class); // Get reaction roles list
 
-        if (rr.stream().noneMatch(document -> document.getString("message").equals(event.getMessageId())))
-            return; // Message isn't a reaction role
+        if (rr.stream().noneMatch(document -> document.getString("message").equals(event.getMessageId()))) return; // Message isn't a reaction role
         if (rr.stream().noneMatch(document -> document.getString("emoji").equals(event.getReactionEmote().getEmoji())))
             return; // Emoji isn't a reaction role emoji
 
@@ -120,7 +109,7 @@ public class ReactionRoles {
         }
 
         final Role role = event.getGuild().getRoleById(reactionRole.getString("role")); // Get role
-        final Member member = event.getMember(); // Get member
+        final Member member = event.retrieveMember().complete(); // Get member
         if (member == null) return;
         final Guild guild = event.getGuild(); // Get guild
 

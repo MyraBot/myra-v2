@@ -4,6 +4,7 @@ import com.github.m5rian.jdaCommandHandler.command.CommandContext;
 import com.github.m5rian.jdaCommandHandler.command.CommandEvent;
 import com.github.m5rian.jdaCommandHandler.CommandHandler;
 import com.github.m5rian.myra.database.MongoDb;
+import com.github.m5rian.myra.database.guild.MongoGuild;
 import com.github.m5rian.myra.utilities.EmbedMessage.CommandUsage;
 import com.github.m5rian.myra.utilities.EmbedMessage.Error;
 import com.github.m5rian.myra.utilities.EmbedMessage.Usage;
@@ -120,11 +121,9 @@ public class ReactionRolesAdd implements CommandHandler {
                                             message.addReaction(reactionRolesInfo.getString("emoji")).queue(); // Add reaction
                                         });
 
-                                        final Document guildDocument = MongoDb.getInstance().getCollection("guilds").find(eq("guildId", e.getGuild().getId())).first(); // Get guild document
+                                        final MongoGuild guildDocument = MongoGuild.get(e.getGuild());
                                         List<Document> reactionRoles = guildDocument.getList("reactionRoles", Document.class); // Get reaction roles list
                                         reactionRoles.add(reactionRolesInfo); // Add reaction roles info
-
-                                        MongoDb.getInstance().getCollection("guilds").findOneAndReplace(eq("guildId", e.getGuild().getId()), guildDocument); // Update guild document
                                     })
                                     .setTimeout(30L, TimeUnit.SECONDS)
                                     .setTimeoutAction(() -> {
