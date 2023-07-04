@@ -1,8 +1,9 @@
 # ✨ Myra v2
 
-I advise you to not copy code from here. Use the code snippets to get inspiration on how to do things, but not to just copy
-and paste in your project. Also, this Bot uses a very old Discord API version and probably won't work well with the new
-changes. Hope you can find some helpful things here!
+This version includes the backend for the [almost good-looking :skull: dashboard](https://github.com/MyraBot/Website-v1).
+Other than that, this version adds new features and other code improvements. I advise you to not copy code from here. Use the
+code snippets to get inspiration on how to do things, but not to just copy and paste in your project. Also, this Bot uses a
+very old Discord API version and probably won't work well with the new changes. Hope you can find some helpful things here!
 
 ![Warning](https://raw.githubusercontent.com/MyraBot/.github/main/code-advise.png)
 
